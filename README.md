@@ -3,7 +3,7 @@
 ## Server end
 
 ```java
-	Lservice(path = "com.lehuihome")
+@Lservice(path = "com.lehuihome")
 public class TestService {
 	@Lio(cmd = "getUser")
 	@Unpack("com.zhucode.longio.example.message.UserMsg")
@@ -53,7 +53,7 @@ public class TestService {
 ## Client end
 
 ```java
-	@LsAutowired(app = "com.lehuihome", path = "com.lehuihome", tt=TransportType.SOCKET, ip="127.0.0.1", port=9001, pt=ProtocolType.MESSAGE_PACK)
+@LsAutowired(app = "com.lehuihome", path = "com.lehuihome", tt=TransportType.SOCKET, ip="127.0.0.1", port=9001, pt=ProtocolType.MESSAGE_PACK)
 public interface ClientService {
 	
 	@Lio(cmd = "getUser")
