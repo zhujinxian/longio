@@ -15,9 +15,8 @@ package com.zhucode.longio.transport.netty;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
-
-import java.util.concurrent.Future;
 
 import com.zhucode.longio.exception.ProtocolException;
 import com.zhucode.longio.message.Dispatcher;
@@ -48,7 +47,7 @@ public class RawSocketHandler extends AbstractNettyHandler {
 	}
 
 	@Override
-	public Future<?> sendMessage(ChannelHandlerContext ctx, MessageBlock<?> mb) {
+	public ChannelFuture sendMessage(ChannelHandlerContext ctx, MessageBlock<?> mb) {
 		
 		byte[] bytes = new byte[0];
 		try {

@@ -15,13 +15,13 @@ package com.zhucode.longio.transport.netty;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
-
-import java.util.concurrent.Future;
 
 import com.zhucode.longio.exception.ProtocolException;
 import com.zhucode.longio.message.MessageBlock;
 import com.zhucode.longio.protocol.ProtocolParser;
+import com.zhucode.longio.transport.Client;
 import com.zhucode.longio.transport.Connector;
 
 /**
@@ -29,10 +29,10 @@ import com.zhucode.longio.transport.Connector;
  * @date  2015年10月12日
  * 
  */
-public class RawSocketClientHandler extends AbstractNettyHandler {
+public class RawSocketClientHandler extends AbstractClientHandler {
 
-	public RawSocketClientHandler(Connector connector, ProtocolParser<?> pp) {
-		super(connector, null, pp);
+	public RawSocketClientHandler(Client client, Connector connector, ProtocolParser<?> pp) {
+		super(client, connector, pp);
 	}
 
 	@Override
@@ -63,7 +63,7 @@ public class RawSocketClientHandler extends AbstractNettyHandler {
 	}
 
 	@Override
-	Future<?> sendMessage(ChannelHandlerContext ctx, MessageBlock<?> mb) {
+	public ChannelFuture sendMessage(ChannelHandlerContext ctx, MessageBlock<?> mb) {
 		byte[] bytes = new byte[0];
 		try {
 			bytes = pp.encode(mb);

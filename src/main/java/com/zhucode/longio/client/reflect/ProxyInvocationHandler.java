@@ -31,6 +31,7 @@ import com.zhucode.longio.client.parameter.ParameterPacker;
 import com.zhucode.longio.client.parameter.ParameterPackerFactory;
 import com.zhucode.longio.message.MessageBlock;
 import com.zhucode.longio.transport.Beginpoint;
+import com.zhucode.longio.transport.Client;
 import com.zhucode.longio.transport.Connector;
 import com.zhucode.longio.transport.ProtocolType;
 import com.zhucode.longio.transport.TransportType;
@@ -58,6 +59,7 @@ public class ProxyInvocationHandler implements InvocationHandler {
 	
 	private Beginpoint beginPoint;
 	
+	
 	private static AtomicLong serial = new AtomicLong(1000000);
 	
 	public ProxyInvocationHandler(Connector connector, Class<?> requiredType, List<MethodInfo> methods) {
@@ -76,10 +78,11 @@ public class ProxyInvocationHandler implements InvocationHandler {
 		LsAutowired lsa = this.proxyCls.getAnnotation(LsAutowired.class);
 		String host = lsa.ip();
 		int port = lsa.port();
+		String app = lsa.app();
 		TransportType tt = lsa.tt();
 		ProtocolType pt = lsa.pt();
 		
-		this.beginPoint = new Beginpoint(connector, host, port, tt, pt);
+		this.beginPoint = new Beginpoint(connector, app, host, port, tt, pt);
 		
 		this.packer = ppf.getPacker(pt);
 	}
@@ -100,11 +103,7 @@ public class ProxyInvocationHandler implements InvocationHandler {
 
 			@Override
 			public MessageBlock<?> call() throws Exception {
-				
-				if (beginPoint.getSessionId() == 0) {
-					 beginPoint.connect();
-				}
-				mb.setSessionId(beginPoint.getSessionId());
+				beginPoint.send(mb);
 				return null;
 			}
 		};
@@ -115,7 +114,7 @@ public class ProxyInvocationHandler implements InvocationHandler {
 		es.submit(task);
 		
 		try {
-			MessageBlock<?> ret = task.get(10, TimeUnit.MINUTES);
+			MessageBlock<?> ret = task.get(10, TimeUnit.SECONDS);
 			return packer.unpack(mi.getMethod().getReturnType(), mi.getMethod().getGenericReturnType(), ret.getBody());
 		} catch (Exception e) {
 			this.dispatcher.unregist(mb.getSerial());

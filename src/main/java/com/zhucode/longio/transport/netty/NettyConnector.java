@@ -12,7 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 */package com.zhucode.longio.transport.netty;
 
-import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
@@ -22,7 +21,6 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.codec.http.HttpClientCodec;
@@ -38,7 +36,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.zhucode.longio.client.ClientDispatcher;
@@ -49,6 +46,8 @@ import com.zhucode.longio.protocol.JSONObjectProtocolParser;
 import com.zhucode.longio.protocol.MessagePackProtocolParser;
 import com.zhucode.longio.protocol.ProtoBufProtocolParser;
 import com.zhucode.longio.protocol.ProtocolParser;
+import com.zhucode.longio.transport.Beginpoint;
+import com.zhucode.longio.transport.Client;
 import com.zhucode.longio.transport.Connector;
 import com.zhucode.longio.transport.Endpoint;
 import com.zhucode.longio.transport.ProtocolType;
@@ -65,7 +64,7 @@ public class NettyConnector implements Connector {
 	
 	private AtomicLong sessionId = new AtomicLong(1000000);
 	
-	private AttributeKey<Long> sessionKey = AttributeKey.valueOf("sid");
+	protected static AttributeKey<Long> sessionKey = AttributeKey.valueOf("sid");
 
 	private NioEventLoopGroup bossGroup;
 
@@ -85,13 +84,13 @@ public class NettyConnector implements Connector {
 
 	public long registHandlerContext(ChannelHandlerContext ctx) {
 		long sid = sessionId.addAndGet(1);
-		ctx.attr(sessionKey).set(sid);
+		ctx.channel().attr(sessionKey).set(sid);
 		ctxs.put(sid, ctx);
 		return sid;
 	}
 	
 	public void unregistHandlerContext(ChannelHandlerContext ctx) {
-		long sid = ctx.attr(sessionKey).get();
+		long sid = ctx.channel().attr(sessionKey).get();
 		ctxs.remove(sid);
 	}
 	
@@ -101,13 +100,18 @@ public class NettyConnector implements Connector {
 	}
 
 	@Override
-	public Future<?> sendMessage(MessageBlock<?> message) {
+	public void sendMessage(MessageBlock<?> message) {
+		this.send(message);
+	}
+	
+	protected ChannelFuture send(MessageBlock<?> message) {
 		long sid = message.getSessionId();
 		ChannelHandlerContext ctx = ctxs.get(sid);
 		AttributeKey<AbstractNettyHandler> handlerKey = AttributeKey.valueOf("AbstractNettyHandler");
 		System.out.println("h : " + ctx.attr(handlerKey) == null + " sid = " + sid);
 		AbstractNettyHandler handler = ctx.attr(handlerKey).get();
-		return handler.sendMessage(ctx, message);
+		ChannelFuture future = handler.sendMessage(ctx, message);
+		return future;
 	}
 	
 	
@@ -245,7 +249,7 @@ public class NettyConnector implements Connector {
 	}
 
 	@Override
-	public long connect(String host, int port, TransportType tt,
+	public Client createClient(String host, int port, TransportType tt,
 			ProtocolType pt) throws Exception {
 		switch (tt) {
 		case HTTP:
@@ -256,15 +260,13 @@ public class NettyConnector implements Connector {
 			break;
 			
 		}
-		return -1;
+		return null;
 	}
 	
-	private long runOneHttpClient(String host, int port, ProtocolType pt) {	
-		Bootstrap b = new Bootstrap();
-		b.group(workerGroup);
-		b.channel(NioSocketChannel.class);
-		b.option(ChannelOption.TCP_NODELAY, true);
-		b.handler(new ChannelInitializer<SocketChannel>() {
+	private Client runOneHttpClient(String host, int port, ProtocolType pt) {	
+		
+		return new NettyClient(this, host, port, new AbstarctClientChannelInitializer() {
+			
 
 			@Override
 			protected void initChannel(SocketChannel ch) throws Exception {
@@ -272,51 +274,50 @@ public class NettyConnector implements Connector {
 				p.addLast(new HttpClientCodec());
 				p.addLast(new HttpObjectAggregator(65536));
 				URI uri = new URI("http://" + host + ":" + port);
-				p.addLast(new HttpClientHandler(NettyConnector.this, getProtocolParser(pt), uri, null));
+				p.addLast(new HttpClientHandler(client, NettyConnector.this, getProtocolParser(pt), uri, null));
 			}
         });
-		ChannelFuture f;
-		try {
-			f = b.connect(host, port).sync();
-			HttpClientHandler h = f.channel().pipeline().get(HttpClientHandler.class);
-			return h.getSessionId();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		return -1;
-		
 	}
 	
-	private long runOneRawSocketClient(String host, int port, ProtocolType pt) {
-		Bootstrap b = new Bootstrap();
-		b.group(workerGroup);
-		b.channel(NioSocketChannel.class);
-		b.option(ChannelOption.TCP_NODELAY, true);
-		b.handler(new ChannelInitializer<SocketChannel>() {
+	private Client runOneRawSocketClient(String host, int port, ProtocolType pt) {
+		
+		return new NettyClient(this, host, port, new AbstarctClientChannelInitializer() {
 
 			@Override
 			protected void initChannel(SocketChannel ch) throws Exception {
 				ChannelPipeline p = ch.pipeline();
 				p.addLast("decoder", new LengthFieldBasedFrameDecoder(65536, 0,2, 0, 2));
 				p.addLast("encoder", new LengthFieldPrepender(2, false));
-				p.addLast("handler", new RawSocketClientHandler(NettyConnector.this, getProtocolParser(pt)));
+				p.addLast("handler", new RawSocketClientHandler(client, NettyConnector.this, getProtocolParser(pt)));
 			}
 		});
-		ChannelFuture f;
-		try {
-			f = b.connect(host, port).sync();
-			RawSocketClientHandler h = f.channel().pipeline().get(RawSocketClientHandler.class);
-			return h.getSessionId();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		return -1;
-		
 	}
 
 	@Override
 	public ClientDispatcher getClientDispatcher() {
 		return this.clientDispatcher ;
 	}
+
+
+	@Override
+	public void sendMessage(Beginpoint bp, MessageBlock<?> message) {
+		long sid = message.getSessionId();
+		ChannelHandlerContext ctx = ctxs.get(sid);
+		AttributeKey<AbstractNettyHandler> handlerKey = AttributeKey.valueOf("AbstractNettyHandler");
+		System.out.println("h : " + ctx.attr(handlerKey) == null + " sid = " + sid);
+		AbstractNettyHandler handler = ctx.attr(handlerKey).get();
+		ChannelFuture f = handler.sendMessage(ctx, message);
+	}
+
+	public NioEventLoopGroup getBossGroup() {
+		return bossGroup;
+	}
+
+	public NioEventLoopGroup getWorkerGroup() {
+		return workerGroup;
+	}
+	
+	
+	
 
 }

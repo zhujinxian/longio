@@ -34,6 +34,8 @@ public class MessageBlock<T> {
 	
 	private Connector connector;
 	
+	private int sendCount;
+	
 	public MessageBlock(T body) {
 		this.body = body;
 	}
@@ -87,5 +89,12 @@ public class MessageBlock<T> {
 	public void setTtype(int ttype) {
 		this.ttype = ttype;
 	}
-	
+
+	public int getAndAddSendCount() {
+		return sendCount++;
+	}
+
+	public void setSendCount(int sendCount) {
+		this.sendCount = sendCount;
+	}
 }

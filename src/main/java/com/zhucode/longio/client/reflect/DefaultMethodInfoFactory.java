@@ -19,7 +19,7 @@ import java.util.List;
 
 import com.zhucode.longio.annotation.Lio;
 import com.zhucode.longio.annotation.LsAutowired;
-import com.zhucode.longio.cmd.CmdNameMap;
+import com.zhucode.longio.cmd.DefaultCmdLookup;
 
 /**
  * @author zhu jinxian
@@ -28,7 +28,7 @@ import com.zhucode.longio.cmd.CmdNameMap;
  */
 public class DefaultMethodInfoFactory implements MethodInfoFactory {
 
-	private CmdNameMap cnm = new CmdNameMap();
+	private DefaultCmdLookup cnm = new DefaultCmdLookup();
 	
 	@Override
 	public List<MethodInfo> createMethodInfo(Class<?> cls) {

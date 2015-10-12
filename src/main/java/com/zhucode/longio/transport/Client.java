@@ -13,11 +13,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio.transport;
 
-import java.util.List;
-import java.util.Set;
-
-import com.zhucode.longio.client.ClientDispatcher;
-import com.zhucode.longio.message.Dispatcher;
 import com.zhucode.longio.message.MessageBlock;
 
 /**
@@ -25,23 +20,13 @@ import com.zhucode.longio.message.MessageBlock;
  * @date  2015年10月12日
  * 
  */
-public interface Connector {
+public interface Client {
 	
-	int getConnectId();
+	Client connectAndSend(MessageBlock<?> mb);
 	
-	List<Endpoint> getEndpoints(String pkg);
 	
-	Set<Dispatcher> getDispatcheres(String pkg);
+	void connect();
 	
-	ClientDispatcher getClientDispatcher();
-	
-	void sendMessage(MessageBlock<?> message);
-	
-	void sendMessage(Beginpoint bp, MessageBlock<?> message);
-	
-	void start(int port, Dispatcher dispatcher, TransportType tt, ProtocolType pt) throws Exception;
-	
-	void start(int port, Dispatcher dispatcher, TransportType tt, ProtocolType pt, String pkg) throws Exception;
+	void send(MessageBlock<?> mb);
 
-	Client createClient(String host, int port, TransportType tt, ProtocolType pt) throws Exception;
 }

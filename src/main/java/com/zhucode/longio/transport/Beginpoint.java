@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 package com.zhucode.longio.transport;
 
 import com.zhucode.longio.client.ClientDispatcher;
+import com.zhucode.longio.message.MessageBlock;
 
 /**
  * @author zhu jinxian
@@ -22,6 +23,7 @@ import com.zhucode.longio.client.ClientDispatcher;
  */
 public class Beginpoint  {
 	
+	private String app;
 	private String host;
 	private int port;
 	private Connector connector;
@@ -29,8 +31,11 @@ public class Beginpoint  {
 	private ProtocolType pt;
 	private TransportType tt;
 	private long sessionId;
+	private Client client;
 	
-	public Beginpoint(Connector connector, String host, int port, TransportType tt, ProtocolType pt) {
+	
+	public Beginpoint(Connector connector, String app,  String host, int port, TransportType tt, ProtocolType pt) {
+		this.app = app;
 		this.host = host;
 		this.port = port;
 		this.connector = connector;
@@ -39,9 +44,18 @@ public class Beginpoint  {
 		this.tt = tt;
 	}
 	
-	public long connect() throws Exception {
-		this.sessionId = this.connector.connect(host, port, tt, pt);
-		return this.sessionId;
+	public void send(MessageBlock<?> mb) throws Exception {
+		if (client == null) {
+			 client = this.connectAndSend(mb);
+		} else {
+			client.send(mb);
+		}
+	}
+	
+	public synchronized Client connectAndSend(MessageBlock<?> mb) throws Exception {
+		Client client =  this.connector.createClient(host, port, tt, pt);
+		client.connectAndSend(mb);
+		return client;
 	}
 
 	public Connector getConnector() {

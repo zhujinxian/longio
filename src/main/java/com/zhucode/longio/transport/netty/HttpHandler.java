@@ -22,6 +22,7 @@ import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
@@ -37,8 +38,6 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.util.AttributeKey;
-
-import java.util.concurrent.Future;
 
 import com.zhucode.longio.exception.ProtocolException;
 import com.zhucode.longio.message.Dispatcher;
@@ -137,7 +136,7 @@ public class HttpHandler extends AbstractNettyHandler {
 	}
 
 	@Override
-	public Future<?> sendMessage(ChannelHandlerContext ctx, MessageBlock<?> mb) {
+	public ChannelFuture sendMessage(ChannelHandlerContext ctx, MessageBlock<?> mb) {
 		
 		byte[] bytes = null;
 		try {
@@ -156,7 +155,7 @@ public class HttpHandler extends AbstractNettyHandler {
 	}
 	
 	
-	private Future<?> sendForHttp(ChannelHandlerContext ctx, byte[] bytes) {
+	private ChannelFuture sendForHttp(ChannelHandlerContext ctx, byte[] bytes) {
 		FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1,
 				OK, Unpooled.wrappedBuffer(bytes));
 		response.headers().set(CONTENT_TYPE, "text/json; charset=utf-8");
@@ -174,7 +173,7 @@ public class HttpHandler extends AbstractNettyHandler {
 		}
 	}
 	
-	private Future<?> sendForWebSocket(ChannelHandlerContext ctx, byte[] bytes) {
+	private ChannelFuture sendForWebSocket(ChannelHandlerContext ctx, byte[] bytes) {
 		TextWebSocketFrame frame = new TextWebSocketFrame();
 		frame.content().writeBytes(bytes);
 		return ctx.channel().writeAndFlush(frame);

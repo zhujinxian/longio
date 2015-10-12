@@ -16,6 +16,7 @@ package com.zhucode.longio.transport.netty;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
@@ -31,11 +32,11 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.CharsetUtil;
 
 import java.net.URI;
-import java.util.concurrent.Future;
 
 import com.zhucode.longio.exception.ProtocolException;
 import com.zhucode.longio.message.MessageBlock;
 import com.zhucode.longio.protocol.ProtocolParser;
+import com.zhucode.longio.transport.Client;
 import com.zhucode.longio.transport.Connector;
 
 /**
@@ -43,15 +44,15 @@ import com.zhucode.longio.transport.Connector;
  * @date  2015年10月12日
  * 
  */
-public class HttpClientHandler extends AbstractNettyHandler {
+public class HttpClientHandler extends AbstractClientHandler {
 
 	private WebSocketClientHandshaker handshaker;
 	private ChannelPromise handshakeFuture;
 	private URI uri;
 
 	
-	public HttpClientHandler(Connector connector, ProtocolParser<?> pp, URI uri, WebSocketClientHandshaker handshaker) {
-		super(connector, null, pp);
+	public HttpClientHandler(Client client, Connector connector, ProtocolParser<?> pp, URI uri, WebSocketClientHandshaker handshaker) {
+		super(client, connector, pp);
 		this.handshaker = handshaker;
 		this.uri = uri;
 	}
@@ -85,7 +86,6 @@ public class HttpClientHandler extends AbstractNettyHandler {
 			
 		}
 	}
-
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg)
@@ -142,7 +142,7 @@ public class HttpClientHandler extends AbstractNettyHandler {
 
 
 	@Override
-	public Future<?> sendMessage(ChannelHandlerContext ctx, MessageBlock<?> mb) {
+	public ChannelFuture sendMessage(ChannelHandlerContext ctx, MessageBlock<?> mb) {
 		byte[] bytes = null;
 		try {
 			bytes = pp.encode(mb);
@@ -158,7 +158,7 @@ public class HttpClientHandler extends AbstractNettyHandler {
 		
 	}
 	
-	private Future<?> sendForHttp(ChannelHandlerContext ctx, byte[] bytes) {
+	private ChannelFuture sendForHttp(ChannelHandlerContext ctx, byte[] bytes) {
         DefaultFullHttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST,
                 uri.toASCIIString(), Unpooled.wrappedBuffer(bytes));
 
@@ -170,7 +170,7 @@ public class HttpClientHandler extends AbstractNettyHandler {
         return ctx.writeAndFlush(request);
 	}
 	
-	private Future<?> sendForWebSocket(ChannelHandlerContext ctx, byte[] bytes) {
+	private ChannelFuture sendForWebSocket(ChannelHandlerContext ctx, byte[] bytes) {
 		TextWebSocketFrame frame = new TextWebSocketFrame();
 		frame.content().writeBytes(bytes);
 		return ctx.channel().writeAndFlush(frame);

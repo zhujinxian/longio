@@ -30,15 +30,15 @@ import com.zhucode.longio.transport.netty.NettyConnector;
 public class Application {
 
 	public static void main(String[] args) {
-		LongioApplication.run(
-				NettyConnector.class, 9000, TransportType.HTTP, ProtocolType.JSONARRAY);
-		
-		LongioApplication.run(
-				NettyConnector.class, 9002, TransportType.HTTP, ProtocolType.JSON);
-	
-		LongioApplication.run(
-				NettyConnector.class, 9001, TransportType.SOCKET, ProtocolType.MESSAGE_PACK);
-	
+//		LongioApplication.run(
+//				NettyConnector.class, 9000, TransportType.HTTP, ProtocolType.JSONARRAY);
+//		
+//		LongioApplication.run(
+//				NettyConnector.class, 9002, TransportType.HTTP, ProtocolType.JSON);
+//	
+//		LongioApplication.run(
+//				NettyConnector.class, 9001, TransportType.SOCKET, ProtocolType.MESSAGE_PACK);
+//	
 		Connector connector = LongioApplication.connectors.get(NettyConnector.class);
 		
 		ITestClient client = LongioApplication.getService(NettyConnector.class, ITestClient.class);

@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 package com.zhucode.longio.transport.netty;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandler;
@@ -21,7 +22,6 @@ import io.netty.util.AttributeKey;
 import io.netty.util.internal.InternalThreadLocalMap;
 
 import java.util.Map;
-import java.util.concurrent.Future;
 
 import com.zhucode.longio.exception.ProtocolException;
 import com.zhucode.longio.message.Dispatcher;
@@ -144,7 +144,7 @@ public abstract class AbstractNettyHandler extends AbstractHandler implements Ch
 		
 		MessageBlock<?> mb = pp.decode(bytes);
 		mb.setConnector(this.connector);
-		mb.setSessionId(ctx.attr(AttributeKey.<Long>valueOf("sid")).get());
+		mb.setSessionId(ctx.channel().attr(NettyConnector.sessionKey).get());
 		
 		this.dispatcher.dispatch(mb);
 	}
@@ -154,5 +154,5 @@ public abstract class AbstractNettyHandler extends AbstractHandler implements Ch
 		return sessionId;
 	}
 
-	abstract Future<?> sendMessage(ChannelHandlerContext ctx, MessageBlock<?> message);
+	abstract ChannelFuture sendMessage(ChannelHandlerContext ctx, MessageBlock<?> message);
 }

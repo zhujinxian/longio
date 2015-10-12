@@ -11,37 +11,44 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
-package com.zhucode.longio.transport;
+package com.zhucode.longio.transport.netty;
 
-import java.util.List;
-import java.util.Set;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.EventLoop;
 
-import com.zhucode.longio.client.ClientDispatcher;
-import com.zhucode.longio.message.Dispatcher;
-import com.zhucode.longio.message.MessageBlock;
+import java.util.concurrent.TimeUnit;
+
+import com.zhucode.longio.protocol.ProtocolParser;
+import com.zhucode.longio.transport.Client;
+import com.zhucode.longio.transport.Connector;
 
 /**
  * @author zhu jinxian
  * @date  2015年10月12日
  * 
  */
-public interface Connector {
-	
-	int getConnectId();
-	
-	List<Endpoint> getEndpoints(String pkg);
-	
-	Set<Dispatcher> getDispatcheres(String pkg);
-	
-	ClientDispatcher getClientDispatcher();
-	
-	void sendMessage(MessageBlock<?> message);
-	
-	void sendMessage(Beginpoint bp, MessageBlock<?> message);
-	
-	void start(int port, Dispatcher dispatcher, TransportType tt, ProtocolType pt) throws Exception;
-	
-	void start(int port, Dispatcher dispatcher, TransportType tt, ProtocolType pt, String pkg) throws Exception;
+public abstract class AbstractClientHandler extends AbstractNettyHandler {
 
-	Client createClient(String host, int port, TransportType tt, ProtocolType pt) throws Exception;
+	protected Client client;
+	
+	public AbstractClientHandler(Client client, Connector connector, ProtocolParser<?> pp) {
+		super(connector, null, pp);
+		this.client = client;
+	}
+
+	
+	@Override
+	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+		
+		final EventLoop loop = ctx.channel().eventLoop();
+		loop.schedule(new Runnable() {
+			@Override
+			public void run() {
+				client.connect();
+			}
+		}, 1L, TimeUnit.SECONDS);
+		
+		super.channelInactive(ctx);
+	}
+	
 }
