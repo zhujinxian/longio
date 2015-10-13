@@ -38,6 +38,7 @@ import com.zhucode.longio.message.MessageBlock;
 import com.zhucode.longio.protocol.ProtocolParser;
 import com.zhucode.longio.transport.Client;
 import com.zhucode.longio.transport.Connector;
+import com.zhucode.longio.transport.netty.event.PingEvent;
 
 /**
  * @author zhu jinxian
@@ -134,6 +135,10 @@ public class HttpClientHandler extends AbstractClientHandler {
 		
 		try {
 			MessageBlock<?> mb = pp.decode(bytes);
+			if (mb.getCmd() == 0) {
+				ctx.fireUserEventTriggered(new PingEvent());
+				return;
+			}
 			this.connector.getClientDispatcher().setReturnValue(mb);
 		} catch (ProtocolException e) {
 			e.printStackTrace();

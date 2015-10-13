@@ -37,6 +37,8 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.AttributeKey;
 
 import com.zhucode.longio.exception.ProtocolException;
@@ -134,6 +136,7 @@ public class HttpHandler extends AbstractNettyHandler {
 			process(ctx, buf);
 		}
 	}
+	
 
 	@Override
 	public ChannelFuture sendMessage(ChannelHandlerContext ctx, MessageBlock<?> mb) {

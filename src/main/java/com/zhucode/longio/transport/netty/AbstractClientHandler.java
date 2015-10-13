@@ -13,11 +13,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio.transport.netty;
 
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.EventLoop;
 
 import java.util.concurrent.TimeUnit;
 
+import com.zhucode.longio.message.MessageBlock;
 import com.zhucode.longio.protocol.ProtocolParser;
 import com.zhucode.longio.transport.Client;
 import com.zhucode.longio.transport.Connector;
@@ -37,9 +39,18 @@ public abstract class AbstractClientHandler extends AbstractNettyHandler {
 	}
 
 	
+	
+	@Override
+	public void userEventTriggered(ChannelHandlerContext ctx, Object evt)
+			throws Exception {
+		
+	}
+
+
+
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-		
+		client.setConnected(false);
 		final EventLoop loop = ctx.channel().eventLoop();
 		loop.schedule(new Runnable() {
 			@Override
@@ -47,7 +58,6 @@ public abstract class AbstractClientHandler extends AbstractNettyHandler {
 				client.connect();
 			}
 		}, 1L, TimeUnit.SECONDS);
-		
 		super.channelInactive(ctx);
 	}
 	

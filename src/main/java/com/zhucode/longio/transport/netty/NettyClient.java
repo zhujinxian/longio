@@ -39,6 +39,7 @@ public class NettyClient implements Client{
 	private ChannelInitializer<SocketChannel> initializer;
 	private NettyConnector connector;
 	private Channel channel;
+	private boolean connected;
 	
 	public NettyClient(NettyConnector connector, String host, int port,
 			AbstarctClientChannelInitializer initializer) {
@@ -67,35 +68,6 @@ public class NettyClient implements Client{
 		this.channel = f.channel();
 	}
 	
-	@SuppressWarnings("unchecked")
-	@Override
-	public Client connectAndSend(MessageBlock<?> mb) {
-		Bootstrap b = new Bootstrap();
-		b.group(workerGroup);
-		b.channel(NioSocketChannel.class);
-		b.option(ChannelOption.TCP_NODELAY, true);
-		b.handler(initializer);
-		ChannelFuture f = null;
-		try {
-			f = b.connect(host, port).addListeners(new ConnectionListener(this), new ChannelFutureListener(){
-
-				@Override
-				public void operationComplete(ChannelFuture future)
-						throws Exception {
-					if (future.isSuccess()) {
-						send(mb);
-					}
-				}
-				
-			});
-			this.channel = f.channel();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		return this;
-	}
-
 	
 	
 	@Override
@@ -111,5 +83,20 @@ public class NettyClient implements Client{
 	         }
 	     });
 		
+	}
+
+	
+	
+	@Override
+	public boolean isConnected() {
+		return this.connected;
+	}
+
+
+	@Override
+	public void setConnected(boolean b) {
+		this.connected = b;
+		
+		System.out.println(this + " netty client set connected " + this.isConnected());
 	}
 }

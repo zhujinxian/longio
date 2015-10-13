@@ -2,6 +2,24 @@
 
 ## Server end
 
+in spring boot:
+
+```java
+    @Bean
+    BeanFactoryPostProcessor getLioBeanBeanFactoryPostProcessor() {
+    	return new LongioBeanFactoryPostProcessor();
+    }
+    
+    @Boot(port = 9000, pt = ProtocolType.JSONARRAY, tt = TransportType.HTTP)
+    @Boot(port = 9002, pt = ProtocolType.JSON, tt = TransportType.HTTP)
+    @Boot(port = 9001, pt = ProtocolType.MESSAGE_PACK, tt = TransportType.SOCKET)
+    @Bean(name="longio.bootstrap")
+    LioBootstrap getLioBootstrap() {
+    	return new LioBootstrap();
+    }
+
+```
+
 ```java
 @Lservice(path = "com.lehuihome")
 public class TestService {

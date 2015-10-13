@@ -62,4 +62,20 @@ public class JSONObjectProtocolParser implements ProtocolParser<JSONObject> {
 		}
 	}
 
+	
+	@Override
+	public byte[] getHeartBeat() {
+		JSONObject res = new JSONObject();
+		res.put("cmd", 0);
+		res.put("serial", 0);
+		res.put("data", null);
+		try {
+			return res.toJSONString().getBytes("utf-8");
+		} catch (UnsupportedEncodingException e) {
+			e.addSuppressed(e);
+		}
+		return null;
+		
+	}
+
 }

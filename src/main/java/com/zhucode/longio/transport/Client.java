@@ -22,11 +22,12 @@ import com.zhucode.longio.message.MessageBlock;
  */
 public interface Client {
 	
-	Client connectAndSend(MessageBlock<?> mb);
-	
-	
 	void connect();
 	
 	void send(MessageBlock<?> mb);
+	
+	boolean isConnected();
+	
+	void setConnected(boolean b);
 
 }

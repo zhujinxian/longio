@@ -18,6 +18,8 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandler;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.AttributeKey;
 import io.netty.util.internal.InternalThreadLocalMap;
 
@@ -29,6 +31,8 @@ import com.zhucode.longio.message.MessageBlock;
 import com.zhucode.longio.protocol.ProtocolParser;
 import com.zhucode.longio.transport.AbstractHandler;
 import com.zhucode.longio.transport.Connector;
+import com.zhucode.longio.transport.netty.event.PingEvent;
+import com.zhucode.longio.transport.netty.event.PongEvent;
 
 
 
@@ -116,7 +120,18 @@ public abstract class AbstractNettyHandler extends AbstractHandler implements Ch
 	@Override
 	public void userEventTriggered(ChannelHandlerContext ctx, Object evt)
 			throws Exception {
-		ctx.fireUserEventTriggered(evt);
+		if (evt instanceof IdleStateEvent) {
+            IdleStateEvent e = (IdleStateEvent) evt;
+            if (e.state() == IdleState.READER_IDLE) {
+                ctx.close();
+            } else if (e.state() == IdleState.WRITER_IDLE) {
+                ctx.writeAndFlush(pp.getHeartBeat());
+            }
+        }
+		
+		if (evt instanceof PingEvent) {
+			ctx.writeAndFlush(pp.getHeartBeat());
+		}
 	}
 
 	@Override
@@ -127,6 +142,7 @@ public abstract class AbstractNettyHandler extends AbstractHandler implements Ch
 	
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+		System.out.println("-------ebcounter exception-------");
 		cause.printStackTrace();
 		this.getNettyConnector().unregistHandlerContext(ctx);
 		ctx.close();
@@ -143,6 +159,12 @@ public abstract class AbstractNettyHandler extends AbstractHandler implements Ch
 		buf.readBytes(bytes);
 		
 		MessageBlock<?> mb = pp.decode(bytes);
+		
+		if (mb.getCmd() == 0) {
+			ctx.fireUserEventTriggered(new PongEvent());
+			return;
+		}
+		
 		mb.setConnector(this.connector);
 		mb.setSessionId(ctx.channel().attr(NettyConnector.sessionKey).get());
 		

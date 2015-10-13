@@ -44,6 +44,9 @@ public class ConnectionListener implements ChannelFutureListener {
 					client.connect();
 				}
 			}, 1L, TimeUnit.SECONDS);
+		} else {
+			client.setConnected(true);
 		}
+		
 	}
 }

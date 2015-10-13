@@ -59,4 +59,19 @@ public class JSONArrayProtocolParser implements ProtocolParser<JSONArray> {
 		}
 	}
 
+	
+	@Override
+	public byte[] getHeartBeat() {
+		JSONArray body = new JSONArray();
+		body.add(0, 0);
+		body.add(1, 0);
+		body.add(new JSONArray());
+		try {
+			return body.toString().getBytes("utf-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 }

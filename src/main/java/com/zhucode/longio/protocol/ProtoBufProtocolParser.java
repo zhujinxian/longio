@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio.protocol;
 
+import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.zhucode.longio.exception.ProtocolException;
@@ -57,6 +58,14 @@ public class ProtoBufProtocolParser implements ProtocolParser<Message> {
 			throw new ProtocolException("the only type must be void or " + Message.class.getCanonicalName());
 		}
 		
+	}
+
+	
+	@Override
+	public byte[] getHeartBeat() {
+		Proto.Message data = Proto.Message.newBuilder()
+				.setCmd(0).setSerial(0).setBody(ByteString.EMPTY).build();
+		return data.toByteArray();
 	}
 	
 }

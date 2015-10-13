@@ -63,4 +63,20 @@ public class MessagePackProtocolParser implements ProtocolParser<MessagePackData
 		}
 	}
 
+	
+	@Override
+	public byte[] getHeartBeat() {
+		MessagePackData mpd = new MessagePackData();
+		mpd.cmd = 0;
+		mpd.serial = 0;
+		mpd.data = new byte[0];
+		MessagePack mp = new MessagePack();
+		try {
+			return mp.write(mpd);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 }

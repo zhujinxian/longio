@@ -42,20 +42,21 @@ public class Beginpoint  {
 		this.dispatcher = connector.getClientDispatcher();
 		this.pt = pt;
 		this.tt = tt;
+		init();
 	}
 	
-	public void send(MessageBlock<?> mb) throws Exception {
-		if (client == null) {
-			 client = this.connectAndSend(mb);
-		} else {
-			client.send(mb);
+	
+	private void init() {
+		try {
+			client =  this.connector.createClient(host, port, tt, pt);
+			client.connect();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
-	
-	public synchronized Client connectAndSend(MessageBlock<?> mb) throws Exception {
-		Client client =  this.connector.createClient(host, port, tt, pt);
-		client.connectAndSend(mb);
-		return client;
+
+	public void send(MessageBlock<?> mb) throws Exception {
+		client.send(mb);
 	}
 
 	public Connector getConnector() {

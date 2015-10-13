@@ -26,6 +26,7 @@ import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.AttributeKey;
 
 import java.net.URI;
@@ -174,6 +175,7 @@ public class NettyConnector implements Connector {
 			protected void initChannel(SocketChannel ch) throws Exception {
 				ch.pipeline().addLast(new HttpServerCodec());
 				ch.pipeline().addLast(new HttpObjectAggregator(65536));
+				ch.pipeline().addLast(new IdleStateHandler(60, 30, 0));
 				ch.pipeline().addLast(new HttpHandler(
 						NettyConnector.this, dispatcher, getProtocolParser(pt)));
 			}
@@ -203,6 +205,7 @@ public class NettyConnector implements Connector {
 			protected void initChannel(SocketChannel ch) throws Exception {
 				ch.pipeline().addLast("decoder", new LengthFieldBasedFrameDecoder(65536, 0, 2, 0, 2));
 				ch.pipeline().addLast("encoder", new LengthFieldPrepender(2, false));
+				ch.pipeline().addLast(new IdleStateHandler(60, 30, 0));
 				ch.pipeline().addLast(new RawSocketHandler(NettyConnector.this, 
 						dispatcher, getProtocolParser(pt)));
 			}
