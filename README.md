@@ -1,5 +1,9 @@
 # longio
 
+protocol support JSON, MessagePack and Protobuf;
+
+transport support Http, Websocket and Rawsocket.
+
 ## Server end
 
 in spring boot:
