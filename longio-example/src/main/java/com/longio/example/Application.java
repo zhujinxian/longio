@@ -40,9 +40,9 @@ public class Application extends RoseWebApplication {
 		return new LongioBeanFactoryPostProcessor();
 	}
 
-	@Boot(port = 9000, pt = ProtocolType.JSONARRAY, tt = TransportType.HTTP)
-	@Boot(port = 9002, pt = ProtocolType.JSON, tt = TransportType.HTTP)
-	@Boot(port = 9001, pt = ProtocolType.MESSAGE_PACK, tt = TransportType.SOCKET)
+	@Boot(port = 5000, pt = ProtocolType.JSONARRAY, tt = TransportType.HTTP)
+	@Boot(port = 5002, pt = ProtocolType.JSON, tt = TransportType.HTTP)
+	@Boot(port = 5001, pt = ProtocolType.MESSAGE_PACK, tt = TransportType.SOCKET)
 	@Bean(name = "longio.bootstrap")
 	LioBootstrap getLioBootstrap() {
 		return new LioBootstrap();

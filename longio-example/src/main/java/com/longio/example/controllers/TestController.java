@@ -38,5 +38,10 @@ public class TestController {
 	}
 	
 	
+	@Get("test")
+	public String testMap() {
+		return "@========test=============\n";
+	}
+	
 	
 }

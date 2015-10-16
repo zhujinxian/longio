@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicLong;
 
 import com.zhucode.longio.context.parameter.ParameterParserFactory;
 import com.zhucode.longio.reflect.MethodRef;
@@ -34,6 +35,8 @@ public class MethodDispatcher implements Dispatcher {
 	private Map<Integer, MethodRef> invokers = new HashMap<Integer, MethodRef>();
 	
 	private ParameterParserFactory parameterParserFactory;
+	
+	AtomicLong num = new AtomicLong();
 	
 	public MethodDispatcher() {
 		parameterParserFactory = new ParameterParserFactory();
@@ -56,6 +59,7 @@ public class MethodDispatcher implements Dispatcher {
 		} else {
 			mpt.run();
 		}
+		System.out.println("invoke num = " + num.getAndIncrement());
 	}
 
 	public ParameterParserFactory getParameterParserFactory() {

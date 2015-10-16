@@ -181,7 +181,7 @@ public class NettyConnector implements Connector {
 			}
 			
 		});
-		b.option(ChannelOption.SO_BACKLOG, 128);
+		b.option(ChannelOption.SO_BACKLOG, 4096);
 		
 		b.childOption(ChannelOption.SO_KEEPALIVE, true);
 		
@@ -211,7 +211,7 @@ public class NettyConnector implements Connector {
 			}
 			
 		});
-		b.option(ChannelOption.SO_BACKLOG, 128);
+		b.option(ChannelOption.SO_BACKLOG, 4096);
 		
 		b.childOption(ChannelOption.SO_KEEPALIVE, true);
 		
