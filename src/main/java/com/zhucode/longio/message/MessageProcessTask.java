@@ -44,6 +44,18 @@ public class MessageProcessTask implements Runnable {
 	
 	@Override
 	public void run() {
+		
+		if (handler == null) {
+			MessageBlock<Object> mret = new MessageBlock<Object>(null);
+			mret.setCmd(message.getCmd());
+			mret.setSerial(message.getSerial());
+			mret.setSessionId(message.getSessionId());
+			mret.setConnector(message.getConnector());
+			mret.setStatus(404);
+			mret.getConnector().sendMessage(mret);
+			return;
+		}
+		
 		Object[] args = null;
 		Object body = message.getBody();
 		ParameterParser pp = parameterParserFactory.getParser(body.getClass());
@@ -58,7 +70,13 @@ public class MessageProcessTask implements Runnable {
 			mret.setSerial(message.getSerial());
 			mret.setSessionId(message.getSessionId());
 			mret.setConnector(message.getConnector());
-			mret.setTtype(1);
+			mret.getConnector().sendMessage(mret);
+		} else {
+			mret.setCmd(message.getCmd());
+			mret.setSerial(message.getSerial());
+			mret.setSessionId(message.getSessionId());
+			mret.setConnector(message.getConnector());
+			mret.setStatus(500);
 			mret.getConnector().sendMessage(mret);
 		}
 		

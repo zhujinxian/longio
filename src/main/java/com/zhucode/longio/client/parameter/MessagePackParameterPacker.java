@@ -33,19 +33,15 @@ import com.zhucode.longio.utils.ClassUtils;
  * @date  2015年10月12日
  * 
  */
-public class MessagePackParameterPacker implements ParameterPacker<MessagePackData> {
+public class MessagePackParameterPacker implements ParameterPacker<Object> {
 
 	TemplateRegistry tr = new TemplateRegistry(null);
 	
 	@Override
-	public MessagePackData pack(MethodInfo mi, Object... args) {
+	public Object pack(MethodInfo mi, Object... args) {
 		Parameter[] paras = mi.getMethod().getParameters();
 		Pack pack = mi.getMethod().getAnnotation(Pack.class);
 		try {
-			
-			MessagePack mp = new MessagePack();
-			MessagePackData mpd = new MessagePackData();
-			mpd.cmd = mi.getCmd();
 			if (pack != null) {
 				Class<?> cls = Class.forName(pack.value());
 				Object obj = cls.newInstance();
@@ -56,9 +52,8 @@ public class MessagePackParameterPacker implements ParameterPacker<MessagePackDa
 					Field f = cls.getField(key.value());
 					f.set(obj, args[i]);
 				}
-				mpd.data = mp.write(obj);
+				return obj;
 			}
-			return mpd;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

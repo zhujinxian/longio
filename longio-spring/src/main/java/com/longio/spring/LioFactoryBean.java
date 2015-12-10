@@ -37,9 +37,6 @@ public class LioFactoryBean implements FactoryBean, InitializingBean {
 	protected Class<?> objectType;
 
 	protected Object object;
-	
-	
-	private Connector connector;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -66,12 +63,6 @@ public class LioFactoryBean implements FactoryBean, InitializingBean {
 				throw new Exception("the scaned service class must be annotated by Lservice");
 			}
 			this.object = this.objectType.newInstance();
-			Lservice ls = this.objectType.getAnnotation(Lservice.class);
-			String pkg = ls.path();
-			for (Dispatcher d : connector.getDispatcheres(pkg)) {
-				MethodRefFactory mrf = new DefaultMethodRefFactory();
-				d.registerMethodRefs(mrf.createMethodRefs(this.object));
-			}
 		}
 	}
 
@@ -84,13 +75,6 @@ public class LioFactoryBean implements FactoryBean, InitializingBean {
 		this.objectType = objectType;
 	}
 
-	public Connector getConnector() {
-		return connector;
-	}
-
-	public void setConnector(Connector connector) {
-		this.connector = connector;
-	}
 
 	@Override
 	public boolean isSingleton() {

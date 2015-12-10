@@ -44,7 +44,10 @@ import com.longio.spring.annotation.Boot;
 import com.longio.spring.annotation.Boots;
 import com.zhucode.longio.annotation.LsAutowired;
 import com.zhucode.longio.annotation.Lservice;
+import com.zhucode.longio.message.Dispatcher;
 import com.zhucode.longio.message.MethodDispatcher;
+import com.zhucode.longio.reflect.DefaultMethodRefFactory;
+import com.zhucode.longio.reflect.MethodRefFactory;
 import com.zhucode.longio.transport.Connector;
 import com.zhucode.longio.transport.netty.NettyConnector;
 
@@ -79,10 +82,10 @@ public class LioBootstrap implements ApplicationContextAware {
 		
 		doScanAndRegist(bf);
 		
-		resolveLservice(bf);
+		resolveLservice(app, bf);
 	}
-	
-	private void resolveLservice(DefaultListableBeanFactory bf) {
+
+	private void resolveLservice(ApplicationContext app, DefaultListableBeanFactory bf) {
 		for (String name : bf.getBeanDefinitionNames()) {
 			AbstractBeanDefinition bd = (AbstractBeanDefinition)bf.getBeanDefinition(name);
 			
@@ -99,10 +102,16 @@ public class LioBootstrap implements ApplicationContextAware {
 				continue;
 			}
 			
-			Object obj = bf.getBean(name);
+			Object obj = app.getBean(name);
+            app.getAutowireCapableBeanFactory().autowireBean(obj);
 			Lservice ls = obj.getClass().getAnnotation(Lservice.class);
 			if (ls != null) {
 				String pkg = ls.path();
+				Connector connector = getConnector(bf);
+				for (Dispatcher d : connector.getDispatcheres(pkg)) {
+					MethodRefFactory mrf = new DefaultMethodRefFactory();
+					d.registerMethodRefs(mrf.createMethodRefs(obj));
+				}
 				System.out.println("load longio [" + pkg + "] service");
 			}
 			LsAutowired lsa = obj.getClass().getAnnotation(LsAutowired.class);
@@ -134,11 +143,19 @@ public class LioBootstrap implements ApplicationContextAware {
 		try {
 			m = fbCls.getDeclaredMethod(fbMethod);
 			Boots boots = m.getAnnotation(Boots.class);
-			MethodDispatcher dispatcher = new MethodDispatcher();
-			for (Boot b : boots.value()) {
+			if (boots == null) {
+				MethodDispatcher dispatcher = new MethodDispatcher();
+				Boot b = m.getAnnotation(Boot.class);
 				connector.start(b.port(), dispatcher, b.tt(), b.pt(), b.pkg());
 				System.out.println("connector start at port [" + b.port()
 						+  "] with tt = " + b.tt() + " and pt = " + b.pt() + " for pkg = " + b.pkg());
+			} else {
+				MethodDispatcher dispatcher = new MethodDispatcher();
+				for (Boot b : boots.value()) {
+					connector.start(b.port(), dispatcher, b.tt(), b.pt(), b.pkg());
+					System.out.println("connector start at port [" + b.port()
+							+  "] with tt = " + b.tt() + " and pt = " + b.pt() + " for pkg = " + b.pkg());
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -237,8 +254,6 @@ public class LioBootstrap implements ApplicationContextAware {
 		 * 属性及其设置要按 MongoFactoryBean 的要求来办
 		 */
 		propertyValues.addPropertyValue("objectType", LioClassName);
-		propertyValues.addPropertyValue("connector", getConnector(beanFactory));
-	
 		
 		ScannedGenericBeanDefinition scannedBeanDefinition = (ScannedGenericBeanDefinition) beanDefinition;
 		scannedBeanDefinition.setPropertyValues(propertyValues);
@@ -248,7 +263,7 @@ public class LioBootstrap implements ApplicationContextAware {
 		defaultBeanFactory.registerBeanDefinition(LioClassName, beanDefinition);
 	}
 
-	private Object getConnector(ConfigurableListableBeanFactory beanFactory) {
+	private Connector getConnector(ConfigurableListableBeanFactory beanFactory) {
 		
 		if (beanFactory.containsBeanDefinition("longio.connector")) {
 			

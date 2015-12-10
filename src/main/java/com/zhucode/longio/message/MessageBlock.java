@@ -30,11 +30,11 @@ public class MessageBlock<T> {
 	
 	private T body;
 	
-	private int ttype;
-	
 	private Connector connector;
 	
 	private int sendCount;
+	
+	private int status = 200;
 	
 	public MessageBlock(T body) {
 		this.body = body;
@@ -82,14 +82,6 @@ public class MessageBlock<T> {
 		this.cmd = cmd;
 	}
 
-	public int getTtype() {
-		return ttype;
-	}
-
-	public void setTtype(int ttype) {
-		this.ttype = ttype;
-	}
-
 	public int getAndAddSendCount() {
 		return sendCount++;
 	}
@@ -97,4 +89,14 @@ public class MessageBlock<T> {
 	public void setSendCount(int sendCount) {
 		this.sendCount = sendCount;
 	}
+
+	public int getStatus() {
+		return status;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
+	}
+	
+	
 }

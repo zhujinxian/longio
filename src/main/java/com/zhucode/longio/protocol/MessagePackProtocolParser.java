@@ -47,6 +47,19 @@ public class MessagePackProtocolParser implements ProtocolParser<MessagePackData
 	@Override
 	public byte[] encode(MessageBlock<?> mb) throws ProtocolException {
 		
+//		MessagePackData mpd = (MessagePackData)mb.getBody();
+//		mpd.cmd = mb.getCmd();
+//		mpd.serial = mb.getSerial();
+//		MessagePack mp = new MessagePack();
+//		try {
+//			mpd.data = mp.write(mpd);
+//			mp = new MessagePack();
+//			return mp.write(mpd);
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//			throw new ProtocolException("MessagePack write io error");
+//		}
+		
 		MessagePackData mpd = new MessagePackData();
 		mpd.cmd = mb.getCmd();
 		mpd.serial = mb.getSerial();

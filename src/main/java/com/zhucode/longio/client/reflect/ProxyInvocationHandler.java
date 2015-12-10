@@ -43,7 +43,7 @@ import com.zhucode.longio.transport.TransportType;
  */
 public class ProxyInvocationHandler implements InvocationHandler {
 
-	private static ExecutorService es = Executors.newWorkStealingPool();
+	private static ExecutorService es = Executors.newCachedThreadPool();
 	
 	private static ParameterPackerFactory ppf = new ParameterPackerFactory();
 	
@@ -114,7 +114,7 @@ public class ProxyInvocationHandler implements InvocationHandler {
 		es.submit(task);
 		
 		try {
-			MessageBlock<?> ret = task.get(1, TimeUnit.SECONDS);
+			MessageBlock<?> ret = task.get(100000, TimeUnit.SECONDS);
 			return packer.unpack(mi.getMethod().getReturnType(), mi.getMethod().getGenericReturnType(), ret.getBody());
 		} catch (Exception e) {
 			this.dispatcher.unregist(mb.getSerial());

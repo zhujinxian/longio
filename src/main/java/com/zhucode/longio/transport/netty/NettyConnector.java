@@ -109,7 +109,6 @@ public class NettyConnector implements Connector {
 		long sid = message.getSessionId();
 		ChannelHandlerContext ctx = ctxs.get(sid);
 		AttributeKey<AbstractNettyHandler> handlerKey = AttributeKey.valueOf("AbstractNettyHandler");
-		System.out.println("h : " + ctx.attr(handlerKey) == null + " sid = " + sid);
 		AbstractNettyHandler handler = ctx.attr(handlerKey).get();
 		ChannelFuture future = handler.sendMessage(ctx, message);
 		return future;

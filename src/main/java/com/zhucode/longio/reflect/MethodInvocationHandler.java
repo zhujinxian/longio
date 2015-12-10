@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio.reflect;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import net.sf.cglib.proxy.Enhancer;
@@ -35,13 +36,24 @@ public class MethodInvocationHandler implements MethodInterceptor {
 		// 回调方法
 		enhancer.setCallback(this);
 		// 创建代理对象
-		return enhancer.create();
+		Object instance = enhancer.create();
+		
+		for (Field f : target.getClass().getDeclaredFields()) {
+			try {
+				f.setAccessible(true);
+				f.set(instance, f.get(target));
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}
+		}
+		return instance;
 	}
 
 	@Override
 	public Object intercept(Object obj, Method method, Object[] args,  
             MethodProxy proxy) throws Throwable {
-		
 		return proxy.invokeSuper(obj, args);  
 	}
 

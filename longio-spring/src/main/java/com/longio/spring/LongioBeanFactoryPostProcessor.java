@@ -167,8 +167,6 @@ public class LongioBeanFactoryPostProcessor implements BeanFactoryPostProcessor 
 		 * 属性及其设置要按 MongoFactoryBean 的要求来办
 		 */
 		propertyValues.addPropertyValue("objectType", LioClassName);
-		propertyValues.addPropertyValue("connector", getConnector(beanFactory));
-	
 		
 		ScannedGenericBeanDefinition scannedBeanDefinition = (ScannedGenericBeanDefinition) beanDefinition;
 		scannedBeanDefinition.setPropertyValues(propertyValues);
