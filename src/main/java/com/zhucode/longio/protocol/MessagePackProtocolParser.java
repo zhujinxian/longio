@@ -67,7 +67,11 @@ public class MessagePackProtocolParser implements ProtocolParser<MessagePackData
 		Object ret = mb.getBody();
 		MessagePack mp = new MessagePack();
 		try {
-			mpd.data = mp.write(ret);
+			if (ret instanceof byte[]) {
+				mpd.data = (byte[])ret;
+			} else {
+				mpd.data = mp.write(ret);
+			}
 			mp = new MessagePack();
 			return mp.write(mpd);
 		} catch (IOException e) {

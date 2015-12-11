@@ -13,12 +13,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio.client.parameter;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 
 import org.msgpack.MessagePack;
+import org.msgpack.packer.Packer;
 import org.msgpack.template.Template;
 import org.msgpack.template.TemplateRegistry;
 
@@ -39,6 +41,9 @@ public class MessagePackParameterPacker implements ParameterPacker<Object> {
 	
 	@Override
 	public Object pack(MethodInfo mi, Object... args) {
+		if (args == null) {
+			return null;
+		}
 		Parameter[] paras = mi.getMethod().getParameters();
 		Pack pack = mi.getMethod().getAnnotation(Pack.class);
 		try {
@@ -53,6 +58,14 @@ public class MessagePackParameterPacker implements ParameterPacker<Object> {
 					f.set(obj, args[i]);
 				}
 				return obj;
+			} else {
+				MessagePack mp = new MessagePack();
+				ByteArrayOutputStream out = new ByteArrayOutputStream();
+		        Packer packer = mp.createPacker(out);
+		        for (Object arg : args) {
+					packer.write(arg);
+				}
+		        return out.toByteArray();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

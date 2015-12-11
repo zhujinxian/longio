@@ -13,12 +13,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio.context.parameter;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
 
 import org.msgpack.MessagePack;
-import org.msgpack.annotation.Message;
+import org.msgpack.unpacker.Unpacker;
 
 import com.zhucode.longio.message.MessageBlock;
 import com.zhucode.longio.message.format.MessagePackData;
@@ -40,26 +41,26 @@ public class MessagePackParameterParser implements ParameterParser {
 		}
 		
 		Unpack unpack = findUnpack(meta);
-		MessagePack mp = new MessagePack();
 		MessagePackData body = (MessagePackData)mb.getBody();
 		if (unpack == null) {
+			MessagePack mp = new MessagePack();
+			ByteArrayInputStream in = new ByteArrayInputStream(body.data);
+		    Unpacker unpacker = mp.createUnpacker(in);
 			for (int i = 0; i < paras.length; i++) {
 				Parameter p = paras[i];
 				if (p.getType() == MessageBlock.class) {
 					objs[i] = mb;
 					continue;
 				}
-				if (p.getType().isAnnotationPresent(Message.class)) {
-					try {
-						objs[i] = mp.read(body.data, p.getType());
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-					continue;
-				} 
+				try {
+					objs[i] = unpacker.read(p.getType());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		} else {
 			try {
+				MessagePack mp = new MessagePack();
 				Class<?> msgCls = Class.forName(unpack.value());
 				Object data = mp.read(body.data, msgCls);
 				for (int i = 0; i < paras.length; i++) {

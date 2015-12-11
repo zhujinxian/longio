@@ -30,7 +30,7 @@ import com.zhucode.longio.reflect.MethodRef;
  */
 public class MethodDispatcher implements Dispatcher {
 	
-	private ExecutorService es = Executors.newWorkStealingPool();
+	private ExecutorService es = Executors.newCachedThreadPool();
 	
 	private Map<Integer, MethodRef> invokers = new HashMap<Integer, MethodRef>();
 	
