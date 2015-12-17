@@ -29,6 +29,7 @@ import com.zhucode.longio.client.ClientDispatcher;
 import com.zhucode.longio.client.InvocationTask;
 import com.zhucode.longio.client.parameter.ParameterPacker;
 import com.zhucode.longio.client.parameter.ParameterPackerFactory;
+import com.zhucode.longio.conf.AppLookup;
 import com.zhucode.longio.message.MessageBlock;
 import com.zhucode.longio.transport.Beginpoint;
 import com.zhucode.longio.transport.Client;
@@ -59,10 +60,12 @@ public class ProxyInvocationHandler implements InvocationHandler {
 	
 	private Beginpoint beginPoint;
 	
+	private AppLookup appLookup;
+	
 	
 	private static AtomicLong serial = new AtomicLong(1000000);
 	
-	public ProxyInvocationHandler(Connector connector, Class<?> requiredType, List<MethodInfo> methods) {
+	public ProxyInvocationHandler(Connector connector, AppLookup appLookup, Class<?> requiredType, List<MethodInfo> methods) {
 		this.connector = connector;
 		this.dispatcher = connector.getClientDispatcher();
 		this.proxyCls = requiredType;
@@ -70,6 +73,7 @@ public class ProxyInvocationHandler implements InvocationHandler {
 		for (MethodInfo mi : methods) {
 			this.methods.put(mi.getMethod(), mi);
 		}
+		this.appLookup = appLookup;
 		initBeginpointAndPacker();
 	}
 	
@@ -81,6 +85,14 @@ public class ProxyInvocationHandler implements InvocationHandler {
 		String app = lsa.app();
 		TransportType tt = lsa.tt();
 		ProtocolType pt = lsa.pt();
+		
+		if (appLookup.parseHost(app) != null) {
+			host = appLookup.parseHost(app);
+		}
+		
+		if (appLookup.parsePort(app) != 0) {
+			port = appLookup.parsePort(app);
+		}
 		
 		this.beginPoint = new Beginpoint(connector, app, host, port, tt, pt);
 		

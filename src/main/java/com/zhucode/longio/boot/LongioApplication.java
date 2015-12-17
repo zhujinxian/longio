@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.regex.Pattern;
 
 import com.zhucode.longio.annotation.Lservice;
@@ -26,6 +27,7 @@ import com.zhucode.longio.client.reflect.DefaultMethodInfoFactory;
 import com.zhucode.longio.client.reflect.MethodInfo;
 import com.zhucode.longio.client.reflect.MethodInfoFactory;
 import com.zhucode.longio.client.reflect.ProxyInvocationHandler;
+import com.zhucode.longio.conf.DefaultAppLookup;
 import com.zhucode.longio.message.MethodDispatcher;
 import com.zhucode.longio.reflect.DefaultMethodRefFactory;
 import com.zhucode.longio.reflect.MethodRefFactory;
@@ -103,7 +105,7 @@ public class LongioApplication {
 	
 	
 	@SuppressWarnings("unchecked")
-	public static <T> T getService(Class<? extends Connector> connectorCls, Class<T> requiredType) {
+	public static <T> T getService(Class<? extends Connector> connectorCls, Class<T> requiredType, Properties prop) {
 		
 		MethodInfoFactory mif = new DefaultMethodInfoFactory();
 		List<MethodInfo> mis = mif.createMethodInfo(requiredType);
@@ -120,6 +122,6 @@ public class LongioApplication {
 			}
 		}
 		return (T) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
-				new Class<?>[]{requiredType}, new ProxyInvocationHandler(connector, requiredType, mis));
+				new Class<?>[]{requiredType}, new ProxyInvocationHandler(connector, new DefaultAppLookup(prop), requiredType, mis));
 	}
 }

@@ -11,16 +11,32 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
-package com.zhucode.longio.cmd;
+package com.zhucode.longio.conf;
+
+import java.util.Properties;
 
 /**
  * @author zhu jinxian
- * @date  2015年10月12日
+ * @date  2015年12月17日
  * 
  */
-public interface Lookup {
+public class DefaultAppLookup implements AppLookup {
+
+	Properties prop ;
 	
-	int parseCmd(String name);
+	public DefaultAppLookup(Properties prop) {
+		this.prop = prop;
+	}
 	
-	String parseName(int cmd);
+	
+	@Override
+	public String parseHost(String app) {
+		return prop.getProperty("app." + app + ".host", app);
+	}
+
+	@Override
+	public int parsePort(String app) {
+		return Integer.parseInt(prop.getProperty("app." + app + ".port", "0"));
+	}
+
 }

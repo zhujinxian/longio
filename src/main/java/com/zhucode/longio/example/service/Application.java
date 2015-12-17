@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 package com.zhucode.longio.example.service;
 
 import java.util.Map;
+import java.util.Properties;
 
 import com.zhucode.longio.boot.LongioApplication;
 import com.zhucode.longio.example.message.UserMsg;
@@ -41,7 +42,7 @@ public class Application {
 //	
 		Connector connector = LongioApplication.connectors.get(NettyConnector.class);
 		
-		ITestClient client = LongioApplication.getService(NettyConnector.class, ITestClient.class);
+		ITestClient client = LongioApplication.getService(NettyConnector.class, ITestClient.class, new Properties());
 		Map<String, Map<String, UserMsg>> map = client.getUser(1000);
 		System.out.println(map);
 		client.testVoid();
@@ -51,7 +52,7 @@ public class Application {
 		
 		System.out.println("=============ge-------------");
 		
-		TestClient1 client1 = LongioApplication.getService(NettyConnector.class, TestClient1.class);
+		TestClient1 client1 = LongioApplication.getService(NettyConnector.class, TestClient1.class, new Properties());
 		Map<String, Map<String, UserMsg>> map1 = client1.getUser(1234);
 		System.out.println(map1.get("1234").get("1234").user_id);
 		

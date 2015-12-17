@@ -11,49 +11,16 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
-package com.zhucode.longio.reflect;
-
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.zhucode.longio.annotation.Lio;
-import com.zhucode.longio.annotation.Lservice;
-import com.zhucode.longio.conf.DefaultCmdLookup;
+package com.zhucode.longio.conf;
 
 /**
  * @author zhu jinxian
  * @date  2015年10月12日
  * 
  */
-public class DefaultMethodRefFactory implements MethodRefFactory {
+public interface CmdLookup {
 	
-	private DefaultCmdLookup cnm = new DefaultCmdLookup();
-
-	@Override
-	public List<MethodRef> createMethodRefs(Object obj) {
-		
-		MethodInvocationHandler mi = new MethodInvocationHandler();
-		Object proxy = mi.getInstance(obj);
-		List<MethodRef> refs = new ArrayList<MethodRef>();
-		Class<?> cls = obj.getClass();
-		Lservice ls = cls.getAnnotation(Lservice.class);
-		if (ls == null) {
-			return refs;
-		}
-		for (Method m : cls.getMethods()) {
-			Lio lio = m.getAnnotation(Lio.class);
-			if (lio == null) {
-				continue;
-			}
-			String cmdName = ls.path() + "." + lio.cmd();
-			cmdName = cmdName.replaceAll("\\.\\.", ".");
-			int cmd = cnm.parseCmd(cmdName);
-			boolean asy = lio.asy();
-			MethodRef mih = new MethodRef(cmd, cmdName, proxy, m, asy);
-			refs.add(mih);
-		}
-		
-		return refs;
-	}
+	int parseCmd(String name);
+	
+	String parseName(int cmd);
 }

@@ -15,6 +15,8 @@ package com.longio.spring;
 
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.client.Netty4ClientHttpRequestFactory;
 
 import com.zhucode.longio.annotation.LsAutowired;
@@ -37,6 +39,9 @@ public class LioFactoryBean implements FactoryBean, InitializingBean {
 	protected Class<?> objectType;
 
 	protected Object object;
+	
+	@Autowired
+	protected Environment environment;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -57,7 +62,7 @@ public class LioFactoryBean implements FactoryBean, InitializingBean {
 			if (!this.objectType.isAnnotationPresent(LsAutowired.class)) {
 				throw new Exception("the scaned service interface must be annotated by LsAutowired");
 			}
-			this.object = LongioApplication.getService(NettyConnector.class, objectType);
+			this.object = LongioApplication.getService(NettyConnector.class, objectType, new EnvProperties(environment));
 		} else {
 			if (!this.objectType.isAnnotationPresent(Lservice.class)) {
 				throw new Exception("the scaned service class must be annotated by Lservice");

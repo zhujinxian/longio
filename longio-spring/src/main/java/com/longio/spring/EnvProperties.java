@@ -11,49 +11,35 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
-package com.zhucode.longio.reflect;
+package com.longio.spring;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Properties;
 
-import com.zhucode.longio.annotation.Lio;
-import com.zhucode.longio.annotation.Lservice;
-import com.zhucode.longio.conf.DefaultCmdLookup;
+import org.springframework.core.env.Environment;
 
 /**
  * @author zhu jinxian
- * @date  2015年10月12日
+ * @date  2015年12月17日
  * 
  */
-public class DefaultMethodRefFactory implements MethodRefFactory {
+public class EnvProperties extends Properties {
+
+	private static final long serialVersionUID = 1L;
 	
-	private DefaultCmdLookup cnm = new DefaultCmdLookup();
+	Environment env;
+	
+	public EnvProperties(Environment env) {
+		this.env = env;
+	}
+	
+	@Override
+	public String getProperty(String key) {
+		return env.getProperty(key);
+	}
 
 	@Override
-	public List<MethodRef> createMethodRefs(Object obj) {
-		
-		MethodInvocationHandler mi = new MethodInvocationHandler();
-		Object proxy = mi.getInstance(obj);
-		List<MethodRef> refs = new ArrayList<MethodRef>();
-		Class<?> cls = obj.getClass();
-		Lservice ls = cls.getAnnotation(Lservice.class);
-		if (ls == null) {
-			return refs;
-		}
-		for (Method m : cls.getMethods()) {
-			Lio lio = m.getAnnotation(Lio.class);
-			if (lio == null) {
-				continue;
-			}
-			String cmdName = ls.path() + "." + lio.cmd();
-			cmdName = cmdName.replaceAll("\\.\\.", ".");
-			int cmd = cnm.parseCmd(cmdName);
-			boolean asy = lio.asy();
-			MethodRef mih = new MethodRef(cmd, cmdName, proxy, m, asy);
-			refs.add(mih);
-		}
-		
-		return refs;
+	public String getProperty(String key, String defaultValue) {
+		return env.getProperty(key, defaultValue);
 	}
+	
 }

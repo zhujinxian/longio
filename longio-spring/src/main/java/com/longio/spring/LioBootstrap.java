@@ -37,6 +37,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationContextException;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ScannedGenericBeanDefinition;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 import org.springframework.util.ResourceUtils;
 
@@ -258,6 +259,7 @@ public class LioBootstrap implements ApplicationContextAware {
 		ScannedGenericBeanDefinition scannedBeanDefinition = (ScannedGenericBeanDefinition) beanDefinition;
 		scannedBeanDefinition.setPropertyValues(propertyValues);
 		scannedBeanDefinition.setBeanClass(LioFactoryBean.class);
+		scannedBeanDefinition.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_TYPE);
 
 		DefaultListableBeanFactory defaultBeanFactory = (DefaultListableBeanFactory) beanFactory;
 		defaultBeanFactory.registerBeanDefinition(LioClassName, beanDefinition);
