@@ -103,7 +103,13 @@ public class ProxyInvocationHandler implements InvocationHandler {
 
 			@Override
 			public MessageBlock<?> call() throws Exception {
-				beginPoint.send(mb);
+				try {
+					beginPoint.send(mb);
+				} catch (Exception e) {
+					mb.setBody(null);
+					dispatcher.setReturnValue(mb);
+					e.printStackTrace();
+				}
 				return null;
 			}
 		};

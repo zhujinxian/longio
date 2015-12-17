@@ -97,6 +97,6 @@ public class NettyClient implements Client{
 	public void setConnected(boolean b) {
 		this.connected = b;
 		
-		System.out.println(this + " netty client set connected " + this.isConnected());
+		System.out.println(this + "" +  System.currentTimeMillis() + " netty client set connected " + this.isConnected());
 	}
 }

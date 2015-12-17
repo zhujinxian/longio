@@ -64,6 +64,8 @@ public class RawSocketClientHandler extends AbstractClientHandler {
 			this.connector.getClientDispatcher().setReturnValue(mb);
 		} catch (ProtocolException e) {
 			e.printStackTrace();
+		} finally {
+			buf.release();
 		}
 	}
 

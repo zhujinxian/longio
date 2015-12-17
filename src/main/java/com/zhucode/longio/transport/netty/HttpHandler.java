@@ -40,6 +40,7 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.AttributeKey;
+import io.netty.util.ReferenceCountUtil;
 
 import com.zhucode.longio.exception.ProtocolException;
 import com.zhucode.longio.message.Dispatcher;
@@ -65,12 +66,16 @@ public class HttpHandler extends AbstractNettyHandler {
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg)
 			throws Exception {
-		
-		if (msg instanceof FullHttpRequest) {
-			handleHttpRequest(ctx, (FullHttpRequest)msg);
-		} else if (msg instanceof WebSocketFrame) {
-            handleWebSocketFrame(ctx, (WebSocketFrame) msg);
-        }
+		try {
+			if (msg instanceof FullHttpRequest) {
+				handleHttpRequest(ctx, (FullHttpRequest)msg);
+			} else if (msg instanceof WebSocketFrame) {
+	            handleWebSocketFrame(ctx, (WebSocketFrame) msg);
+	        }
+		} finally {
+			ReferenceCountUtil.release(msg);
+		}
+	
 	}
 	
 	

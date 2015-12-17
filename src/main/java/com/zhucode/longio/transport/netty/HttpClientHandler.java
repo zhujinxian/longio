@@ -20,6 +20,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
+import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
@@ -30,6 +31,7 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.CharsetUtil;
+import io.netty.util.ReferenceCountUtil;
 
 import java.net.URI;
 
@@ -91,10 +93,15 @@ public class HttpClientHandler extends AbstractClientHandler {
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg)
 			throws Exception {
-		if (handshaker == null) {
-			handleHttp(ctx, msg);
-		} else {
-			handleWebsocket(ctx, msg);
+		
+		try {
+			if (handshaker == null) {
+				handleHttp(ctx, msg);
+			} else {
+				handleWebsocket(ctx, msg);
+			}
+		} finally {
+			ReferenceCountUtil.release(msg);
 		}
 		
 	}

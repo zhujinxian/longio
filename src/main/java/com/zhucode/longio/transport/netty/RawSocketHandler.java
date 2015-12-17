@@ -40,10 +40,12 @@ public class RawSocketHandler extends AbstractNettyHandler {
 	public void channelRead(ChannelHandlerContext ctx, Object message)
 			throws Exception {
 		
-		ByteBuf buf = (ByteBuf)message;
-		
-		process(ctx, buf);
-		
+		ByteBuf buf = (ByteBuf)message;		
+		try {
+			process(ctx, buf);
+		} finally {
+			buf.release();
+		}
 	}
 
 	@Override
