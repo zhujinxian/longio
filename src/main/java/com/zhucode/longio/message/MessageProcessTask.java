@@ -30,14 +30,11 @@ public class MessageProcessTask implements Runnable {
 	
 	private MethodRef handler;
 	
-	private Parameter[] paras;
-	
 	ParameterParserFactory parameterParserFactory;
 	
 	MessageProcessTask(MessageBlock<?> mb, MethodRef mih, ParameterParserFactory parameterParserFactory) {
 		this.message = mb;
 		this.handler = mih;
-		this.paras = this.handler.getMethod().getParameters();
 		this.parameterParserFactory = parameterParserFactory;
 	}
 
@@ -59,6 +56,7 @@ public class MessageProcessTask implements Runnable {
 		Object[] args = null;
 		Object body = message.getBody();
 		ParameterParser pp = parameterParserFactory.getParser(body.getClass());
+		Parameter[] paras  = this.handler.getMethod().getParameters();
 		args = pp.parse((MessageBlock<?>) message, 
 				this.handler.getMethod().getAnnotations(), paras);
 		Object ret = this.handler.handle(args);

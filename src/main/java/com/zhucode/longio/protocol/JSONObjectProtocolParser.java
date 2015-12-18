@@ -46,6 +46,7 @@ public class JSONObjectProtocolParser implements ProtocolParser<JSONObject> {
 		JSONObject res = new JSONObject();
 		res.put("cmd", mb.getCmd());
 		res.put("serial", mb.getSerial());
+		res.put("status", mb.getStatus());
 		
 		if (mb.getBody() == null) {
 			res.put("data", null);

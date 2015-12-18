@@ -54,7 +54,7 @@ public class MethodDispatcher implements Dispatcher {
 		int cmd = mb.getCmd();
 		MethodRef mih = invokers.get(cmd);
 		MessageProcessTask mpt = new MessageProcessTask(mb, mih, parameterParserFactory);
-		if (mih.isAsy()) {
+		if (mih == null || mih.isAsy()) {
 			this.es.submit(mpt);
 		} else {
 			mpt.run();

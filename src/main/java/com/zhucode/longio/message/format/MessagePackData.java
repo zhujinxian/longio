@@ -24,5 +24,6 @@ import org.msgpack.annotation.Message;
 public class MessagePackData {
 	public int cmd;
 	public long serial;
+	public int status;
 	public byte[] data;
 }

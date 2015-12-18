@@ -46,6 +46,7 @@ public class JSONArrayProtocolParser implements ProtocolParser<JSONArray> {
 		JSONArray body = new JSONArray();
 		body.add(0, mb.getCmd());
 		body.add(1, mb.getSerial());
+		body.add(2, mb.getStatus());
 		try {
 			body.add((JSONArray)mb.getBody());
 		} catch (Exception e1) {

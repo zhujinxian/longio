@@ -63,6 +63,7 @@ public class MessagePackProtocolParser implements ProtocolParser<MessagePackData
 		MessagePackData mpd = new MessagePackData();
 		mpd.cmd = mb.getCmd();
 		mpd.serial = mb.getSerial();
+		mpd.status = mb.getStatus();
 		
 		Object ret = mb.getBody();
 		MessagePack mp = new MessagePack();

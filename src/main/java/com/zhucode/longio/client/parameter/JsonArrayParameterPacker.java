@@ -44,7 +44,7 @@ public class JsonArrayParameterPacker implements ParameterPacker<JSONArray> {
 			return null;
 		}
 		JSONArray json = (JSONArray)msg;
-		Object ret = json.getJSONArray(2).get(0);
+		Object ret = json.getJSONArray(json.size()-1).get(0);
 		if (ClassUtils.isPrimitive(ret.getClass())) {
 			return ret;
 		}

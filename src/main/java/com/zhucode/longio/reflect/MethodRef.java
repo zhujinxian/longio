@@ -15,6 +15,7 @@ package com.zhucode.longio.reflect;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 /**
  * @author zhu jinxian
@@ -39,6 +40,7 @@ public class MethodRef {
 
 	public Object handle(Object[] args) {
 		try {
+			System.out.println("invoke [" + name + "] with args " + Arrays.asList(args));
 			return method.invoke(obj, args);
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
