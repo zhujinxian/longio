@@ -31,7 +31,7 @@ public class DefaultAppLookup implements AppLookup {
 	
 	@Override
 	public String parseHost(String app) {
-		return prop.getProperty("app." + app + ".host", app);
+		return prop.getProperty("app." + app + ".host");
 	}
 
 	@Override

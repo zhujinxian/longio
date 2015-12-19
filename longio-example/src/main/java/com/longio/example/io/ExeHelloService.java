@@ -1,4 +1,4 @@
-package com.longio.example.service;
+package com.longio.example.io;
 
 import java.util.HashMap;
 import java.util.Map;
