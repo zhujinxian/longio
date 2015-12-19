@@ -13,6 +13,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio.transport.netty;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
@@ -31,6 +34,8 @@ import com.zhucode.longio.transport.netty.event.PingEvent;
  * 
  */
 public class RawSocketClientHandler extends AbstractClientHandler {
+	
+	Logger logger = LoggerFactory.getLogger(RawSocketClientHandler.class);
 
 	public RawSocketClientHandler(Client client, Connector connector, ProtocolParser<?> pp) {
 		super(client, connector, pp);
@@ -40,7 +45,6 @@ public class RawSocketClientHandler extends AbstractClientHandler {
 	public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
 		ctx.attr(handlerKey).set(this);
 		this.sessionId = this.getNettyConnector().registHandlerContext(ctx);
-		System.out.println("--------------connect----------------");
 	}
 	
 	@Override

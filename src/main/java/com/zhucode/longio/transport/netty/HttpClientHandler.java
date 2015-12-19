@@ -35,6 +35,9 @@ import io.netty.util.ReferenceCountUtil;
 
 import java.net.URI;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.zhucode.longio.exception.ProtocolException;
 import com.zhucode.longio.message.MessageBlock;
 import com.zhucode.longio.protocol.ProtocolParser;
@@ -48,6 +51,8 @@ import com.zhucode.longio.transport.netty.event.PingEvent;
  * 
  */
 public class HttpClientHandler extends AbstractClientHandler {
+	
+	Logger logger = LoggerFactory.getLogger(HttpClientHandler.class);
 
 	private WebSocketClientHandshaker handshaker;
 	private ChannelPromise handshakeFuture;
@@ -67,7 +72,6 @@ public class HttpClientHandler extends AbstractClientHandler {
 		super.channelRegistered(ctx);
 		ctx.attr(handlerKey).set(this);
 		this.sessionId = this.getNettyConnector().registHandlerContext(ctx);
-		System.out.println("--------------connect----------------");
 	}
 
 

@@ -13,6 +13,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio.transport.netty;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -32,6 +35,8 @@ import com.zhucode.longio.transport.Client;
  * 
  */
 public class NettyClient implements Client{
+	
+	static Logger logger = LoggerFactory.getLogger(NettyClient.class);
 	
 	private NioEventLoopGroup workerGroup;
 	private String host;
@@ -61,6 +66,7 @@ public class NettyClient implements Client{
 		b.handler(initializer);
 		ChannelFuture f = null;
 		try {
+			logger.info("connecting to [{}:{}]", host, port);
 			f = b.connect(host, port).addListener(new ConnectionListener(this));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -96,7 +102,6 @@ public class NettyClient implements Client{
 	@Override
 	public void setConnected(boolean b) {
 		this.connected = b;
-		
-		System.out.println(this + "" +  System.currentTimeMillis() + " netty client set connected " + this.isConnected());
+		logger.info("connect to server [{}:{}] {}", host, port, b);
 	}
 }

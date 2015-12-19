@@ -17,12 +17,17 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @author zhu jinxian
  * @date  2015年10月12日
  * 
  */
 public class MethodRef {
+	
+	static Logger logger = LoggerFactory.getLogger(MethodRef.class);
 	
 	private int cmd;
 	private String name;
@@ -40,7 +45,7 @@ public class MethodRef {
 
 	public Object handle(Object[] args) {
 		try {
-			System.out.println("invoke [" + name + "] with args " + Arrays.asList(args));
+			logger.info("invoke [{}] with args {}", name, Arrays.asList(args));
 			return method.invoke(obj, args);
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();

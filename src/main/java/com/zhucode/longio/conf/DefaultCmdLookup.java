@@ -20,12 +20,17 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @author zhu jinxian
  * @date  2015年10月12日
  * 
  */
 public class DefaultCmdLookup implements CmdLookup {
+	
+	Logger logger = LoggerFactory.getLogger(DefaultCmdLookup.class);
 	
 	private Map<String, Integer> nameToCmd = new HashMap<String, Integer>();
 	private Map<Integer, String> cmdToName = new HashMap<Integer, String>();
@@ -61,7 +66,7 @@ public class DefaultCmdLookup implements CmdLookup {
 	
 	@Override
 	public int parseCmd(String name) {
-		System.out.println(name);
+		logger.info("parse cmd [{}] to [{}]", name, nameToCmd.get(name));
 		return this.nameToCmd.get(name);
 	}
 	

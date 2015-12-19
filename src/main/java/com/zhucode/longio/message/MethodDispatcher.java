@@ -20,6 +20,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.zhucode.longio.context.parameter.ParameterParserFactory;
 import com.zhucode.longio.reflect.MethodRef;
 
@@ -29,6 +32,8 @@ import com.zhucode.longio.reflect.MethodRef;
  * 
  */
 public class MethodDispatcher implements Dispatcher {
+	
+	static Logger logger = LoggerFactory.getLogger(MethodDispatcher.class);
 	
 	private ExecutorService es = Executors.newCachedThreadPool();
 	
@@ -59,7 +64,7 @@ public class MethodDispatcher implements Dispatcher {
 		} else {
 			mpt.run();
 		}
-		System.out.println("invoke num = " + num.getAndIncrement());
+		logger.info("invoke num = " + num.getAndIncrement());
 	}
 
 	public ParameterParserFactory getParameterParserFactory() {

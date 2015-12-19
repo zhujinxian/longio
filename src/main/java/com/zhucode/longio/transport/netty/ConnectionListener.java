@@ -36,7 +36,6 @@ public class ConnectionListener implements ChannelFutureListener {
 	@Override
 	public void operationComplete(ChannelFuture channelFuture) throws Exception {
 		if (!channelFuture.isSuccess()) {
-			System.out.println("Reconnect");
 			final EventLoop loop = channelFuture.channel().eventLoop();
 			loop.schedule(new Runnable() {
 				@Override

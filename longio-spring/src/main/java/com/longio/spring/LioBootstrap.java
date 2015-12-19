@@ -24,6 +24,8 @@ import java.util.Set;
 import net.paoding.rose.scanning.ResourceRef;
 import net.paoding.rose.scanning.RoseScanner;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -59,6 +61,8 @@ import com.zhucode.longio.transport.netty.NettyConnector;
  * 
  */
 public class LioBootstrap implements ApplicationContextAware {
+	
+	static Logger logger = LoggerFactory.getLogger(LioBootstrap.class);
 	
 	@Override
 	public void setApplicationContext(ApplicationContext app)
@@ -113,12 +117,12 @@ public class LioBootstrap implements ApplicationContextAware {
 					MethodRefFactory mrf = new DefaultMethodRefFactory();
 					d.registerMethodRefs(mrf.createMethodRefs(obj));
 				}
-				System.out.println("load longio [" + pkg + "] service");
+				logger.info("load longio [" + pkg + "] service");
 			}
 			LsAutowired lsa = obj.getClass().getAnnotation(LsAutowired.class);
 			if (lsa != null) {
 				String pkg = lsa.path();
-				System.out.println("load longio  client [" + pkg + "] service");
+				logger.info("load longio  client [" + pkg + "] service");
 			}
 			
 		}
@@ -148,13 +152,13 @@ public class LioBootstrap implements ApplicationContextAware {
 				MethodDispatcher dispatcher = new MethodDispatcher();
 				Boot b = m.getAnnotation(Boot.class);
 				connector.start(b.port(), dispatcher, b.tt(), b.pt(), b.pkg());
-				System.out.println("connector start at port [" + b.port()
+				logger.info("connector start at port [" + b.port()
 						+  "] with tt = " + b.tt() + " and pt = " + b.pt() + " for pkg = " + b.pkg());
 			} else {
 				MethodDispatcher dispatcher = new MethodDispatcher();
 				for (Boot b : boots.value()) {
 					connector.start(b.port(), dispatcher, b.tt(), b.pt(), b.pkg());
-					System.out.println("connector start at port [" + b.port()
+					logger.info("connector start at port [" + b.port()
 							+  "] with tt = " + b.tt() + " and pt = " + b.pt() + " for pkg = " + b.pkg());
 				}
 			}
