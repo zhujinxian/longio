@@ -26,14 +26,16 @@ public class MethodInfo {
 	private Class<?> cls;
 	private Method method;
 	private boolean asy;
+	private long timeout;
 	
-	public MethodInfo(int cmd, String name, Class<?> cls, Method method, boolean asy) {
+	public MethodInfo(int cmd, String name, Class<?> cls, Method method, boolean asy, long timeout) {
 		super();
 		this.cmd = cmd;
 		this.name = name;
 		this.cls = cls;
 		this.method = method;
 		this.asy = asy;
+		this.timeout = timeout;
 	}
 
 	public int getCmd() {
@@ -75,5 +77,15 @@ public class MethodInfo {
 	public void setAsy(boolean asy) {
 		this.asy = asy;
 	}
+
+	public long getTimeout() {
+		return timeout;
+	}
+
+	public void setTimeout(long timeout) {
+		this.timeout = timeout;
+	}
+	
+	
 	
 }

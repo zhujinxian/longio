@@ -47,7 +47,8 @@ public class DefaultMethodInfoFactory implements MethodInfoFactory {
 			cmdName = cmdName.replaceAll("\\.\\.", ".");
 			int cmd = cnm.parseCmd(cmdName);
 			boolean asy = lio.asy();
-			MethodInfo mi = new MethodInfo(cmd, cmdName, cls, m, asy);
+			long timeout = lio.timeout();
+			MethodInfo mi = new MethodInfo(cmd, cmdName, cls, m, asy, timeout);
 			ms.add(mi);
 		}
 		return ms;

@@ -132,7 +132,7 @@ public class ProxyInvocationHandler implements InvocationHandler {
 		es.submit(task);
 		
 		try {
-			MessageBlock<?> ret = task.get(100000, TimeUnit.SECONDS);
+			MessageBlock<?> ret = task.get(mi.getTimeout(), TimeUnit.MILLISECONDS);
 			return packer.unpack(mi.getMethod().getReturnType(), mi.getMethod().getGenericReturnType(), ret.getBody());
 		} catch (Exception e) {
 			this.dispatcher.unregist(mb.getSerial());
