@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.zhucode</groupId>
   <artifactId>longio-spring</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.1.Final</version>
   
  
 	<dependencies>
@@ -89,7 +89,7 @@
 
 			<id>releases</id>
 
-			<url>http://localhost:8081/nexus/content/repositories/releases</url>
+			<url>http://10.0.75.201:8081/nexus/content/repositories/releases</url>
 
 		</repository>
 
