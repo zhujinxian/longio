@@ -24,6 +24,7 @@ import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.Message;
 import com.zhucode.longio.message.MessageBlock;
 import com.zhucode.longio.message.format.Proto;
+import com.zhucode.longio.transport.Connector;
 
 /**
  * @author zhu jinxian
@@ -52,6 +53,10 @@ public class ProtoBufParameterParser implements ParameterParser {
 					Parameter p = paras[i];
 					if (p.getType() == MessageBlock.class) {
 						objs[i] = mb;
+						continue;
+					}
+					if (p.getType() == Connector.class) {
+						objs[i] = mb.getConnector();
 						continue;
 					}
 					if (p.getType().getSuperclass() == Message.class) {

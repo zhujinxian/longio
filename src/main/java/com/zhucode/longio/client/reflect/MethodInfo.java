@@ -26,9 +26,9 @@ public class MethodInfo {
 	private Class<?> cls;
 	private Method method;
 	private boolean asy;
-	private long timeout;
+	private int timeout;
 	
-	public MethodInfo(int cmd, String name, Class<?> cls, Method method, boolean asy, long timeout) {
+	public MethodInfo(int cmd, String name, Class<?> cls, Method method, boolean asy, int timeout) {
 		super();
 		this.cmd = cmd;
 		this.name = name;
@@ -78,11 +78,11 @@ public class MethodInfo {
 		this.asy = asy;
 	}
 
-	public long getTimeout() {
+	public int getTimeout() {
 		return timeout;
 	}
 
-	public void setTimeout(long timeout) {
+	public void setTimeout(int timeout) {
 		this.timeout = timeout;
 	}
 	

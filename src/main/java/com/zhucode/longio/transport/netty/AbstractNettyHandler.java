@@ -25,6 +25,7 @@ import io.netty.util.internal.InternalThreadLocalMap;
 
 import java.util.Map;
 
+import com.zhucode.longio.callback.CallbackDispatcher;
 import com.zhucode.longio.exception.ProtocolException;
 import com.zhucode.longio.message.Dispatcher;
 import com.zhucode.longio.message.MessageBlock;
@@ -48,8 +49,8 @@ public abstract class AbstractNettyHandler extends AbstractHandler implements Ch
 	
 	protected long sessionId;
 
-	public AbstractNettyHandler(Connector connector, Dispatcher dispatcher, ProtocolParser<?> pp) {
-		super(connector, dispatcher, pp);
+	public AbstractNettyHandler(Connector connector, Dispatcher dispatcher, CallbackDispatcher callbackDispatcher,ProtocolParser<?> pp) {
+		super(connector, dispatcher, callbackDispatcher, pp);
 	}
 	
 	/**
@@ -152,6 +153,7 @@ public abstract class AbstractNettyHandler extends AbstractHandler implements Ch
 		return (NettyConnector)this.connector;
 	}
 	
+	@Override
 	protected void process(ChannelHandlerContext ctx, ByteBuf buf) throws ProtocolException {
 
 		byte[] bytes = new byte[buf.readableBytes()];
@@ -167,6 +169,8 @@ public abstract class AbstractNettyHandler extends AbstractHandler implements Ch
 		
 		mb.setConnector(this.connector);
 		mb.setSessionId(ctx.channel().attr(NettyConnector.sessionKey).get());
+		mb.setLocalAddress(ctx.channel().localAddress());
+		mb.setRemoteAddress(ctx.channel().remoteAddress());
 		
 		this.dispatcher.dispatch(mb);
 	}

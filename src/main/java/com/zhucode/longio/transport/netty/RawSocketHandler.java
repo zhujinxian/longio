@@ -18,6 +18,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 
+import com.zhucode.longio.callback.CallbackDispatcher;
 import com.zhucode.longio.exception.ProtocolException;
 import com.zhucode.longio.message.Dispatcher;
 import com.zhucode.longio.message.MessageBlock;
@@ -32,8 +33,8 @@ import com.zhucode.longio.transport.Connector;
 public class RawSocketHandler extends AbstractNettyHandler {
 
 	public RawSocketHandler(Connector connector, Dispatcher dispatcher,
-			ProtocolParser<?> pp) {
-		super(connector, dispatcher, pp);
+			CallbackDispatcher callbackDispatcher, ProtocolParser<?> pp) {
+		super(connector, dispatcher, callbackDispatcher, pp);
 	}
 
 	@Override

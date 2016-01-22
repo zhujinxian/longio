@@ -33,8 +33,10 @@ public class JSONArrayProtocolParser implements ProtocolParser<JSONArray> {
 			String str = new String(bytes, "utf-8");
 			JSONArray ja = JSONArray.parseArray(str);
 			MessageBlock<JSONArray> mb = new MessageBlock<JSONArray>(ja);
-			mb.setCmd(ja.getIntValue(0));
-			mb.setSerial(ja.getLongValue(1));
+			mb.setSerial(ja.getLongValue(0));
+			mb.setCmd(ja.getIntValue(1));
+			mb.setUid(ja.getIntValue(2));
+			mb.setStatus(ja.getIntValue(3));
 			return mb;
 		} catch (UnsupportedEncodingException e) {
 			throw new ProtocolException("decode bytes[] with utf-8 error");
@@ -44,9 +46,10 @@ public class JSONArrayProtocolParser implements ProtocolParser<JSONArray> {
 	@Override
 	public byte[] encode(MessageBlock<?> mb) throws ProtocolException {
 		JSONArray body = new JSONArray();
-		body.add(0, mb.getCmd());
-		body.add(1, mb.getSerial());
-		body.add(2, mb.getStatus());
+		body.add(0, mb.getSerial());
+		body.add(1, mb.getCmd());
+		body.add(2, mb.getUid());
+		body.add(3, mb.getStatus());
 		try {
 			body.add((JSONArray)mb.getBody());
 		} catch (Exception e1) {
@@ -66,6 +69,8 @@ public class JSONArrayProtocolParser implements ProtocolParser<JSONArray> {
 		JSONArray body = new JSONArray();
 		body.add(0, 0);
 		body.add(1, 0);
+		body.add(2, 0);
+		body.add(3, 0);
 		body.add(new JSONArray());
 		try {
 			return body.toString().getBytes("utf-8");

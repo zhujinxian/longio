@@ -14,6 +14,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 package com.zhucode.longio.message;
 
 import java.lang.reflect.Parameter;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.zhucode.longio.context.parameter.ParameterParser;
 import com.zhucode.longio.context.parameter.ParameterParserFactory;
@@ -32,6 +34,9 @@ public class MessageProcessTask implements Runnable {
 	
 	ParameterParserFactory parameterParserFactory;
 	
+	private List<MessageFilter> filters;
+	
+	
 	MessageProcessTask(MessageBlock<?> mb, MethodRef mih, ParameterParserFactory parameterParserFactory) {
 		this.message = mb;
 		this.handler = mih;
@@ -42,46 +47,56 @@ public class MessageProcessTask implements Runnable {
 	@Override
 	public void run() {
 		
+		for (MessageFilter filter : filters) {
+			if (!filter.preFilter(message)) {
+				return;
+			}
+		}
+		
+		MessageBlock<Object> mret =  new MessageBlock<Object>(null);
+		mret.setCmd(message.getCmd());
+		mret.setUid(message.getUid());
+		mret.setSerial(message.getSerial());
+		mret.setSessionId(message.getSessionId());
+		mret.setConnector(message.getConnector());
+		
 		if (handler == null) {
-			MessageBlock<Object> mret = new MessageBlock<Object>(null);
-			mret.setCmd(message.getCmd());
-			mret.setSerial(message.getSerial());
-			mret.setSessionId(message.getSessionId());
-			mret.setConnector(message.getConnector());
 			mret.setStatus(404);
-			mret.getConnector().sendMessage(mret);
-			return;
-		}
-		
-		Object[] args = null;
-		Object body = message.getBody();
-		ParameterParser pp = parameterParserFactory.getParser(body.getClass());
-		Parameter[] paras  = this.handler.getMethod().getParameters();
-		args = pp.parse((MessageBlock<?>) message, 
-				this.handler.getMethod().getAnnotations(), paras);
-		Object ret = this.handler.handle(args);
-		
-		MessageBlock<Object> mret = new MessageBlock<Object>(ret);
-		
-		if (mret != null && mret instanceof MessageBlock<?>) {
-			mret.setCmd(message.getCmd());
-			mret.setSerial(message.getSerial());
-			mret.setSessionId(message.getSessionId());
-			mret.setConnector(message.getConnector());
-			mret.getConnector().sendMessage(mret);
 		} else {
-			mret.setCmd(message.getCmd());
-			mret.setSerial(message.getSerial());
-			mret.setSessionId(message.getSessionId());
-			mret.setConnector(message.getConnector());
-			mret.setStatus(500);
+			try {
+				Object[] args = null;
+				Object body = message.getBody();
+				if (body != null) {
+					ParameterParser pp = parameterParserFactory.getParser(body.getClass());
+					Parameter[] paras  = this.handler.getMethod().getParameters();
+					args = pp.parse((MessageBlock<?>) message, 
+							this.handler.getMethod().getAnnotations(), paras);
+				}
+				if (args == null) {
+					args = new Object[0];
+				}
+				Object ret = this.handler.handle(args);
+				mret.setStatus(200);
+				mret.setBody(ret);
+			} catch (Exception e) {
+				e.printStackTrace();
+				mret.setStatus(500);
+			}
+		}
+		
+		if (this.handler.isReply()) {
 			mret.getConnector().sendMessage(mret);
 		}
 		
+		for (MessageFilter filter : filters) {
+			filter.postFilter(message, mret);
+		}
 	}
 
 
+	public void setFilters(List<MessageFilter> filters) {
+		this.filters = filters;
+	}
 
-	
 	
 }

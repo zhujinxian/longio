@@ -20,13 +20,20 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 
 import org.msgpack.MessagePack;
+import org.msgpack.annotation.Message;
 import org.msgpack.packer.Packer;
 import org.msgpack.template.Template;
 import org.msgpack.template.TemplateRegistry;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.zhucode.longio.client.reflect.MethodCallback;
 import com.zhucode.longio.client.reflect.MethodInfo;
+import com.zhucode.longio.context.parameter.Body;
+import com.zhucode.longio.context.parameter.CMD;
 import com.zhucode.longio.context.parameter.Key;
 import com.zhucode.longio.context.parameter.Pack;
+import com.zhucode.longio.context.parameter.Uid;
 import com.zhucode.longio.message.format.MessagePackData;
 import com.zhucode.longio.utils.ClassUtils;
 
@@ -44,6 +51,9 @@ public class MessagePackParameterPacker implements ParameterPacker<Object> {
 		if (args == null) {
 			return null;
 		}
+		if (args.length <= 2 && args[0].getClass().isAnnotationPresent(Message.class)) {
+			return args[0];
+		}
 		Parameter[] paras = mi.getMethod().getParameters();
 		Pack pack = mi.getMethod().getAnnotation(Pack.class);
 		try {
@@ -53,6 +63,18 @@ public class MessagePackParameterPacker implements ParameterPacker<Object> {
 				
 				for (int i = 0; i < paras.length; i++) {
 					Parameter pa = paras[i];
+					if (pa.getType() == MethodCallback.class) {
+						continue;
+					}
+					if (args[i].getClass().isAnnotationPresent(Body.class)) {
+						return args[i];
+					}
+					if (args[i].getClass().isAnnotationPresent(Uid.class)) {
+						continue;
+					}
+					if (args[i].getClass().isAnnotationPresent(CMD.class)) {
+						continue;
+					}
 					Key key = pa.getAnnotation(Key.class);
 					Field f = cls.getField(key.value());
 					f.set(obj, args[i]);
@@ -63,6 +85,18 @@ public class MessagePackParameterPacker implements ParameterPacker<Object> {
 				ByteArrayOutputStream out = new ByteArrayOutputStream();
 		        Packer packer = mp.createPacker(out);
 		        for (Object arg : args) {
+		        	if (arg instanceof MethodCallback) {
+						continue;
+					}
+		        	if (arg.getClass().isAnnotationPresent(Body.class)) {
+						return arg;
+					}
+		        	if (arg.getClass().isAnnotationPresent(Uid.class)) {
+						continue;
+					}
+					if (arg.getClass().isAnnotationPresent(CMD.class)) {
+						continue;
+					}
 					packer.write(arg);
 				}
 		        return out.toByteArray();
@@ -83,8 +117,7 @@ public class MessagePackParameterPacker implements ParameterPacker<Object> {
 			return msg;
 		}
 	
-		MessagePackData mpd = (MessagePackData)msg;
-		byte[] ret = mpd.data;
+		byte[] ret = (byte[])msg;
 		
 		MessagePack mp = new MessagePack();
 		try {

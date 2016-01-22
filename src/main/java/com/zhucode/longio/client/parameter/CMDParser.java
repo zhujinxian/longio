@@ -11,37 +11,27 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
-package com.zhucode.longio.client;
+package com.zhucode.longio.client.parameter;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.FutureTask;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+
+import com.zhucode.longio.context.parameter.CMD;
 
 /**
  * @author zhu jinxian
- * @date  2015年10月12日
+ * @date  2016年1月20日
  * 
  */
-public class InvocationTask<V> extends FutureTask<V> {
-
-	private Callable<V> callable;
+public class CMDParser {
 	
-	public InvocationTask(Callable<V> callable) {
-		super(callable);
-		this.callable = callable;
-	}
-
-	@Override
-	public void set(V v) {
-		super.set(v);
-	}
-	
-	
-	@Override
-	public void run() {
-		try {
-			this.callable.call();
-		} catch (Exception e) {
-			e.printStackTrace();
+	public static int parseCMD(Method m, Object[] args) {
+		Parameter[] pas = m.getParameters();
+		for (int i = 0; i < pas.length; i++) {
+			if (pas[i].isAnnotationPresent(CMD.class)) {
+				return (int)args[i];
+			}
 		}
+		return -1;
 	}
 }

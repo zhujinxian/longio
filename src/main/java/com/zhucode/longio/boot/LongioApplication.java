@@ -22,12 +22,14 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
+import com.zhucode.longio.annotation.Lfilter;
 import com.zhucode.longio.annotation.Lservice;
 import com.zhucode.longio.client.reflect.DefaultMethodInfoFactory;
 import com.zhucode.longio.client.reflect.MethodInfo;
 import com.zhucode.longio.client.reflect.MethodInfoFactory;
 import com.zhucode.longio.client.reflect.ProxyInvocationHandler;
 import com.zhucode.longio.conf.DefaultAppLookup;
+import com.zhucode.longio.message.MessageFilter;
 import com.zhucode.longio.message.MethodDispatcher;
 import com.zhucode.longio.reflect.DefaultMethodRefFactory;
 import com.zhucode.longio.reflect.MethodRefFactory;
@@ -53,6 +55,8 @@ public class LongioApplication {
 		for (Object obj : getServiceInvokers()) {
 			dispatcher.registerMethodRefs(mrf.createMethodRefs(obj));
 		}
+		
+		dispatcher.registerMessageFilters(getFilters());
 		
 		try {
 			Connector connector = connectors.get(connectorCls);
@@ -101,6 +105,42 @@ public class LongioApplication {
 		}
 		
 		return invokers;
+	}
+	
+	
+	private static List<MessageFilter> getFilters() {
+		List<MessageFilter> filters = new ArrayList<MessageFilter>();
+		Collection<String> resources = ResourceScanner.getResources(Pattern.compile(".*Filter.class$"));
+		for (String name : resources) {
+			System.out.println(name);
+			try {
+				if (name.indexOf("classes/") > -1) {
+					int x = name.indexOf("classes/") + "classes/".length();
+					name = name.substring(x, name.length());
+				}
+				name = name.replaceAll("/", ".");
+				name = name.replaceAll(".class", "");
+				if (name.contains("$")) {
+					continue;
+				}
+				Class<?> cls = Class.forName(name);
+				Lfilter ls = cls.getAnnotation(Lfilter.class);
+				if (ls == null) {
+					continue;
+				}
+				filters.add((MessageFilter)cls.newInstance());
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return filters;
 	}
 	
 	

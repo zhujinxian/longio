@@ -34,7 +34,7 @@ public class ParameterParserFactory {
 		map.put(JSONObject.class, new JsonObjectParameterParser());
 		map.put(JSONArray.class, new JsonArrayParameterParser());
 		map.put(Proto.Message.class, new ProtoBufParameterParser());
-		map.put(MessagePackData.class, new MessagePackParameterParser());
+		map.put(byte[].class, new MessagePackParameterParser());
 	}
 	
 	public void addParser(Class<?> cls, ParameterParser parser) {

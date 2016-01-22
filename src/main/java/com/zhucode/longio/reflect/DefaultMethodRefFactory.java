@@ -50,7 +50,8 @@ public class DefaultMethodRefFactory implements MethodRefFactory {
 			cmdName = cmdName.replaceAll("\\.\\.", ".");
 			int cmd = cnm.parseCmd(cmdName);
 			boolean asy = lio.asy();
-			MethodRef mih = new MethodRef(cmd, cmdName, proxy, m, asy);
+			boolean reply = lio.reply();
+			MethodRef mih = new MethodRef(cmd, cmdName, proxy, m, asy, reply);
 			refs.add(mih);
 		}
 		

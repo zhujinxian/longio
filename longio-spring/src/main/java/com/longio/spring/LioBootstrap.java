@@ -16,6 +16,7 @@ package com.longio.spring;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -45,9 +46,11 @@ import org.springframework.util.ResourceUtils;
 
 import com.longio.spring.annotation.Boot;
 import com.longio.spring.annotation.Boots;
+import com.zhucode.longio.annotation.Lfilter;
 import com.zhucode.longio.annotation.LsAutowired;
 import com.zhucode.longio.annotation.Lservice;
 import com.zhucode.longio.message.Dispatcher;
+import com.zhucode.longio.message.MessageFilter;
 import com.zhucode.longio.message.MethodDispatcher;
 import com.zhucode.longio.reflect.DefaultMethodRefFactory;
 import com.zhucode.longio.reflect.MethodRefFactory;
@@ -88,6 +91,8 @@ public class LioBootstrap implements ApplicationContextAware {
 		doScanAndRegist(bf);
 		
 		resolveLservice(app, bf);
+		
+		resolveLfilters(app, bf);
 	}
 
 	private void resolveLservice(ApplicationContext app, DefaultListableBeanFactory bf) {
@@ -128,6 +133,46 @@ public class LioBootstrap implements ApplicationContextAware {
 		}
 		
 	}
+	
+	
+	private void resolveLfilters(ApplicationContext app, DefaultListableBeanFactory bf) {
+		
+		List<MessageFilter> filters = new ArrayList<MessageFilter>();
+		for (String name : bf.getBeanDefinitionNames()) {
+			AbstractBeanDefinition bd = (AbstractBeanDefinition)bf.getBeanDefinition(name);
+			//System.out.println("+++++++++++++++" + name);
+			if (!bd.hasBeanClass()) {
+				continue;
+			}
+			
+			if (!name.endsWith("Filter")) {
+				continue;
+			}
+			
+			Class<?> cls = bd.getBeanClass();
+			if (cls != LioFactoryBean.class) {
+				continue;
+			}
+			
+			Object obj = app.getBean(name);
+            app.getAutowireCapableBeanFactory().autowireBean(obj);
+            Lfilter lf = obj.getClass().getAnnotation(Lfilter.class);
+            if (lf != null) {
+            	filters.add((MessageFilter)obj);
+            }
+		}
+		
+		Connector connector = getConnector(bf);
+		for (Dispatcher d : connector.getDispatcheres("*")) {
+			d.registerMessageFilters(filters);
+			for (MessageFilter filter : filters) {
+				logger.info("load longio [" + filter.getClass().getCanonicalName() + "] message filter");
+			}
+			
+		}
+		
+	}
+
 
 	private void bootEndpoints(DefaultListableBeanFactory bf, String name) {
 		RootBeanDefinition bd = (RootBeanDefinition)bf.getBeanDefinition(name);
@@ -179,6 +224,9 @@ public class LioBootstrap implements ApplicationContextAware {
 
 		// 3、从每个URL中找出符合规范的Lio接口，并将之以LioServiceFactoryBean的形式注册到Spring容器中
 		findLioDefinitions(beanFactory, urls);
+		
+		//filter 
+		findLfilterDefinitions(beanFactory, urls);
 	}
 
 	/*
@@ -227,6 +275,28 @@ public class LioBootstrap implements ApplicationContextAware {
 	private void findLioDefinitions(
 			ConfigurableListableBeanFactory beanFactory, List<String> urls) {
 		LioComponentProvider provider = new LioComponentProvider(Lservice.class);
+		Set<String> LioClassNames = new HashSet<String>();
+
+		for (String url : urls) {
+		
+			Set<BeanDefinition> dfs = provider.findCandidateComponents(url);
+			
+
+			for (BeanDefinition beanDefinition : dfs) {
+				String LioClassName = beanDefinition.getBeanClassName();
+				if (LioClassNames.contains(LioClassName)) {
+					continue;
+				}
+				LioClassNames.add(LioClassName);
+
+				registerLioDefinition(beanFactory, beanDefinition);
+			}
+		}
+	}
+	
+	private void findLfilterDefinitions(
+			ConfigurableListableBeanFactory beanFactory, List<String> urls) {
+		LfilterComponentProvider provider = new LfilterComponentProvider(Lfilter.class);
 		Set<String> LioClassNames = new HashSet<String>();
 
 		for (String url : urls) {

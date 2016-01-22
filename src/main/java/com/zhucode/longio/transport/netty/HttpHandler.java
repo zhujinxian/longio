@@ -42,6 +42,7 @@ import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.AttributeKey;
 import io.netty.util.ReferenceCountUtil;
 
+import com.zhucode.longio.callback.CallbackDispatcher;
 import com.zhucode.longio.exception.ProtocolException;
 import com.zhucode.longio.message.Dispatcher;
 import com.zhucode.longio.message.MessageBlock;
@@ -58,8 +59,8 @@ public class HttpHandler extends AbstractNettyHandler {
 	
 	private static AttributeKey<Boolean> keepAlive = AttributeKey.valueOf("keepAlive");
 	
-	public HttpHandler(NettyConnector connector, Dispatcher dispatcher, ProtocolParser<?> pp) {
-		super(connector, dispatcher, pp);
+	public HttpHandler(NettyConnector connector, Dispatcher dispatcher, CallbackDispatcher callbackDispatcher, ProtocolParser<?> pp) {
+		super(connector, dispatcher,callbackDispatcher, pp);
 	}
 	
 

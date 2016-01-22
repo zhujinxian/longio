@@ -11,38 +11,37 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
-package com.zhucode.longio.transport;
+package com.zhucode.longio.callback;
 
-import java.util.List;
-import java.util.Set;
-
-import com.zhucode.longio.callback.CallbackDispatcher;
-import com.zhucode.longio.message.Dispatcher;
-import com.zhucode.longio.message.MessageBlock;
-import com.zhucode.longio.message.MessageCallback;
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
 
 /**
  * @author zhu jinxian
  * @date  2015年10月12日
  * 
  */
-public interface Connector {
-	
-	int getConnectId();
-	
-	List<Endpoint> getEndpoints(String pkg);
-	
-	Set<Dispatcher> getDispatcheres(String pkg);
-	
-	CallbackDispatcher getCallbackDispatcher();
-	
-	void sendMessage(MessageBlock<?> message);
-	
-	void sendMessage(MessageBlock<?> message, MessageCallback callback, int timeout) throws Exception;
-	
-	void start(int port, Dispatcher dispatcher, TransportType tt, ProtocolType pt) throws Exception;
-	
-	void start(int port, Dispatcher dispatcher, TransportType tt, ProtocolType pt, String pkg) throws Exception;
+public class InvocationTask<V> extends FutureTask<V> {
 
-	Client createClient(String host, int port, TransportType tt, ProtocolType pt) throws Exception;
+	private Callable<V> callable;
+	
+	public InvocationTask(Callable<V> callable) {
+		super(callable);
+		this.callable = callable;
+	}
+
+	@Override
+	public void set(V v) {
+		super.set(v);
+	}
+	
+	
+	@Override
+	public void run() {
+		try {
+			this.callable.call();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

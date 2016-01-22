@@ -65,7 +65,10 @@ public class RawSocketClientHandler extends AbstractClientHandler {
 				ctx.fireUserEventTriggered(new PingEvent());
 				return;
 			}
-			this.connector.getClientDispatcher().setReturnValue(mb);
+			mb.setConnector(connector);
+			mb.setLocalAddress(ctx.channel().localAddress());
+			mb.setRemoteAddress(ctx.channel().remoteAddress());
+			this.connector.getCallbackDispatcher().setReturnValue(mb);
 		} catch (ProtocolException e) {
 			e.printStackTrace();
 		} finally {
@@ -78,7 +81,6 @@ public class RawSocketClientHandler extends AbstractClientHandler {
 		byte[] bytes = new byte[0];
 		try {
 			bytes = pp.encode(mb);
-			
 		} catch (ProtocolException e) {
 			e.printStackTrace();
 		}

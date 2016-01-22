@@ -13,9 +13,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio.transport;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
+
+import com.zhucode.longio.callback.CallbackDispatcher;
 import com.zhucode.longio.exception.ProtocolException;
 import com.zhucode.longio.message.Dispatcher;
-import com.zhucode.longio.message.MessageBlock;
 import com.zhucode.longio.protocol.ProtocolParser;
 
 /**
@@ -27,10 +30,11 @@ public abstract class AbstractHandler {
 
 	protected Connector connector;
 	protected Dispatcher dispatcher;
+	protected CallbackDispatcher callbackDispatcher;
 	
 	protected ProtocolParser<?> pp;
 	
-	public AbstractHandler(Connector connector, Dispatcher dispatcher, ProtocolParser<?> pp) {
+	public AbstractHandler(Connector connector, Dispatcher dispatcher, CallbackDispatcher callbackDispatcher, ProtocolParser<?> pp) {
 		super();
 		this.connector = connector;
 		this.dispatcher = dispatcher;
@@ -38,13 +42,5 @@ public abstract class AbstractHandler {
 	}
 
 
-	public void dispatch(long sessionId, byte[] bytes) throws ProtocolException {
-		MessageBlock<?> mb = pp.decode(bytes);
-		mb.setConnector(this.connector);
-		mb.setSessionId(sessionId);
-		
-		this.dispatcher.dispatch(mb);
-	}
-	
-	
+	abstract protected void process(ChannelHandlerContext ctx, ByteBuf buf) throws ProtocolException;
 }

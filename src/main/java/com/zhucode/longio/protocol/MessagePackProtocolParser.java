@@ -25,18 +25,20 @@ import com.zhucode.longio.message.format.MessagePackData;
  * @date  2015年10月12日
  * 
  */
-public class MessagePackProtocolParser implements ProtocolParser<MessagePackData> {
+public class MessagePackProtocolParser implements ProtocolParser<byte[]> {
 
 	@Override
-	public MessageBlock<MessagePackData> decode(byte[] bytes)
+	public MessageBlock<byte[]> decode(byte[] bytes)
 			throws ProtocolException {
 		
 		MessagePack mp = new MessagePack();
 		try {
 			MessagePackData mpd = mp.read(bytes, MessagePackData.class);
-			MessageBlock<MessagePackData> mb = new MessageBlock<MessagePackData>(mpd);
+			MessageBlock<byte[]> mb = new MessageBlock<byte[]>(mpd.data);
 			mb.setCmd(mpd.cmd);
 			mb.setSerial(mpd.serial);
+			mb.setUid(mpd.uid);
+			mb.setStatus(mpd.status);
 			return mb;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -63,6 +65,7 @@ public class MessagePackProtocolParser implements ProtocolParser<MessagePackData
 		MessagePackData mpd = new MessagePackData();
 		mpd.cmd = mb.getCmd();
 		mpd.serial = mb.getSerial();
+		mpd.uid = mb.getUid();
 		mpd.status = mb.getStatus();
 		
 		Object ret = mb.getBody();
@@ -87,6 +90,8 @@ public class MessagePackProtocolParser implements ProtocolParser<MessagePackData
 		MessagePackData mpd = new MessagePackData();
 		mpd.cmd = 0;
 		mpd.serial = 0;
+		mpd.uid = 0;
+		mpd.status = 0;
 		mpd.data = new byte[0];
 		MessagePack mp = new MessagePack();
 		try {

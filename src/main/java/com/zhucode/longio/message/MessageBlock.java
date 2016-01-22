@@ -13,6 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio.message;
 
+import java.net.SocketAddress;
+
 import com.zhucode.longio.transport.Connector;
 
 /**
@@ -26,15 +28,23 @@ public class MessageBlock<T> {
 	
 	private long serial;
 	
+	private int uid;
+	
 	private int cmd;
+	
+	private int status;
 	
 	private T body;
 	
 	private Connector connector;
 	
+	private SocketAddress localAddress;
+	
+	private SocketAddress remoteAddress;
+	
 	private int sendCount;
 	
-	private int status = 200;
+	
 	
 	public MessageBlock(T body) {
 		this.body = body;
@@ -47,8 +57,6 @@ public class MessageBlock<T> {
 	public void setBody(T body) {
 		this.body = body;
 	}
-
-
 
 	public Connector getConnector() {
 		return connector;
@@ -73,6 +81,14 @@ public class MessageBlock<T> {
 	public void setSerial(long serial) {
 		this.serial = serial;
 	}
+	
+	public int getUid() {
+		return uid;
+	}
+
+	public void setUid(int uid) {
+		this.uid = uid;
+	}
 
 	public int getCmd() {
 		return cmd;
@@ -96,6 +112,29 @@ public class MessageBlock<T> {
 
 	public void setStatus(int status) {
 		this.status = status;
+	}
+
+	public SocketAddress getLocalAddress() {
+		return localAddress;
+	}
+
+	public void setLocalAddress(SocketAddress localAddress) {
+		this.localAddress = localAddress;
+	}
+
+	public SocketAddress getRemoteAddress() {
+		return remoteAddress;
+	}
+
+	public void setRemoteAddress(SocketAddress remoteAddress) {
+		this.remoteAddress = remoteAddress;
+	}
+
+	@Override
+	public String toString() {
+		return "message [" + this.remoteAddress + " -> " + this.localAddress 
+				+ "], cmd [" + cmd + "], serial [" + serial 
+				+ "], status [" + status + "], body [" + body + "]";
 	}
 	
 	

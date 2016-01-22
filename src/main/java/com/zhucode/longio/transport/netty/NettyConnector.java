@@ -34,20 +34,23 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.zhucode.longio.client.ClientDispatcher;
+import com.zhucode.longio.callback.CallbackDispatcher;
+import com.zhucode.longio.callback.InvocationTask;
 import com.zhucode.longio.message.Dispatcher;
 import com.zhucode.longio.message.MessageBlock;
+import com.zhucode.longio.message.MessageCallback;
 import com.zhucode.longio.protocol.JSONArrayProtocolParser;
 import com.zhucode.longio.protocol.JSONObjectProtocolParser;
 import com.zhucode.longio.protocol.MessagePackProtocolParser;
 import com.zhucode.longio.protocol.ProtoBufProtocolParser;
 import com.zhucode.longio.protocol.ProtocolParser;
-import com.zhucode.longio.transport.Beginpoint;
 import com.zhucode.longio.transport.Client;
 import com.zhucode.longio.transport.Connector;
 import com.zhucode.longio.transport.Endpoint;
@@ -75,7 +78,7 @@ public class NettyConnector implements Connector {
 	
 	private List<Endpoint> endpoints = new ArrayList<Endpoint>();
 
-	private ClientDispatcher clientDispatcher = new ClientDispatcher();
+	private CallbackDispatcher callbackDispatcher = new CallbackDispatcher();
 	
 
 	public NettyConnector() {
@@ -176,7 +179,7 @@ public class NettyConnector implements Connector {
 				ch.pipeline().addLast(new HttpObjectAggregator(65536));
 				ch.pipeline().addLast(new IdleStateHandler(6000, 3000, 0));
 				ch.pipeline().addLast(new HttpHandler(
-						NettyConnector.this, dispatcher, getProtocolParser(pt)));
+						NettyConnector.this, dispatcher, callbackDispatcher, getProtocolParser(pt)));
 			}
 			
 		});
@@ -206,7 +209,7 @@ public class NettyConnector implements Connector {
 				ch.pipeline().addLast("encoder", new LengthFieldPrepender(2, false));
 				ch.pipeline().addLast(new IdleStateHandler(6000, 3000, 0));
 				ch.pipeline().addLast(new RawSocketHandler(NettyConnector.this, 
-						dispatcher, getProtocolParser(pt)));
+						dispatcher, callbackDispatcher, getProtocolParser(pt)));
 			}
 			
 		});
@@ -296,19 +299,33 @@ public class NettyConnector implements Connector {
 	}
 
 	@Override
-	public ClientDispatcher getClientDispatcher() {
-		return this.clientDispatcher ;
+	public CallbackDispatcher getCallbackDispatcher() {
+		return this.callbackDispatcher ;
 	}
 
+	
 
 	@Override
-	public void sendMessage(Beginpoint bp, MessageBlock<?> message) {
-		long sid = message.getSessionId();
-		ChannelHandlerContext ctx = ctxs.get(sid);
-		AttributeKey<AbstractNettyHandler> handlerKey = AttributeKey.valueOf("AbstractNettyHandler");
-		System.out.println("h : " + ctx.attr(handlerKey) == null + " sid = " + sid);
-		AbstractNettyHandler handler = ctx.attr(handlerKey).get();
-		ChannelFuture f = handler.sendMessage(ctx, message);
+	public void sendMessage(MessageBlock<?> message, MessageCallback callback,
+			int timeout) throws Exception {
+		Callable<MessageBlock<?>> call = new Callable<MessageBlock<?>>() {
+
+			@Override
+			public MessageBlock<?> call() throws Exception {
+				try {
+					NettyConnector.this.send(message);
+				} catch (Exception e) {
+					message.setBody(null);
+					message.setStatus(500);
+					callbackDispatcher.setReturnValue(message);
+					e.printStackTrace();
+				}
+				return null;
+			}
+		};
+		
+		InvocationTask<MessageBlock<?>> task = new InvocationTask<MessageBlock<?>>(call);
+		this.callbackDispatcher.registCallback(message.getSerial(), task, callback, timeout);
 	}
 
 	public NioEventLoopGroup getBossGroup() {

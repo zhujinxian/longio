@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.client.Netty4ClientHttpRequestFactory;
 
+import com.zhucode.longio.annotation.Lfilter;
 import com.zhucode.longio.annotation.LsAutowired;
 import com.zhucode.longio.annotation.Lservice;
 import com.zhucode.longio.boot.LongioApplication;
@@ -64,10 +65,11 @@ public class LioFactoryBean implements FactoryBean, InitializingBean {
 			}
 			this.object = LongioApplication.getService(NettyConnector.class, objectType, new EnvProperties(environment));
 		} else {
-			if (!this.objectType.isAnnotationPresent(Lservice.class)) {
-				throw new Exception("the scaned service class must be annotated by Lservice");
+			if (this.objectType.isAnnotationPresent(Lservice.class) || this.objectType.isAnnotationPresent(Lfilter.class)) {
+				this.object = this.objectType.newInstance();
+			} else {
+				throw new Exception("the scaned  class must be annotated by Lservice or Lfilter");
 			}
-			this.object = this.objectType.newInstance();
 		}
 	}
 

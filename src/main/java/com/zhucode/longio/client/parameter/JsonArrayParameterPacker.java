@@ -17,7 +17,12 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.zhucode.longio.client.reflect.MethodCallback;
 import com.zhucode.longio.client.reflect.MethodInfo;
+import com.zhucode.longio.context.parameter.Body;
+import com.zhucode.longio.context.parameter.CMD;
+import com.zhucode.longio.context.parameter.Uid;
 import com.zhucode.longio.exception.UnsupportedException;
 import com.zhucode.longio.utils.ClassUtils;
 
@@ -30,9 +35,27 @@ public class JsonArrayParameterPacker implements ParameterPacker<JSONArray> {
 
 	@Override
 	public JSONArray pack(MethodInfo mi, Object... args) {
+		if (args == null) {
+			return null;
+		}
+		if (args.length <= 2 && (args[0] instanceof JSONArray)) {
+			return (JSONArray)args[0];
+		}
 		Parameter[] paras = mi.getMethod().getParameters();
 		JSONArray ja = new JSONArray();
 		for (int i = 0; i < paras.length; i++) {
+			if (paras[i].getType() == MethodCallback.class) {
+				continue;
+			}
+			if (args[i].getClass().isAnnotationPresent(Body.class)) {
+				return (JSONArray)args[i];
+			}
+			if (args[i].getClass().isAnnotationPresent(Uid.class)) {
+				continue;
+			}
+			if (args[i].getClass().isAnnotationPresent(CMD.class)) {
+				continue;
+			}
 			ja.add(args[i]);
 		}
 		return ja;

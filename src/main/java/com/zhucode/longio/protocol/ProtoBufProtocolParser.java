@@ -33,9 +33,13 @@ public class ProtoBufProtocolParser implements ProtocolParser<Message> {
 			Proto.Message data = Proto.Message.parseFrom(bytes);
 			int cmd = data.getCmd();
 			long serial = data.getSerial();
+			int uid = data.getUid();
+			int status = data.getStatus();
 			MessageBlock<Message> mb = new MessageBlock<Message>(data);
 			mb.setCmd(cmd);
 			mb.setSerial(serial);
+			mb.setUid(uid);
+			mb.setStatus(status);
 			return mb;
 		} catch (InvalidProtocolBufferException e) {
 			e.printStackTrace();
@@ -48,11 +52,13 @@ public class ProtoBufProtocolParser implements ProtocolParser<Message> {
 	public byte[] encode(MessageBlock<?> mb) throws ProtocolException {
 		int cmd = mb.getCmd();
 		long serial = mb.getSerial();
+		int uid = mb.getUid();
+		int status = mb.getStatus();
 		
 		if (mb.getBody() instanceof Message) {
 			Message m = (Message)mb.getBody();
 			Proto.Message data = Proto.Message.newBuilder()
-					.setCmd(cmd).setSerial(serial).setBody(m.toByteString()).build();
+					.setCmd(cmd).setSerial(serial).setUid(uid).setStatus(status).setBody(m.toByteString()).build();
 			return data.toByteArray();
 		} else {
 			throw new ProtocolException("the only type must be void or " + Message.class.getCanonicalName());
@@ -64,7 +70,7 @@ public class ProtoBufProtocolParser implements ProtocolParser<Message> {
 	@Override
 	public byte[] getHeartBeat() {
 		Proto.Message data = Proto.Message.newBuilder()
-				.setCmd(0).setSerial(0).setBody(ByteString.EMPTY).build();
+				.setCmd(0).setSerial(0).setUid(0).setStatus(0).setBody(ByteString.EMPTY).build();
 		return data.toByteArray();
 	}
 	

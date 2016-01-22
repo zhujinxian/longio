@@ -25,14 +25,17 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.zhucode.longio.annotation.LsAutowired;
-import com.zhucode.longio.client.ClientDispatcher;
-import com.zhucode.longio.client.InvocationTask;
+import com.zhucode.longio.callback.CallbackDispatcher;
+import com.zhucode.longio.callback.InvocationTask;
+import com.zhucode.longio.client.parameter.CMDParser;
 import com.zhucode.longio.client.parameter.ParameterPacker;
 import com.zhucode.longio.client.parameter.ParameterPackerFactory;
+import com.zhucode.longio.client.parameter.UidParser;
 import com.zhucode.longio.conf.AppLookup;
 import com.zhucode.longio.message.MessageBlock;
+import com.zhucode.longio.message.MessageCallback;
+import com.zhucode.longio.message.MessageSerial;
 import com.zhucode.longio.transport.Beginpoint;
-import com.zhucode.longio.transport.Client;
 import com.zhucode.longio.transport.Connector;
 import com.zhucode.longio.transport.ProtocolType;
 import com.zhucode.longio.transport.TransportType;
@@ -44,8 +47,6 @@ import com.zhucode.longio.transport.TransportType;
  */
 public class ProxyInvocationHandler implements InvocationHandler {
 
-	private static ExecutorService es = Executors.newCachedThreadPool();
-	
 	private static ParameterPackerFactory ppf = new ParameterPackerFactory();
 	
 	private Map<Method, MethodInfo> methods;
@@ -54,7 +55,7 @@ public class ProxyInvocationHandler implements InvocationHandler {
 
 	private Connector connector;
 
-	private ClientDispatcher dispatcher;
+	private CallbackDispatcher dispatcher;
 	
 	private Class<?> proxyCls;
 	
@@ -62,12 +63,9 @@ public class ProxyInvocationHandler implements InvocationHandler {
 	
 	private AppLookup appLookup;
 	
-	
-	private static AtomicLong serial = new AtomicLong(1000000);
-	
 	public ProxyInvocationHandler(Connector connector, AppLookup appLookup, Class<?> requiredType, List<MethodInfo> methods) {
 		this.connector = connector;
-		this.dispatcher = connector.getClientDispatcher();
+		this.dispatcher = connector.getCallbackDispatcher();
 		this.proxyCls = requiredType;
 		this.methods =  new HashMap<Method, MethodInfo>();
 		for (MethodInfo mi : methods) {
@@ -109,7 +107,18 @@ public class ProxyInvocationHandler implements InvocationHandler {
 		
 		MessageBlock<?> mb = new MessageBlock<Object>(po);
 		mb.setCmd(mi.getCmd());
-		mb.setSerial(serial.getAndIncrement());
+		mb.setSerial(MessageSerial.newSerial());
+		
+		int uid = UidParser.parseUid(mi.getMethod(), args);
+		int cmd = CMDParser.parseCMD(mi.getMethod(), args);
+		
+		if (uid > 0) {
+			mb.setUid(uid);
+		}
+		
+		if (cmd > 0) {
+			mb.setCmd(cmd);
+		}
 		
 		Callable<MessageBlock<?>> call = new Callable<MessageBlock<?>>() {
 
@@ -119,6 +128,7 @@ public class ProxyInvocationHandler implements InvocationHandler {
 					beginPoint.send(mb);
 				} catch (Exception e) {
 					mb.setBody(null);
+					mb.setStatus(500);
 					dispatcher.setReturnValue(mb);
 					e.printStackTrace();
 				}
@@ -127,19 +137,25 @@ public class ProxyInvocationHandler implements InvocationHandler {
 		};
 		
 		InvocationTask<MessageBlock<?>> task = new InvocationTask<MessageBlock<?>>(call);
-		this.dispatcher.registTask(mb.getSerial(), task);
-		
-		es.submit(task);
-		
-		try {
-			MessageBlock<?> ret = task.get(mi.getTimeout(), TimeUnit.MILLISECONDS);
-			return packer.unpack(mi.getMethod().getReturnType(), mi.getMethod().getGenericReturnType(), ret.getBody());
-		} catch (Exception e) {
-			this.dispatcher.unregist(mb.getSerial());
-			e.printStackTrace();
+		if (args != null && args.length > 0 && args[args.length-1] instanceof MessageCallback) {
+			MessageCallback callback = (MessageCallback)args[args.length-1];
+			this.dispatcher.registCallback(mb.getSerial(), task, callback, mi.getTimeout());
+			return null;
+		} else {
+			this.dispatcher.registTask(mb.getSerial(), task);
+
+			try {
+				MessageBlock<?> ret = task.get(mi.getTimeout(), TimeUnit.MILLISECONDS);
+				return packer.unpack(mi.getMethod().getReturnType(), mi.getMethod().getGenericReturnType(), ret.getBody());
+			} catch (Exception e) {
+				this.dispatcher.unregist(mb.getSerial());
+				e.printStackTrace();
+			}
+			
+			throw new Exception("server invoke timeout");
 		}
 		
-		throw new Exception("server invoke timeout");
+		
 	}
 
 }

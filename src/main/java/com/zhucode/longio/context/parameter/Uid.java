@@ -11,39 +11,23 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
-package com.zhucode.longio.client;
+package com.zhucode.longio.context.parameter;
 
-import java.util.concurrent.ConcurrentHashMap;
-
-import com.zhucode.longio.message.MessageBlock;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * @author zhu jinxian
- * @date  2015年10月12日
+ * @date  2016年1月20日
  * 
  */
-public class ClientDispatcher {
-	
-	private ConcurrentHashMap<Long, InvocationTask<MessageBlock<?>>> tasks = new ConcurrentHashMap<Long, InvocationTask<MessageBlock<?>>>();
-	
-	public void setReturnValue(MessageBlock<?> mb) {
-		long serial = mb.getSerial();
-		InvocationTask<MessageBlock<?>> task = this.tasks.get(serial);
-		if (task != null & !task.isCancelled()) {
-			task.set(mb);
-			unregist(serial);
-		} else {
-			System.out.println("maybe timeout message : " + mb.toString());
-		}
-	}
-	
-	
-	public void registTask(long serial, InvocationTask<MessageBlock<?>> task) {
-		this.tasks.put(serial, task);
-	}
-
-	public void unregist(long serial) {
-		this.tasks.remove(serial);
-	}
-	
+@Target({ ElementType.PARAMETER })
+@Retention(RetentionPolicy.RUNTIME)
+@Inherited
+@Documented
+public @interface Uid {
 }

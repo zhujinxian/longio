@@ -32,9 +32,22 @@ public class JSONObjectProtocolParser implements ProtocolParser<JSONObject> {
 		try {
 			String str = new String(bytes, "utf-8");
 			JSONObject json = JSONObject.parseObject(str);
-			MessageBlock<JSONObject> mb = new MessageBlock<JSONObject>(json);
-			mb.setCmd(json.getIntValue("cmd"));
+			Object data = json.get("data");
+			MessageBlock<JSONObject> mb = null;
+			if (data instanceof JSONObject) {
+				mb = new MessageBlock<JSONObject>((JSONObject)data);
+			} else if (data == null) {
+				mb = new MessageBlock<JSONObject>(null);
+			} else if (ClassUtils.isPrimitive(data.getClass())) {
+				JSONObject js = new JSONObject();
+				js.put("_ret_", data);
+				mb = new MessageBlock<JSONObject>(js);
+			}
+			
 			mb.setSerial(json.getLongValue("serial"));
+			mb.setCmd(json.getIntValue("cmd"));
+			mb.setUid(json.getIntValue("uid"));
+			mb.setStatus(json.getIntValue("status"));
 			return mb;
 		} catch (UnsupportedEncodingException e) {
 			throw new ProtocolException("decode bytes[] with utf-8 error");
@@ -46,6 +59,7 @@ public class JSONObjectProtocolParser implements ProtocolParser<JSONObject> {
 		JSONObject res = new JSONObject();
 		res.put("cmd", mb.getCmd());
 		res.put("serial", mb.getSerial());
+		res.put("uid", mb.getUid());
 		res.put("status", mb.getStatus());
 		
 		if (mb.getBody() == null) {
@@ -69,6 +83,8 @@ public class JSONObjectProtocolParser implements ProtocolParser<JSONObject> {
 		JSONObject res = new JSONObject();
 		res.put("cmd", 0);
 		res.put("serial", 0);
+		res.put("uid", 0);
+		res.put("status", 0);
 		res.put("data", null);
 		try {
 			return res.toJSONString().getBytes("utf-8");

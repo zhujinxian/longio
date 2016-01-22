@@ -11,38 +11,24 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
-package com.zhucode.longio.transport;
+package com.zhucode.longio.context.parameter;
 
-import java.util.List;
-import java.util.Set;
-
-import com.zhucode.longio.callback.CallbackDispatcher;
-import com.zhucode.longio.message.Dispatcher;
-import com.zhucode.longio.message.MessageBlock;
-import com.zhucode.longio.message.MessageCallback;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * @author zhu jinxian
- * @date  2015年10月12日
+ * @date  2016年1月20日
  * 
  */
-public interface Connector {
-	
-	int getConnectId();
-	
-	List<Endpoint> getEndpoints(String pkg);
-	
-	Set<Dispatcher> getDispatcheres(String pkg);
-	
-	CallbackDispatcher getCallbackDispatcher();
-	
-	void sendMessage(MessageBlock<?> message);
-	
-	void sendMessage(MessageBlock<?> message, MessageCallback callback, int timeout) throws Exception;
-	
-	void start(int port, Dispatcher dispatcher, TransportType tt, ProtocolType pt) throws Exception;
-	
-	void start(int port, Dispatcher dispatcher, TransportType tt, ProtocolType pt, String pkg) throws Exception;
+@Target({ ElementType.PARAMETER })
+@Retention(RetentionPolicy.RUNTIME)
+@Inherited
+@Documented
+public @interface Body {
 
-	Client createClient(String host, int port, TransportType tt, ProtocolType pt) throws Exception;
 }

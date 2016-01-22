@@ -13,7 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio.transport;
 
-import com.zhucode.longio.client.ClientDispatcher;
+import com.zhucode.longio.callback.CallbackDispatcher;
 import com.zhucode.longio.message.MessageBlock;
 
 /**
@@ -27,7 +27,7 @@ public class Beginpoint  {
 	private String host;
 	private int port;
 	private Connector connector;
-	private ClientDispatcher dispatcher;
+	private CallbackDispatcher dispatcher;
 	private ProtocolType pt;
 	private TransportType tt;
 	private long sessionId;
@@ -39,7 +39,7 @@ public class Beginpoint  {
 		this.host = host;
 		this.port = port;
 		this.connector = connector;
-		this.dispatcher = connector.getClientDispatcher();
+		this.dispatcher = connector.getCallbackDispatcher();
 		this.pt = pt;
 		this.tt = tt;
 		init();
@@ -63,7 +63,7 @@ public class Beginpoint  {
 		return this.connector;
 	}
 
-	public ClientDispatcher getClientDispatcher() {
+	public CallbackDispatcher getClientDispatcher() {
 		return this.dispatcher;
 	}
 

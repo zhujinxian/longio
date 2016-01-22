@@ -39,6 +39,8 @@ public class MethodDispatcher implements Dispatcher {
 	
 	private Map<Integer, MethodRef> invokers = new HashMap<Integer, MethodRef>();
 	
+	private List<MessageFilter> filters;
+	
 	private ParameterParserFactory parameterParserFactory;
 	
 	AtomicLong num = new AtomicLong();
@@ -59,6 +61,7 @@ public class MethodDispatcher implements Dispatcher {
 		int cmd = mb.getCmd();
 		MethodRef mih = invokers.get(cmd);
 		MessageProcessTask mpt = new MessageProcessTask(mb, mih, parameterParserFactory);
+		mpt.setFilters(filters);
 		if (mih == null || mih.isAsy()) {
 			this.es.submit(mpt);
 		} else {
@@ -69,6 +72,12 @@ public class MethodDispatcher implements Dispatcher {
 
 	public ParameterParserFactory getParameterParserFactory() {
 		return parameterParserFactory;
+	}
+
+	
+	@Override
+	public void registerMessageFilters(List<MessageFilter> filters) {
+		this.filters = filters;
 	}
 	
 	

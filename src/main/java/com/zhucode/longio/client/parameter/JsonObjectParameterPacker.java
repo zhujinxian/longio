@@ -17,9 +17,14 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.zhucode.longio.client.reflect.MethodInfo;
+import com.zhucode.longio.context.parameter.Body;
+import com.zhucode.longio.context.parameter.CMD;
 import com.zhucode.longio.context.parameter.Key;
+import com.zhucode.longio.context.parameter.Uid;
+import com.zhucode.longio.message.MessageCallback;
 import com.zhucode.longio.utils.ClassUtils;
 
 
@@ -32,10 +37,28 @@ public class JsonObjectParameterPacker implements ParameterPacker<JSONObject> {
 
 	@Override
 	public JSONObject pack(MethodInfo mi, Object... args) {
+		if (args == null) {
+			return null;
+		}
+		if (args.length <= 2 && (args[0] instanceof JSONObject)) {
+			return (JSONObject)args[0];
+		}
 		Parameter[] paras = mi.getMethod().getParameters();
 		JSONObject js = new JSONObject();
 		for (int i = 0; i < paras.length; i++) {
 			Parameter pa = paras[i];
+			if (pa.getType().isAssignableFrom(MessageCallback.class)) {
+				continue;
+			}
+			if (pa.isAnnotationPresent(Body.class)) {
+				return (JSONObject)args[i];
+			}
+			if (pa.isAnnotationPresent(Uid.class)) {
+				continue;
+			}
+			if (pa.isAnnotationPresent(CMD.class)) {
+				continue;
+			}
 			Object val = serialize(args[i]);
 			String key = pa.getAnnotation(Key.class).value();
 			js.put(key, val);
@@ -49,10 +72,9 @@ public class JsonObjectParameterPacker implements ParameterPacker<JSONObject> {
 		if (returnType == Void.TYPE) {
 			return null;
 		}
-		JSONObject json = (JSONObject)msg;
-		Object ret = json.get("data");
-		if (ClassUtils.isPrimitive(ret.getClass())) {
-			return ret;
+		JSONObject ret = (JSONObject)msg;
+		if (ClassUtils.isPrimitive(returnCls)) {
+			return ret.getObject("_ret_", returnCls);
 		}
 		return JSON.toJavaObject((JSON)ret, returnCls);
 	}

@@ -18,6 +18,7 @@ import java.lang.reflect.Parameter;
 
 import com.alibaba.fastjson.JSONArray;
 import com.zhucode.longio.message.MessageBlock;
+import com.zhucode.longio.transport.Connector;
 
 /**
  * @author zhu jinxian
@@ -37,6 +38,11 @@ public class JsonArrayParameterParser implements ParameterParser {
 				objs[i] = mb;
 				continue;
 			}
+			if (p.getType() == Connector.class) {
+				objs[i] = mb.getConnector();
+				continue;
+			}
+			
 			objs[i] = parseObject(p.getType(), ja.get(i));
 		}
 		return objs;

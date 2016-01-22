@@ -33,5 +33,6 @@ import java.lang.annotation.Target;
 public @interface Lio {
 	String cmd();
 	boolean asy() default true;
-	long timeout() default 10000;
+	boolean reply() default true;
+	int timeout() default 10000;
 }

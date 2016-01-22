@@ -23,6 +23,7 @@ import org.msgpack.unpacker.Unpacker;
 
 import com.zhucode.longio.message.MessageBlock;
 import com.zhucode.longio.message.format.MessagePackData;
+import com.zhucode.longio.transport.Connector;
 
 /**
  * @author zhu jinxian
@@ -39,17 +40,20 @@ public class MessagePackParameterParser implements ParameterParser {
 		if (objs.length == 0) {
 			return objs;
 		}
-		
+		byte[] body = (byte[])mb.getBody();
 		Unpack unpack = findUnpack(meta);
-		MessagePackData body = (MessagePackData)mb.getBody();
 		if (unpack == null) {
 			MessagePack mp = new MessagePack();
-			ByteArrayInputStream in = new ByteArrayInputStream(body.data);
+			ByteArrayInputStream in = new ByteArrayInputStream(body);
 		    Unpacker unpacker = mp.createUnpacker(in);
 			for (int i = 0; i < paras.length; i++) {
 				Parameter p = paras[i];
 				if (p.getType() == MessageBlock.class) {
 					objs[i] = mb;
+					continue;
+				}
+				if (p.getType() == Connector.class) {
+					objs[i] = mb.getConnector();
 					continue;
 				}
 				try {
@@ -62,7 +66,7 @@ public class MessagePackParameterParser implements ParameterParser {
 			try {
 				MessagePack mp = new MessagePack();
 				Class<?> msgCls = Class.forName(unpack.value());
-				Object data = mp.read(body.data, msgCls);
+				Object data = mp.read(body, msgCls);
 				for (int i = 0; i < paras.length; i++) {
 					Parameter p = paras[i];
 					if (p.getType() == MessageBlock.class) {

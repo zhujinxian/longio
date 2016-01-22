@@ -34,13 +34,15 @@ public class MethodRef {
 	private Object obj;
 	private Method method;
 	private boolean asy;
+	private boolean reply;
 	
-	public MethodRef(int cmd, String name, Object obj, Method method, boolean asy) {
+	public MethodRef(int cmd, String name, Object obj, Method method, boolean asy, boolean reply) {
 		this.cmd = cmd;
 		this.name = name;
 		this.obj = obj;
 		this.method = method;
 		this.asy = asy;
+		this.reply = reply;
 	}
 
 	public Object handle(Object[] args) {
@@ -89,5 +91,12 @@ public class MethodRef {
 	public void setAsy(boolean asy) {
 		this.asy = asy;
 	}
-	
+
+	public boolean isReply() {
+		return reply;
+	}
+
+	public void setReply(boolean reply) {
+		this.reply = reply;
+	}
 }

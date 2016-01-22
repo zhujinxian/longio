@@ -19,6 +19,7 @@ import java.lang.reflect.Parameter;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.zhucode.longio.message.MessageBlock;
+import com.zhucode.longio.transport.Connector;
 import com.zhucode.longio.utils.ClassUtils;
 
 /**
@@ -31,11 +32,15 @@ public class JsonObjectParameterParser implements ParameterParser {
 	@Override
 	public Object[] parse(MessageBlock<?> mb, Annotation[] meta, Parameter[] paras) {
 		Object[] objs = new Object[paras.length];
-		JSONObject data = ((JSONObject) mb.getBody()).getJSONObject("data");
+		JSONObject data = (JSONObject) mb.getBody();
 		for (int i = 0; i < paras.length; i++) {
 			Parameter p = paras[i];
 			if (p.getType() == MessageBlock.class) {
 				objs[i] = mb;
+				continue;
+			}
+			if (p.getType() == Connector.class) {
+				objs[i] = mb.getConnector();
 				continue;
 			}
 			Key k = p.getAnnotation(Key.class);

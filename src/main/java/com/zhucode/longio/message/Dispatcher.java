@@ -27,4 +27,6 @@ public interface Dispatcher {
 	void dispatch(MessageBlock<?> mb);
 	
 	void registerMethodRefs(List<MethodRef> refs);
+	
+	void registerMessageFilters(List<MessageFilter> filters);
 }

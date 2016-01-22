@@ -31,7 +31,7 @@ public class ProtoBufParameterPacker implements ParameterPacker<Message> {
 
 	@Override
 	public Message pack(MethodInfo mi, Object... args) {
-		if (args.length == 0) {
+		if (args == null) {
 			return null;
 		}
 		return (Message)args[0];
