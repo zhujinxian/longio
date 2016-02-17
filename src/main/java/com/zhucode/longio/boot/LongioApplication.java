@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-import com.zhucode.longio.annotation.Lfilter;
+import com.zhucode.longio.annotation.LsFilter;
 import com.zhucode.longio.annotation.Lservice;
 import com.zhucode.longio.client.reflect.DefaultMethodInfoFactory;
 import com.zhucode.longio.client.reflect.MethodInfo;
@@ -124,7 +124,7 @@ public class LongioApplication {
 					continue;
 				}
 				Class<?> cls = Class.forName(name);
-				Lfilter ls = cls.getAnnotation(Lfilter.class);
+				LsFilter ls = cls.getAnnotation(LsFilter.class);
 				if (ls == null) {
 					continue;
 				}
@@ -161,6 +161,14 @@ public class LongioApplication {
 				e.printStackTrace();
 			}
 		}
+		return (T) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
+				new Class<?>[]{requiredType}, new ProxyInvocationHandler(connector, new DefaultAppLookup(prop), requiredType, mis));
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static <T> T getService(Connector connector, Class<T> requiredType, Properties prop) {
+		MethodInfoFactory mif = new DefaultMethodInfoFactory();
+		List<MethodInfo> mis = mif.createMethodInfo(requiredType);
 		return (T) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
 				new Class<?>[]{requiredType}, new ProxyInvocationHandler(connector, new DefaultAppLookup(prop), requiredType, mis));
 	}

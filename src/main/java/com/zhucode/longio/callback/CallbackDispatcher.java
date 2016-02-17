@@ -13,7 +13,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio.callback;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -23,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.zhucode.longio.client.reflect.InvokeCall;
 import com.zhucode.longio.message.MessageBlock;
 import com.zhucode.longio.message.MessageCallback;
 
@@ -39,10 +39,11 @@ public class CallbackDispatcher {
 	
 	private static ScheduledExecutorService scheduledexecutor = Executors.newScheduledThreadPool(1);
 	
-	
 	private ConcurrentHashMap<Long, InvocationTask<MessageBlock<?>>> tasks = new ConcurrentHashMap<Long, InvocationTask<MessageBlock<?>>>();
 	
 	private ConcurrentHashMap<Long, MessageCallback> callbacks = new ConcurrentHashMap<Long,MessageCallback>();
+	
+	private ConcurrentHashMap<Long, InvocationTask<MessageBlock<?>>> callbackTasks = new ConcurrentHashMap<Long, InvocationTask<MessageBlock<?>>>();
 
 	
 	public void setReturnValue(MessageBlock<?> mb) {
@@ -52,12 +53,24 @@ public class CallbackDispatcher {
 			task.set(mb);
 			unregist(serial);
 		} else {
+			boolean timeout = false;
 			MessageCallback callback = callbacks.remove(serial);
 			if (callback != null) {
 				executor.submit(() -> {callback.callback(mb);});
 			} else {
+				timeout = true;
 				System.out.println("maybe timeout message : " + mb.toString());
 			}
+			task = callbackTasks.remove(serial);
+			if (task != null) {
+				InvokeCall<?> call = (InvokeCall<?>)task.getCallable();
+				if (timeout) {
+					call.getClient().sendTimeout(call.getPoint());
+				} else {
+					call.getClient().sendSuccess(call.getPoint());
+				}
+			}
+			
 		}
 	}
 	
@@ -69,6 +82,7 @@ public class CallbackDispatcher {
 	
 	public void registCallback(long serial, InvocationTask<MessageBlock<?>> task, MessageCallback callback, int timeout) {
 		this.callbacks.put(serial, callback);
+		callbackTasks.put(serial, task);
 		executor.submit(task);
 		scheduledexecutor.schedule(() -> {
 			if (callbacks.remove(serial) != null) {

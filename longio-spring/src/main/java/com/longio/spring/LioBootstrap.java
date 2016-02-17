@@ -46,7 +46,7 @@ import org.springframework.util.ResourceUtils;
 
 import com.longio.spring.annotation.Boot;
 import com.longio.spring.annotation.Boots;
-import com.zhucode.longio.annotation.Lfilter;
+import com.zhucode.longio.annotation.LsFilter;
 import com.zhucode.longio.annotation.LsAutowired;
 import com.zhucode.longio.annotation.Lservice;
 import com.zhucode.longio.message.Dispatcher;
@@ -156,7 +156,7 @@ public class LioBootstrap implements ApplicationContextAware {
 			
 			Object obj = app.getBean(name);
             app.getAutowireCapableBeanFactory().autowireBean(obj);
-            Lfilter lf = obj.getClass().getAnnotation(Lfilter.class);
+            LsFilter lf = obj.getClass().getAnnotation(LsFilter.class);
             if (lf != null) {
             	filters.add((MessageFilter)obj);
             }
@@ -200,8 +200,8 @@ public class LioBootstrap implements ApplicationContextAware {
 				logger.info("connector start at port [" + b.port()
 						+  "] with tt = " + b.tt() + " and pt = " + b.pt() + " for pkg = " + b.pkg());
 			} else {
-				MethodDispatcher dispatcher = new MethodDispatcher();
 				for (Boot b : boots.value()) {
+					MethodDispatcher dispatcher = new MethodDispatcher();
 					connector.start(b.port(), dispatcher, b.tt(), b.pt(), b.pkg());
 					logger.info("connector start at port [" + b.port()
 							+  "] with tt = " + b.tt() + " and pt = " + b.pt() + " for pkg = " + b.pkg());
@@ -296,7 +296,7 @@ public class LioBootstrap implements ApplicationContextAware {
 	
 	private void findLfilterDefinitions(
 			ConfigurableListableBeanFactory beanFactory, List<String> urls) {
-		LfilterComponentProvider provider = new LfilterComponentProvider(Lfilter.class);
+		LfilterComponentProvider provider = new LfilterComponentProvider(LsFilter.class);
 		Set<String> LioClassNames = new HashSet<String>();
 
 		for (String url : urls) {

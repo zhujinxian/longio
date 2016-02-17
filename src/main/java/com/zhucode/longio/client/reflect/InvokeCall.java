@@ -11,63 +11,74 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
-package com.zhucode.longio.transport;
+package com.zhucode.longio.client.reflect;
+
+import java.util.concurrent.Callable;
 
 import com.zhucode.longio.callback.CallbackDispatcher;
+import com.zhucode.longio.client.cluster.ClientCluster;
 import com.zhucode.longio.message.MessageBlock;
+import com.zhucode.longio.transport.Beginpoint;
+
 
 /**
  * @author zhu jinxian
- * @date  2015年10月12日
+ * @date  2016年2月16日
  * 
  */
-public class Beginpoint  {
+public class InvokeCall<V> implements Callable<V> {
 	
-	private String app;
-	private String host;
-	private int port;
-	private Connector connector;
-	private CallbackDispatcher dispatcher;
-	private ProtocolType pt;
-	private TransportType tt;
-	private long sessionId;
-	private Client client;
+	private ClientCluster client;
+	private Beginpoint point = null;
+	private MessageBlock<?> mb;
+	private int retry;
+	CallbackDispatcher dispatcher;
 	
-	
-	public Beginpoint(Connector connector, String app,  String host, int port, TransportType tt, ProtocolType pt) {
-		this.app = app;
-		this.host = host;
-		this.port = port;
-		this.connector = connector;
-		this.dispatcher = connector.getCallbackDispatcher();
-		this.pt = pt;
-		this.tt = tt;
-		init();
+	public InvokeCall(CallbackDispatcher dispatcher, ClientCluster client, MessageBlock<?> mb, int retry) {
+		super();
+		this.client = client;
+		this.mb = mb;
+		this.retry = retry;
+		this.dispatcher = dispatcher;
 	}
+
 	
-	
-	private void init() {
-		try {
-			client =  this.connector.createClient(host, port, tt, pt);
-			client.connect();
-		} catch (Exception e) {
-			e.printStackTrace();
+
+	@Override
+	public V call() throws Exception {
+		send: while (retry-- > 0) {
+			try {
+				point = client.getNextPoint();
+				point.send(mb);
+			} catch (Exception e) {
+				if (retry > 0) {
+					client.sendFail(point);
+					continue send;
+				} else {
+					mb.setBody(null);
+					mb.setStatus(500);
+					dispatcher.setReturnValue(mb);
+				}
+				e.printStackTrace();
+			}
+			break;
 		}
+		return null;
 	}
 
-	public void send(MessageBlock<?> mb) throws Exception {
-		client.send(mb);
+
+
+	public ClientCluster getClient() {
+		return client;
 	}
 
-	public Connector getConnector() {
-		return this.connector;
+	public Beginpoint getPoint() {
+		return point;
 	}
 
-	public CallbackDispatcher getClientDispatcher() {
-		return this.dispatcher;
+	public MessageBlock<?> getMb() {
+		return mb;
 	}
-
-	public long getSessionId() {
-		return this.sessionId;
-	}
+	
+	
 }

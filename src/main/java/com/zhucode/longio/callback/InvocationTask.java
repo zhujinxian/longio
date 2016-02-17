@@ -16,6 +16,8 @@ package com.zhucode.longio.callback;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 
+import com.zhucode.longio.client.reflect.InvokeCall;
+
 /**
  * @author zhu jinxian
  * @date  2015年10月12日
@@ -43,5 +45,10 @@ public class InvocationTask<V> extends FutureTask<V> {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	
+	public Callable<V> getCallable() {
+		return this.callable;
 	}
 }

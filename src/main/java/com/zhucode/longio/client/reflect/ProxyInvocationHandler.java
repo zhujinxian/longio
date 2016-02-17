@@ -18,15 +18,15 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
 import com.zhucode.longio.annotation.LsAutowired;
 import com.zhucode.longio.callback.CallbackDispatcher;
 import com.zhucode.longio.callback.InvocationTask;
+import com.zhucode.longio.client.cluster.ClientCluster;
+import com.zhucode.longio.client.cluster.GroupClientCluster;
+import com.zhucode.longio.client.cluster.LoadBalance;
+import com.zhucode.longio.client.cluster.SingleClientCluster;
 import com.zhucode.longio.client.parameter.CMDParser;
 import com.zhucode.longio.client.parameter.ParameterPacker;
 import com.zhucode.longio.client.parameter.ParameterPackerFactory;
@@ -35,7 +35,6 @@ import com.zhucode.longio.conf.AppLookup;
 import com.zhucode.longio.message.MessageBlock;
 import com.zhucode.longio.message.MessageCallback;
 import com.zhucode.longio.message.MessageSerial;
-import com.zhucode.longio.transport.Beginpoint;
 import com.zhucode.longio.transport.Connector;
 import com.zhucode.longio.transport.ProtocolType;
 import com.zhucode.longio.transport.TransportType;
@@ -59,7 +58,7 @@ public class ProxyInvocationHandler implements InvocationHandler {
 	
 	private Class<?> proxyCls;
 	
-	private Beginpoint beginPoint;
+	private ClientCluster client;
 	
 	private AppLookup appLookup;
 	
@@ -72,29 +71,24 @@ public class ProxyInvocationHandler implements InvocationHandler {
 			this.methods.put(mi.getMethod(), mi);
 		}
 		this.appLookup = appLookup;
-		initBeginpointAndPacker();
+		initClientClusterAndPacker();
 	}
 	
 
-	private void initBeginpointAndPacker() {
+	private void initClientClusterAndPacker() {
 		LsAutowired lsa = this.proxyCls.getAnnotation(LsAutowired.class);
-		String host = lsa.ip();
-		int port = lsa.port();
 		String app = lsa.app();
+		String ip = lsa.ip();
+		int port = lsa.port();
 		TransportType tt = lsa.tt();
 		ProtocolType pt = lsa.pt();
-		
-		if (appLookup.parseHost(app) != null) {
-			host = appLookup.parseHost(app);
-		}
-		
-		if (appLookup.parsePort(app) != 0) {
-			port = appLookup.parsePort(app);
-		}
-		
-		this.beginPoint = new Beginpoint(connector, app, host, port, tt, pt);
-		
+		LoadBalance lb = lsa.lb();
 		this.packer = ppf.getPacker(pt);
+		if (appLookup.parseHosts(app) == null) {
+			this.client = new SingleClientCluster(ip, port, tt, pt, connector);
+		} else {
+			this.client = new GroupClientCluster(connector, appLookup, app, tt, pt, lb);
+		}
 	}
 
 
@@ -120,21 +114,7 @@ public class ProxyInvocationHandler implements InvocationHandler {
 			mb.setCmd(cmd);
 		}
 		
-		Callable<MessageBlock<?>> call = new Callable<MessageBlock<?>>() {
-
-			@Override
-			public MessageBlock<?> call() throws Exception {
-				try {
-					beginPoint.send(mb);
-				} catch (Exception e) {
-					mb.setBody(null);
-					mb.setStatus(500);
-					dispatcher.setReturnValue(mb);
-					e.printStackTrace();
-				}
-				return null;
-			}
-		};
+		InvokeCall<MessageBlock<?>> call = new InvokeCall<MessageBlock<?>>(dispatcher, client, mb, 2);
 		
 		InvocationTask<MessageBlock<?>> task = new InvocationTask<MessageBlock<?>>(call);
 		if (args != null && args.length > 0 && args[args.length-1] instanceof MessageCallback) {
@@ -146,9 +126,11 @@ public class ProxyInvocationHandler implements InvocationHandler {
 
 			try {
 				MessageBlock<?> ret = task.get(mi.getTimeout(), TimeUnit.MILLISECONDS);
+				client.sendSuccess(call.getPoint());
 				return packer.unpack(mi.getMethod().getReturnType(), mi.getMethod().getGenericReturnType(), ret.getBody());
 			} catch (Exception e) {
 				this.dispatcher.unregist(mb.getSerial());
+				client.sendTimeout(call.getPoint());
 				e.printStackTrace();
 			}
 			

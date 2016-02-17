@@ -11,35 +11,66 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
-package com.zhucode.longio.annotation;
+package com.zhucode.longio.client.cluster;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import com.zhucode.longio.client.cluster.LoadBalance;
+import com.zhucode.longio.transport.Beginpoint;
+import com.zhucode.longio.transport.BeginpointFactory;
+import com.zhucode.longio.transport.Connector;
 import com.zhucode.longio.transport.ProtocolType;
 import com.zhucode.longio.transport.TransportType;
 
-
 /**
  * @author zhu jinxian
- * @date  2015年10月12日
+ * @date  2016年2月16日
  * 
  */
-@Target({ ElementType.TYPE })
-@Retention(RetentionPolicy.RUNTIME)
-@Inherited
-@Documented
-public @interface LsAutowired {
-	String path();
-	String app();
-	String ip() default "";
-	int port() default 0;
-	TransportType tt() default TransportType.HTTP;
-	ProtocolType pt() default ProtocolType.JSON;
-	LoadBalance lb() default LoadBalance.Roll;
+public class SingleClientCluster implements ClientCluster {
+	
+	private String ip;
+	private int port;
+	private TransportType tt;
+	private ProtocolType pt;
+	private Connector connector;
+	
+	private Beginpoint point;
+	
+	public SingleClientCluster(String ip, int port, TransportType tt,
+			ProtocolType pt, Connector connector) {
+		super();
+		this.ip = ip;
+		this.port = port;
+		this.tt = tt;
+		this.pt = pt;
+		this.connector = connector;
+		boot();
+	}
+
+	private void boot() {
+		this.point = new Beginpoint(connector, ip + ":" + port, ip, port, tt, pt);
+	}
+
+
+	@Override
+	public Beginpoint getNextPoint() {
+		return point;
+	}
+
+	
+	@Override
+	public void sendFail(Beginpoint point) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void sendTimeout(Beginpoint point) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public void sendSuccess(Beginpoint point) {
+		System.out.println("invoke success: " + point);
+	}
+
 }

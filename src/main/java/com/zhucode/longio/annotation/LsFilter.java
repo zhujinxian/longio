@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
-public @interface Lfilter {
+public @interface LsFilter {
 	
 	String path() default "*";
 

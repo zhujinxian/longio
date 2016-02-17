@@ -13,21 +13,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio.conf;
 
-
 /**
  * @author zhu jinxian
- * @date  2015年12月17日
+ * @date  2016年1月29日
  * 
  */
-public interface AppLookup {
-	
-	String[] parseHosts(String app);
-	
-	PointStat getPointStat(String app, String host);
-	
-//	String parseHost(String app);
-//	
-//	int parsePort(String app);
-	
-	String parseAppName(int appId);
+public class PointStat {
+	public int invoke;
+	public int timeOut;
+	public int sendErr;
 }

@@ -18,6 +18,8 @@ import io.netty.channel.EventLoop;
 
 import java.util.concurrent.TimeUnit;
 
+import com.zhucode.longio.message.Dispatcher;
+import com.zhucode.longio.message.MessageBlock;
 import com.zhucode.longio.protocol.ProtocolParser;
 import com.zhucode.longio.transport.Client;
 import com.zhucode.longio.transport.Connector;
@@ -58,5 +60,19 @@ public abstract class AbstractClientHandler extends AbstractNettyHandler {
 		}, 1L, TimeUnit.SECONDS);
 		super.channelInactive(ctx);
 	}
+	
+	public void processRevMessage(ChannelHandlerContext ctx, MessageBlock<?> mb) {
+		mb.setConnector(connector);
+		mb.setLocalAddress(ctx.channel().localAddress());
+		mb.setRemoteAddress(ctx.channel().remoteAddress());
+		if (mb.getStatus() == 100) {
+			for (Dispatcher dis : this.connector.getDispatcheres("*")) {
+				dis.dispatch(mb);
+			}
+		} else {
+			this.connector.getCallbackDispatcher().setReturnValue(mb);
+		}
+	}
+	
 	
 }

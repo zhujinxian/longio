@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.client.Netty4ClientHttpRequestFactory;
 
-import com.zhucode.longio.annotation.Lfilter;
+import com.zhucode.longio.annotation.LsFilter;
 import com.zhucode.longio.annotation.LsAutowired;
 import com.zhucode.longio.annotation.Lservice;
 import com.zhucode.longio.boot.LongioApplication;
@@ -40,6 +40,8 @@ public class LioFactoryBean implements FactoryBean, InitializingBean {
 	protected Class<?> objectType;
 
 	protected Object object;
+	
+	protected Connector connector;
 	
 	@Autowired
 	protected Environment environment;
@@ -63,9 +65,9 @@ public class LioFactoryBean implements FactoryBean, InitializingBean {
 			if (!this.objectType.isAnnotationPresent(LsAutowired.class)) {
 				throw new Exception("the scaned service interface must be annotated by LsAutowired");
 			}
-			this.object = LongioApplication.getService(NettyConnector.class, objectType, new EnvProperties(environment));
+			this.object = LongioApplication.getService(connector, objectType, new EnvProperties(environment));
 		} else {
-			if (this.objectType.isAnnotationPresent(Lservice.class) || this.objectType.isAnnotationPresent(Lfilter.class)) {
+			if (this.objectType.isAnnotationPresent(Lservice.class) || this.objectType.isAnnotationPresent(LsFilter.class)) {
 				this.object = this.objectType.newInstance();
 			} else {
 				throw new Exception("the scaned  class must be annotated by Lservice or Lfilter");
@@ -82,6 +84,13 @@ public class LioFactoryBean implements FactoryBean, InitializingBean {
 		this.objectType = objectType;
 	}
 
+	public Connector getConnector() {
+		return connector;
+	}
+
+	public void setConnector(Connector connector) {
+		this.connector = connector;
+	}
 
 	@Override
 	public boolean isSingleton() {

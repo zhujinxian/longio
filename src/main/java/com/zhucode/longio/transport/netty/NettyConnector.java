@@ -125,6 +125,9 @@ public class NettyConnector implements Connector {
 		ep.setConnector(this);
 		ep.setDispatcher(dispatcher);
 		this.endpoints.add(ep);
+		if (port <= 0) {
+			return;
+		}
 		exe.execute(new Runnable() {
 			
 			@Override

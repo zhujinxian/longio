@@ -31,6 +31,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.ApplicationContextException;
 import org.springframework.context.annotation.ScannedGenericBeanDefinition;
 import org.springframework.core.io.Resource;
@@ -38,6 +39,7 @@ import org.springframework.util.ResourceUtils;
 
 import com.zhucode.longio.annotation.LsAutowired;
 import com.zhucode.longio.transport.Connector;
+import com.zhucode.longio.transport.netty.NettyConnector;
 
 
 
@@ -167,6 +169,7 @@ public class LongioBeanFactoryPostProcessor implements BeanFactoryPostProcessor 
 		 * 属性及其设置要按 MongoFactoryBean 的要求来办
 		 */
 		propertyValues.addPropertyValue("objectType", LioClassName);
+		propertyValues.addPropertyValue("connector", getConnector((DefaultListableBeanFactory)beanFactory));
 		
 		ScannedGenericBeanDefinition scannedBeanDefinition = (ScannedGenericBeanDefinition) beanDefinition;
 		scannedBeanDefinition.setPropertyValues(propertyValues);
@@ -180,11 +183,16 @@ public class LongioBeanFactoryPostProcessor implements BeanFactoryPostProcessor 
 		}
 	}
 
-	private Object getConnector(ConfigurableListableBeanFactory beanFactory) {
+	private Object getConnector(DefaultListableBeanFactory bf) {
+		if (!bf.containsBeanDefinition("longio.connector")) {
+			GenericBeanDefinition bdd = new GenericBeanDefinition();
+			bdd.setBeanClass(NettyConnector.class);
+			bf.registerBeanDefinition("longio.connector", bdd);
+		}
 		
-		if (beanFactory.containsBeanDefinition("longio.connector")) {
+		if (bf.containsBeanDefinition("longio.connector")) {
 			
-			Connector connector = (Connector) beanFactory.getBean(
+			Connector connector = (Connector) bf.getBean(
                      "longio.connector", Connector.class);
 			
 			return connector;
