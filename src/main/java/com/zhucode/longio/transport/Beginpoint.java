@@ -70,4 +70,19 @@ public class Beginpoint  {
 	public long getSessionId() {
 		return this.sessionId;
 	}
+
+
+	public String getApp() {
+		return app;
+	}
+
+
+	public String getHost() {
+		return host;
+	}
+
+
+	public int getPort() {
+		return port;
+	}
 }

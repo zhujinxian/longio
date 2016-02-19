@@ -126,11 +126,11 @@ public class ProxyInvocationHandler implements InvocationHandler {
 
 			try {
 				MessageBlock<?> ret = task.get(mi.getTimeout(), TimeUnit.MILLISECONDS);
-				client.sendSuccess(call.getPoint());
+				client.sendSuccess(call.getPoint(), call.getMb());
 				return packer.unpack(mi.getMethod().getReturnType(), mi.getMethod().getGenericReturnType(), ret.getBody());
 			} catch (Exception e) {
 				this.dispatcher.unregist(mb.getSerial());
-				client.sendTimeout(call.getPoint());
+				client.sendTimeout(call.getPoint(), call.getMb());
 				e.printStackTrace();
 			}
 			

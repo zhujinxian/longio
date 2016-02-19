@@ -52,7 +52,7 @@ public class InvokeCall<V> implements Callable<V> {
 				point.send(mb);
 			} catch (Exception e) {
 				if (retry > 0) {
-					client.sendFail(point);
+					client.sendFail(point, mb);
 					continue send;
 				} else {
 					mb.setBody(null);

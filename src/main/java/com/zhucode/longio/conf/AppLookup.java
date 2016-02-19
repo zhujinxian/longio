@@ -23,11 +23,5 @@ public interface AppLookup {
 	
 	String[] parseHosts(String app);
 	
-	PointStat getPointStat(String app, String host);
-	
-//	String parseHost(String app);
-//	
-//	int parsePort(String app);
-	
 	String parseAppName(int appId);
 }

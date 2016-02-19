@@ -39,26 +39,9 @@ public class DefaultAppLookup implements AppLookup {
 		return hostStr.split("\\s+");
 	}
 
-
-
-//	@Override
-//	public String parseHost(String app) {
-//		return prop.getProperty("app." + app + ".host");
-//	}
-//
-//	@Override
-//	public int parsePort(String app) {
-//		return Integer.parseInt(prop.getProperty("app." + app + ".port", "0"));
-//	}
-
 	@Override
 	public String parseAppName(int appId) {
 		return prop.getProperty("longio.app." + appId);
 	}
 
-
-	@Override
-	public PointStat getPointStat(String app, String host) {
-		return null;
-	}
 }

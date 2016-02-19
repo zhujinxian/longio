@@ -13,8 +13,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio.client.cluster;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.zhucode.longio.message.MessageBlock;
 import com.zhucode.longio.transport.Beginpoint;
-import com.zhucode.longio.transport.BeginpointFactory;
 import com.zhucode.longio.transport.Connector;
 import com.zhucode.longio.transport.ProtocolType;
 import com.zhucode.longio.transport.TransportType;
@@ -57,20 +60,41 @@ public class SingleClientCluster implements ClientCluster {
 
 	
 	@Override
-	public void sendFail(Beginpoint point) {
-		// TODO Auto-generated method stub
-		
+	public void sendFail(Beginpoint point, MessageBlock<?> mb) {
+		JSONObject msg = getMessageJson(point, mb);
+		msg.put("flag", "fail");
+		System.out.println(msg.toJSONString());
 	}
 
 	@Override
-	public void sendTimeout(Beginpoint point) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	@Override
-	public void sendSuccess(Beginpoint point) {
-		System.out.println("invoke success: " + point);
+	public void sendTimeout(Beginpoint point, MessageBlock<?> mb) {
+		JSONObject msg = getMessageJson(point, mb);
+		msg.put("flag", "timeout");
+		System.out.println(msg.toJSONString());
 	}
 
+	@Override
+	public void sendSuccess(Beginpoint point, MessageBlock<?> mb) {
+		JSONObject msg = getMessageJson(point, mb);
+		msg.put("flag", "success");
+		System.out.println(JSON.toJSONString(msg, SerializerFeature.WriteMapNullValue));
+	}
+
+	private JSONObject getMessageJson(Beginpoint point, MessageBlock<?> mb) {
+		JSONObject js = new JSONObject();
+		js.put("app", point.getApp());
+		js.put("host", point.getHost());
+		js.put("port", point.getPort());
+		js.put("serial", mb.getSerial());
+		js.put("cmd", mb.getCmd());
+		if (mb.getBody() == null) {
+			js.put("body_type", null);
+		} else {
+			js.put("body_type",mb.getBody().getClass().getCanonicalName());
+		}
+		
+		js.put("body", mb.getBody());
+		
+		return js;
+	}
 }

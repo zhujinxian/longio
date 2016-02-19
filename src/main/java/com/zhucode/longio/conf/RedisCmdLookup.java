@@ -15,11 +15,19 @@ package com.zhucode.longio.conf;
 
 /**
  * @author zhu jinxian
- * @date  2016年1月29日
+ * @date  2016年2月19日
  * 
  */
-public class PointStat {
-	public int invoke;
-	public int timeOut;
-	public int sendErr;
+public class RedisCmdLookup implements CmdLookup {
+
+	@Override
+	public int parseCmd(String name) {
+		return 0;
+	}
+
+	@Override
+	public String parseName(int cmd) {
+		return null;
+	}
+
 }

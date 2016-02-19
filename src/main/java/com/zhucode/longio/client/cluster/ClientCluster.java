@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio.client.cluster;
 
+import com.zhucode.longio.message.MessageBlock;
 import com.zhucode.longio.transport.Beginpoint;
 
 /**
@@ -24,9 +25,9 @@ public interface ClientCluster {
 	
 	Beginpoint getNextPoint();
 	
-	void sendSuccess(Beginpoint point);
+	void sendSuccess(Beginpoint point, MessageBlock<?> mb);
 	
-	void sendFail(Beginpoint point);
+	void sendFail(Beginpoint point, MessageBlock<?> mb);
 
-	void sendTimeout(Beginpoint point);
+	void sendTimeout(Beginpoint point, MessageBlock<?> mb);
 }

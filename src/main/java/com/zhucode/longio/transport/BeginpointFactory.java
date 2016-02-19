@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class BeginpointFactory {
 	
-	private ConcurrentHashMap<String, Beginpoint> points = new ConcurrentHashMap<String, Beginpoint>();
+	private static ConcurrentHashMap<String, Beginpoint> points = new ConcurrentHashMap<String, Beginpoint>();
 	
 	public BeginpointFactory() {
 		
@@ -38,7 +38,7 @@ public class BeginpointFactory {
 		return point;
 	
 	}
-	private synchronized Beginpoint creatPoint(Connector connector, String app, String host,
+	private static synchronized Beginpoint creatPoint(Connector connector, String app, String host,
 			TransportType tt, ProtocolType pt) {
 		String[] strs = host.split(":");
 		String ip = strs[0];
