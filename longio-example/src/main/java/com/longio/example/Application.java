@@ -50,11 +50,15 @@ public class Application extends RoseWebApplication {
 		return new DefaultCmdLookup(); 
 	}
 	
+	@Bean(name="appLookup")
+	AppLookup getAppLookup(@Qualifier("environment") Environment env) {
+		return new DefaultAppLookup(new EnvProperties(env)); 
+	}
+	
 	@Bean
 	BeanFactoryPostProcessor getLioBeanBeanFactoryPostProcessor(
-			@Qualifier("environment") Environment env, 
+			@Qualifier("appLookup") AppLookup appLookup, 
 			@Qualifier("cmdLookup")CmdLookup cmdLookup) {
-		AppLookup appLookup = new DefaultAppLookup(new EnvProperties(env));
 		return new LongioBeanFactoryPostProcessor(appLookup, cmdLookup);
 	}
 
