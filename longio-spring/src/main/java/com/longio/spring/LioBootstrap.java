@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.MutablePropertyValues;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
@@ -49,6 +50,7 @@ import com.longio.spring.annotation.Boots;
 import com.zhucode.longio.annotation.LsFilter;
 import com.zhucode.longio.annotation.LsAutowired;
 import com.zhucode.longio.annotation.Lservice;
+import com.zhucode.longio.conf.CmdLookup;
 import com.zhucode.longio.message.Dispatcher;
 import com.zhucode.longio.message.MessageFilter;
 import com.zhucode.longio.message.MethodDispatcher;
@@ -66,6 +68,14 @@ import com.zhucode.longio.transport.netty.NettyConnector;
 public class LioBootstrap implements ApplicationContextAware {
 	
 	static Logger logger = LoggerFactory.getLogger(LioBootstrap.class);
+	
+	@Autowired
+	private CmdLookup cmdLookup;
+	
+	public LioBootstrap() {
+		
+	}
+	
 	
 	@Override
 	public void setApplicationContext(ApplicationContext app)
@@ -119,7 +129,7 @@ public class LioBootstrap implements ApplicationContextAware {
 				String pkg = ls.path();
 				Connector connector = getConnector(bf);
 				for (Dispatcher d : connector.getDispatcheres(pkg)) {
-					MethodRefFactory mrf = new DefaultMethodRefFactory();
+					MethodRefFactory mrf = new DefaultMethodRefFactory(cmdLookup);
 					d.registerMethodRefs(mrf.createMethodRefs(obj));
 				}
 				logger.info("load longio [" + pkg + "] service");

@@ -26,11 +26,11 @@ public class RedisAppLookup implements AppLookup {
 	
 	private JedisPool pool;
 	
-	public RedisAppLookup(String host, int port) {
-		getPool(host, port);
+	public RedisAppLookup(String host, int port, String pwd) {
+		getPool(host, port, pwd);
 	}
 	
-	private JedisPool getPool(String ip, int port) {
+	private JedisPool getPool(String ip, int port, String pwd) {
 		if (pool == null) {
 			JedisPoolConfig config = new JedisPoolConfig();
 			// 控制一个pool可分配多少个jedis实例，通过pool.getResource()来获取；
@@ -42,7 +42,7 @@ public class RedisAppLookup implements AppLookup {
 			config.setMaxWaitMillis(1000 * 100);
 			// 在borrow一个jedis实例时，是否提前进行validate操作；如果为true，则得到的jedis实例均是可用的；
 			config.setTestOnBorrow(true);
-			pool = new JedisPool(config, ip, port);
+			pool = new JedisPool(config, ip, port, 1000, pwd);
 		}
 		return pool;
 	}
@@ -70,12 +70,18 @@ public class RedisAppLookup implements AppLookup {
 		Jedis jedis = null;
 		try {
 			jedis = pool.getResource();
-			return jedis.hget("longio.app.id_name", appId + "");
+			return jedis.hget("longio.app.id_name", "longio.app."+appId + "");
 		} finally {
 		  if (jedis != null) {
 		    jedis.close();
 		  }
 		}
 	}
+	
+	public static void main(String... args) {
+		RedisAppLookup look = new RedisAppLookup("127.0.0.1", 6379, "123456");
+		System.out.println(look.parseAppName(2000));
+	}
+	
 
 }

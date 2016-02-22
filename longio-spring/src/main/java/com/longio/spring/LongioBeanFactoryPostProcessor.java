@@ -27,6 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.MutablePropertyValues;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -38,6 +39,9 @@ import org.springframework.core.io.Resource;
 import org.springframework.util.ResourceUtils;
 
 import com.zhucode.longio.annotation.LsAutowired;
+import com.zhucode.longio.conf.AppLookup;
+import com.zhucode.longio.conf.CmdLookup;
+import com.zhucode.longio.conf.DefaultAppLookup;
 import com.zhucode.longio.transport.Connector;
 import com.zhucode.longio.transport.netty.NettyConnector;
 
@@ -52,6 +56,15 @@ public class LongioBeanFactoryPostProcessor implements BeanFactoryPostProcessor 
 	
 	private final Log logger = LogFactory
 			.getLog(LongioBeanFactoryPostProcessor.class);
+	
+	AppLookup appLookup;
+	
+	CmdLookup cmdLookup;
+	
+	public LongioBeanFactoryPostProcessor(AppLookup appLookup, CmdLookup cmdLookup) {
+		this.appLookup = appLookup;
+		this.cmdLookup = cmdLookup;
+	}
 	
 	@Override
 	public void postProcessBeanFactory(
@@ -170,6 +183,8 @@ public class LongioBeanFactoryPostProcessor implements BeanFactoryPostProcessor 
 		 */
 		propertyValues.addPropertyValue("objectType", LioClassName);
 		propertyValues.addPropertyValue("connector", getConnector((DefaultListableBeanFactory)beanFactory));
+		propertyValues.addPropertyValue("appLookup", appLookup);
+		propertyValues.addPropertyValue("cmdLookup", cmdLookup);
 		
 		ScannedGenericBeanDefinition scannedBeanDefinition = (ScannedGenericBeanDefinition) beanDefinition;
 		scannedBeanDefinition.setPropertyValues(propertyValues);

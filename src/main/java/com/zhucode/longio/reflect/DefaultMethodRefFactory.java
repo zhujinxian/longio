@@ -19,6 +19,7 @@ import java.util.List;
 
 import com.zhucode.longio.annotation.Lio;
 import com.zhucode.longio.annotation.Lservice;
+import com.zhucode.longio.conf.CmdLookup;
 import com.zhucode.longio.conf.DefaultCmdLookup;
 
 /**
@@ -28,7 +29,11 @@ import com.zhucode.longio.conf.DefaultCmdLookup;
  */
 public class DefaultMethodRefFactory implements MethodRefFactory {
 	
-	private DefaultCmdLookup cnm = new DefaultCmdLookup();
+	private CmdLookup cmdLookup;
+	
+	public DefaultMethodRefFactory(CmdLookup lookup) {
+		this.cmdLookup = lookup;
+	}
 
 	@Override
 	public List<MethodRef> createMethodRefs(Object obj) {
@@ -48,7 +53,7 @@ public class DefaultMethodRefFactory implements MethodRefFactory {
 			}
 			String cmdName = ls.path() + "." + lio.cmd();
 			cmdName = cmdName.replaceAll("\\.\\.", ".");
-			int cmd = cnm.parseCmd(cmdName);
+			int cmd = cmdLookup.parseCmd(cmdName);
 			boolean asy = lio.asy();
 			boolean reply = lio.reply();
 			MethodRef mih = new MethodRef(cmd, cmdName, proxy, m, asy, reply);

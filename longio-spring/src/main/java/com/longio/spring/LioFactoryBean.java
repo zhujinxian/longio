@@ -23,6 +23,8 @@ import com.zhucode.longio.annotation.LsFilter;
 import com.zhucode.longio.annotation.LsAutowired;
 import com.zhucode.longio.annotation.Lservice;
 import com.zhucode.longio.boot.LongioApplication;
+import com.zhucode.longio.conf.AppLookup;
+import com.zhucode.longio.conf.CmdLookup;
 import com.zhucode.longio.message.Dispatcher;
 import com.zhucode.longio.reflect.DefaultMethodRefFactory;
 import com.zhucode.longio.reflect.MethodRefFactory;
@@ -43,8 +45,8 @@ public class LioFactoryBean implements FactoryBean, InitializingBean {
 	
 	protected Connector connector;
 	
-	@Autowired
-	protected Environment environment;
+	protected CmdLookup cmdLookup;
+	protected AppLookup appLookup;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -65,7 +67,7 @@ public class LioFactoryBean implements FactoryBean, InitializingBean {
 			if (!this.objectType.isAnnotationPresent(LsAutowired.class)) {
 				throw new Exception("the scaned service interface must be annotated by LsAutowired");
 			}
-			this.object = LongioApplication.getService(connector, objectType, new EnvProperties(environment));
+			this.object = LongioApplication.getService(connector, objectType, appLookup, cmdLookup);
 		} else {
 			if (this.objectType.isAnnotationPresent(Lservice.class) || this.objectType.isAnnotationPresent(LsFilter.class)) {
 				this.object = this.objectType.newInstance();
@@ -90,6 +92,24 @@ public class LioFactoryBean implements FactoryBean, InitializingBean {
 
 	public void setConnector(Connector connector) {
 		this.connector = connector;
+	}
+
+	
+	
+	public CmdLookup getCmdLookup() {
+		return cmdLookup;
+	}
+
+	public void setCmdLookup(CmdLookup cmdLookup) {
+		this.cmdLookup = cmdLookup;
+	}
+
+	public AppLookup getAppLookup() {
+		return appLookup;
+	}
+
+	public void setAppLookup(AppLookup appLookup) {
+		this.appLookup = appLookup;
 	}
 
 	@Override

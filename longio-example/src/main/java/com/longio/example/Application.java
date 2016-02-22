@@ -15,14 +15,23 @@ package com.longio.example;
 
 import net.paoding.rose.RoseWebApplication;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.env.Environment;
 
+import com.longio.spring.EnvProperties;
 import com.longio.spring.LioBootstrap;
 import com.longio.spring.LongioBeanFactoryPostProcessor;
 import com.longio.spring.annotation.Boot;
+import com.zhucode.longio.conf.AppLookup;
+import com.zhucode.longio.conf.CmdLookup;
+import com.zhucode.longio.conf.DefaultAppLookup;
+import com.zhucode.longio.conf.DefaultCmdLookup;
 import com.zhucode.longio.transport.ProtocolType;
 import com.zhucode.longio.transport.TransportType;
 
@@ -35,16 +44,25 @@ import com.zhucode.longio.transport.TransportType;
 @SpringBootApplication
 public class Application extends RoseWebApplication {
 	
+	
+	@Bean(name="cmdLookup")
+	CmdLookup getCmdLookup() {
+		return new DefaultCmdLookup(); 
+	}
+	
 	@Bean
-	BeanFactoryPostProcessor getLioBeanBeanFactoryPostProcessor() {
-		return new LongioBeanFactoryPostProcessor();
+	BeanFactoryPostProcessor getLioBeanBeanFactoryPostProcessor(
+			@Qualifier("environment") Environment env, 
+			@Qualifier("cmdLookup")CmdLookup cmdLookup) {
+		AppLookup appLookup = new DefaultAppLookup(new EnvProperties(env));
+		return new LongioBeanFactoryPostProcessor(appLookup, cmdLookup);
 	}
 
 	@Boot(port = 5000, pt = ProtocolType.JSONARRAY, tt = TransportType.HTTP)
 	@Boot(port = 5002, pt = ProtocolType.JSON, tt = TransportType.HTTP)
 	@Boot(port = 5001, pt = ProtocolType.MESSAGE_PACK, tt = TransportType.SOCKET)
 	@Bean(name = "longio.bootstrap")
-	LioBootstrap getLioBootstrap() {
+	public LioBootstrap getLioBootstrap() {
 		return new LioBootstrap();
 	}
 	

@@ -28,7 +28,10 @@ import com.zhucode.longio.client.reflect.DefaultMethodInfoFactory;
 import com.zhucode.longio.client.reflect.MethodInfo;
 import com.zhucode.longio.client.reflect.MethodInfoFactory;
 import com.zhucode.longio.client.reflect.ProxyInvocationHandler;
+import com.zhucode.longio.conf.AppLookup;
+import com.zhucode.longio.conf.CmdLookup;
 import com.zhucode.longio.conf.DefaultAppLookup;
+import com.zhucode.longio.conf.DefaultCmdLookup;
 import com.zhucode.longio.message.MessageFilter;
 import com.zhucode.longio.message.MethodDispatcher;
 import com.zhucode.longio.reflect.DefaultMethodRefFactory;
@@ -51,7 +54,7 @@ public class LongioApplication {
 	public static void run(Class<? extends Connector> connectorCls, int port, TransportType tt, ProtocolType pt) {
 		
 		MethodDispatcher dispatcher = new MethodDispatcher();
-		MethodRefFactory mrf = new DefaultMethodRefFactory();
+		MethodRefFactory mrf = new DefaultMethodRefFactory(new DefaultCmdLookup());
 		for (Object obj : getServiceInvokers()) {
 			dispatcher.registerMethodRefs(mrf.createMethodRefs(obj));
 		}
@@ -143,33 +146,13 @@ public class LongioApplication {
 		return filters;
 	}
 	
-	
+
 	@SuppressWarnings("unchecked")
-	public static <T> T getService(Class<? extends Connector> connectorCls, Class<T> requiredType, Properties prop) {
-		
-		MethodInfoFactory mif = new DefaultMethodInfoFactory();
-		List<MethodInfo> mis = mif.createMethodInfo(requiredType);
-		
-		Connector connector = connectors.get(connectorCls);
-		if (connector == null) {
-			try {
-				connector = connectorCls.newInstance();
-				connectors.put(connectorCls, connector);
-			} catch (InstantiationException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			}
-		}
-		return (T) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
-				new Class<?>[]{requiredType}, new ProxyInvocationHandler(connector, new DefaultAppLookup(prop), requiredType, mis));
-	}
-	
-	@SuppressWarnings("unchecked")
-	public static <T> T getService(Connector connector, Class<T> requiredType, Properties prop) {
-		MethodInfoFactory mif = new DefaultMethodInfoFactory();
+	public static <T> T  getService(Connector connector, Class<?> requiredType,
+			AppLookup appLookup, CmdLookup cmdLookup) {
+		MethodInfoFactory mif = new DefaultMethodInfoFactory(cmdLookup);
 		List<MethodInfo> mis = mif.createMethodInfo(requiredType);
 		return (T) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
-				new Class<?>[]{requiredType}, new ProxyInvocationHandler(connector, new DefaultAppLookup(prop), requiredType, mis));
+				new Class<?>[]{requiredType}, new ProxyInvocationHandler(connector, appLookup, requiredType, mis));
 	}
 }
