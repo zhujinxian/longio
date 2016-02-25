@@ -11,19 +11,33 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
-package com.longio.spring.annotation;
+package com.longio.spring;
 
-import com.zhucode.longio.transport.ProtocolType;
-import com.zhucode.longio.transport.TransportType;
+import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+
+import com.zhucode.longio.annotation.LsAutowired;
 
 /**
  * @author zhu jinxian
- * @date  2016年1月18日
+ * @date  2016年2月25日
  * 
  */
-public @interface Gateway {
-	int in_port();
-	int out_port();
-	TransportType tt();
-	ProtocolType pt();
+public class LioScanningCandidateComponentProvider extends
+		ClassPathScanningCandidateComponentProvider {
+	
+	public LioScanningCandidateComponentProvider() {
+		super(false);
+	}
+	
+	@Override
+	protected boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) {
+		
+		if (beanDefinition.getMetadata().hasAnnotation(LsAutowired.class.getCanonicalName())) {
+			return true;
+		}
+		
+		return (beanDefinition.getMetadata().isConcrete() && beanDefinition.getMetadata().isIndependent());
+	}
+
 }

@@ -13,17 +13,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.longio.spring;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-
-import net.paoding.rose.scanning.ResourceRef;
-import net.paoding.rose.scanning.RoseScanner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,17 +32,14 @@ import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ApplicationContextException;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ScannedGenericBeanDefinition;
-import org.springframework.core.env.Environment;
-import org.springframework.core.io.Resource;
-import org.springframework.util.ResourceUtils;
+import org.springframework.core.type.filter.AnnotationTypeFilter;
 
 import com.longio.spring.annotation.Boot;
 import com.longio.spring.annotation.Boots;
-import com.zhucode.longio.annotation.LsFilter;
 import com.zhucode.longio.annotation.LsAutowired;
+import com.zhucode.longio.annotation.LsFilter;
 import com.zhucode.longio.annotation.Lservice;
 import com.zhucode.longio.conf.CmdLookup;
 import com.zhucode.longio.message.Dispatcher;
@@ -69,11 +60,17 @@ public class LioBootstrap implements ApplicationContextAware {
 	
 	static Logger logger = LoggerFactory.getLogger(LioBootstrap.class);
 	
+	String[] basePackages = new String[]{};
+	
 	@Autowired
 	private CmdLookup cmdLookup;
 	
-	public LioBootstrap() {
-		
+	public LioBootstrap(String[] basePackages) {
+		this.basePackages = basePackages;
+	}
+	
+	public LioBootstrap(String basePackages) {
+		this.basePackages = new String[]{basePackages};
 	}
 	
 	
@@ -224,73 +221,12 @@ public class LioBootstrap implements ApplicationContextAware {
 
 	private void doScanAndRegist(
 			ConfigurableListableBeanFactory beanFactory) {
-	
-
-		// 1、获取标注Lio标志的资源(ResourceRef)，即classes目录、在/META-INF/lio.properties或/META-INF/MENIFEST.MF配置了lio属性的jar包
-		final List<ResourceRef> resources = findLioResources();
-
-		// 2、从获取的资源(resources)中，把lio=*、lio=LIO、lio=lio的筛选出来，并以URL的形式返回
-		List<String> urls = findLioResources(resources);
-
-		// 3、从每个URL中找出符合规范的Lio接口，并将之以LioServiceFactoryBean的形式注册到Spring容器中
-		findLioDefinitions(beanFactory, urls);
-		
-		//filter 
-		findLfilterDefinitions(beanFactory, urls);
-	}
-
-	/*
-	 * 找出含有Lio标帜的目录或jar包
-	 */
-	private List<ResourceRef> findLioResources() {
-		final List<ResourceRef> resources;
-		try {
-			resources = RoseScanner.getInstance()
-					.getJarOrClassesFolderResources();
-		} catch (IOException e) {
-			throw new ApplicationContextException(
-					"error on getJarResources/getClassesFolderResources", e);
-		}
-		return resources;
-	}
-
-	/*
-	 * 找出含有Lio标识的url
-	 */
-	private List<String> findLioResources(final List<ResourceRef> resources) {
-		List<String> urls = new LinkedList<String>();
-		for (ResourceRef ref : resources) {
-			if (ref.hasModifier("Lio") || ref.hasModifier("LIO")) {
-				try {
-					Resource resource = ref.getResource();
-					File resourceFile = resource.getFile();
-					if (resourceFile.isFile()) {
-						urls.add("jar:file:" + resourceFile.toURI().getPath()
-								+ ResourceUtils.JAR_URL_SEPARATOR);
-					} else if (resourceFile.isDirectory()) {
-						urls.add(resourceFile.toURI().toString());
-					}
-				} catch (IOException e) {
-					throw new ApplicationContextException(
-							"error on resource.getFile", e);
-				}
-			}
-		}
-		return urls;
-	}
-
-	/*
-	 * 从获得的目录或jar包中寻找出符合规范的Lio接口，并注册到Spring容器中
-	 */
-	private void findLioDefinitions(
-			ConfigurableListableBeanFactory beanFactory, List<String> urls) {
-		LioComponentProvider provider = new LioComponentProvider(Lservice.class);
+		LioScanningCandidateComponentProvider provider = new LioScanningCandidateComponentProvider();
+		provider.addIncludeFilter(new AnnotationTypeFilter(Lservice.class));
+		provider.addIncludeFilter(new AnnotationTypeFilter(LsFilter.class));
 		Set<String> LioClassNames = new HashSet<String>();
-
-		for (String url : urls) {
-		
-			Set<BeanDefinition> dfs = provider.findCandidateComponents(url);
-			
+		for (String pkg : basePackages) {
+			Set<BeanDefinition> dfs = provider.findCandidateComponents(pkg);
 
 			for (BeanDefinition beanDefinition : dfs) {
 				String LioClassName = beanDefinition.getBeanClassName();
@@ -298,34 +234,12 @@ public class LioBootstrap implements ApplicationContextAware {
 					continue;
 				}
 				LioClassNames.add(LioClassName);
-
 				registerLioDefinition(beanFactory, beanDefinition);
 			}
 		}
 	}
+
 	
-	private void findLfilterDefinitions(
-			ConfigurableListableBeanFactory beanFactory, List<String> urls) {
-		LfilterComponentProvider provider = new LfilterComponentProvider(LsFilter.class);
-		Set<String> LioClassNames = new HashSet<String>();
-
-		for (String url : urls) {
-		
-			Set<BeanDefinition> dfs = provider.findCandidateComponents(url);
-			
-
-			for (BeanDefinition beanDefinition : dfs) {
-				String LioClassName = beanDefinition.getBeanClassName();
-				if (LioClassNames.contains(LioClassName)) {
-					continue;
-				}
-				LioClassNames.add(LioClassName);
-
-				registerLioDefinition(beanFactory, beanDefinition);
-			}
-		}
-	}
-
 	/*
 	 * 将找到的一个Lio接口注册到Spring容器中
 	 */

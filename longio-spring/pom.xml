@@ -1,26 +1,25 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>com.zhucode</groupId>
-  <artifactId>longio-spring</artifactId>
-  <version>0.0.2-SNAPSHOT</version>
-  
- 
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.zhucode</groupId>
+	<artifactId>longio-spring</artifactId>
+	<version>0.0.2-SNAPSHOT</version>
+
+
 	<dependencies>
-	<dependency>
-		<groupId>net.paoding</groupId>
-		<artifactId>paoding-rose-context</artifactId>
-		<version>1.2-SNAPSHOT</version>
-		<scope>compile</scope>
-	</dependency>
-	
-	<dependency>
-		<groupId>com.zhucode</groupId>
-		<artifactId>longio</artifactId>
-		<version>0.0.2-SNAPSHOT</version>
-	</dependency>
-</dependencies>
-  
-  <build>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>4.1.6.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>com.zhucode</groupId>
+			<artifactId>longio</artifactId>
+			<version>0.0.2-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
+
+	<build>
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
@@ -102,5 +101,5 @@
 		</snapshotRepository>
 
 	</distributionManagement>
-  
+
 </project>

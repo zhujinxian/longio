@@ -55,7 +55,7 @@ public class Application  {
 	BeanFactoryPostProcessor getLioBeanBeanFactoryPostProcessor(
 			@Qualifier("appLookup") AppLookup appLookup, 
 			@Qualifier("cmdLookup")CmdLookup cmdLookup) {
-		return new LongioBeanFactoryPostProcessor(appLookup, cmdLookup);
+		return new LongioBeanFactoryPostProcessor(appLookup, cmdLookup, "com.longio");
 	}
 
 	@Boot(port = 5000, pt = ProtocolType.JSONARRAY, tt = TransportType.HTTP)
@@ -63,7 +63,7 @@ public class Application  {
 	@Boot(port = 5001, pt = ProtocolType.MESSAGE_PACK, tt = TransportType.SOCKET)
 	@Bean(name = "longio.bootstrap")
 	public LioBootstrap getLioBootstrap() {
-		return new LioBootstrap();
+		return new LioBootstrap("com.longio");
 	}
 	
 	public static void main(String[] args) {

@@ -15,21 +15,14 @@ package com.longio.spring;
 
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
-import org.springframework.http.client.Netty4ClientHttpRequestFactory;
 
-import com.zhucode.longio.annotation.LsFilter;
 import com.zhucode.longio.annotation.LsAutowired;
+import com.zhucode.longio.annotation.LsFilter;
 import com.zhucode.longio.annotation.Lservice;
 import com.zhucode.longio.boot.LongioApplication;
 import com.zhucode.longio.conf.AppLookup;
 import com.zhucode.longio.conf.CmdLookup;
-import com.zhucode.longio.message.Dispatcher;
-import com.zhucode.longio.reflect.DefaultMethodRefFactory;
-import com.zhucode.longio.reflect.MethodRefFactory;
 import com.zhucode.longio.transport.Connector;
-import com.zhucode.longio.transport.netty.NettyConnector;
 
 /**
  * @author zhu jinxian
