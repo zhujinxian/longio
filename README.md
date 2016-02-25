@@ -104,3 +104,14 @@ public interface ClientService {
 	public String testString();
 }
 ```
+
+try steps:
+
+1. git clone https://github.com/zhujinxian/longio.git
+2. cd longio
+3. mvn install
+4. cd longio-spring
+5. mvn install
+6. import maven project longio-example to eclipse
+
+
