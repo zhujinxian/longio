@@ -13,11 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.longio.example;
 
-import net.paoding.rose.RoseWebApplication;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -42,7 +38,7 @@ import com.zhucode.longio.transport.TransportType;
  */
 
 @SpringBootApplication
-public class Application extends RoseWebApplication {
+public class Application  {
 	
 	
 	@Bean(name="cmdLookup")

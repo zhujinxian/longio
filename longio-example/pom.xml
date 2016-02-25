@@ -11,11 +11,6 @@
 		<version>1.2.3.RELEASE</version>
 	</dependency>
 	<dependency>
-		<groupId>net.paoding</groupId>
-		<artifactId>paoding-rose</artifactId>
-		<version>1.2-SNAPSHOT</version>
-	</dependency>
-	<dependency>
 		<groupId>com.zhucode</groupId>
 		<artifactId>longio-spring</artifactId>
 		<version>0.0.2-SNAPSHOT</version>
