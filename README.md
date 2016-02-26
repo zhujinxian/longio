@@ -114,7 +114,7 @@ try steps:
 5. mvn install
 6. import maven project longio-example to eclipse
 
-using local config enviroment for hosts and commands of services:
+using local config enviroment for services hosts and commands:
 
 application.properties
 
