@@ -114,4 +114,24 @@ try steps:
 5. mvn install
 6. import maven project longio-example to eclipse
 
+using local config enviroment for hosts and commands of services:
+
+application.properties
+
+```
+app.${app_name}.host = ip:port#weight ip:port#weight ip:port#weight 
+```
+
+cmd.properties
+```
+# name-cmd 
+
+com.lehuihome.getUser = 101
+com.lehuihome.getVoid = 102
+com.lehuihome.getInt = 103
+com.lehuihome.getString = 104
+```
+
+
+
 
