@@ -20,6 +20,8 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.zhucode.longio.exception.LongioException;
+
 /**
  * @author zhu jinxian
  * @date  2015年10月12日
@@ -45,16 +47,22 @@ public class MethodRef {
 		this.reply = reply;
 	}
 
-	public Object handle(Object[] args) {
+	public Object handle(Object[] args) throws LongioException {
 		try {
-			logger.info("invoke [{}] with args {}", name, Arrays.asList(args));
+			logger.debug("invoke [{}] with args {}", name, Arrays.asList(args));
 			return method.invoke(obj, args);
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
+			throw new LongioException(400, "invoke arguments exception");
 		} catch (InvocationTargetException e) {
 			e.printStackTrace();
+			if (e.getCause() instanceof LongioException) {
+				throw (LongioException)e.getCause();
+			} else {
+				throw new LongioException(500, e.getCause().getClass().getCanonicalName());
+			}
 		}
 		return null;
 	}

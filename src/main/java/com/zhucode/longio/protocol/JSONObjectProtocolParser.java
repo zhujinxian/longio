@@ -48,6 +48,7 @@ public class JSONObjectProtocolParser implements ProtocolParser<JSONObject> {
 			mb.setCmd(json.getIntValue("cmd"));
 			mb.setUid(json.getIntValue("uid"));
 			mb.setStatus(json.getIntValue("status"));
+			mb.setErr(json.getString("err"));
 			return mb;
 		} catch (UnsupportedEncodingException e) {
 			throw new ProtocolException("decode bytes[] with utf-8 error");
@@ -61,6 +62,7 @@ public class JSONObjectProtocolParser implements ProtocolParser<JSONObject> {
 		res.put("serial", mb.getSerial());
 		res.put("uid", mb.getUid());
 		res.put("status", mb.getStatus());
+		res.put("err", mb.getErr());
 		
 		if (mb.getBody() == null) {
 			res.put("data", null);

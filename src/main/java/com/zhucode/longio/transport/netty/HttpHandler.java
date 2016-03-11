@@ -177,7 +177,6 @@ public class HttpHandler extends AbstractNettyHandler {
 			return ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
 		} else {
 			response.headers().set(CONNECTION, Values.KEEP_ALIVE);
-			System.out.println(ctx.channel().remoteAddress());
 			return ctx.writeAndFlush(response);
 		}
 	}

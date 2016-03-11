@@ -66,7 +66,7 @@ public class NettyClient implements Client{
 		b.handler(initializer);
 		ChannelFuture f = null;
 		try {
-			logger.info("connecting to [{}:{}]", host, port);
+			logger.debug("connecting to [{}:{}]", host, port);
 			f = b.connect(host, port).addListener(new ConnectionListener(this));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -102,6 +102,6 @@ public class NettyClient implements Client{
 	@Override
 	public void setConnected(boolean b) {
 		this.connected = b;
-		logger.info("connect to server [{}:{}] {}", host, port, b);
+		logger.debug("connect to server [{}:{}] {}", host, port, b);
 	}
 }

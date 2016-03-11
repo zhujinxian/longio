@@ -37,6 +37,7 @@ public class JSONArrayProtocolParser implements ProtocolParser<JSONArray> {
 			mb.setCmd(ja.getIntValue(1));
 			mb.setUid(ja.getIntValue(2));
 			mb.setStatus(ja.getIntValue(3));
+			mb.setErr(ja.getString(4));
 			return mb;
 		} catch (UnsupportedEncodingException e) {
 			throw new ProtocolException("decode bytes[] with utf-8 error");
@@ -50,6 +51,7 @@ public class JSONArrayProtocolParser implements ProtocolParser<JSONArray> {
 		body.add(1, mb.getCmd());
 		body.add(2, mb.getUid());
 		body.add(3, mb.getStatus());
+		body.add(4, mb.getErr());
 		try {
 			body.add((JSONArray)mb.getBody());
 		} catch (Exception e1) {

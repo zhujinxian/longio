@@ -49,11 +49,25 @@ public final class Proto {
     int getStatus();
 
     /**
-     * <code>optional bytes body = 5;</code>
+     * <code>required string err = 5;</code>
+     */
+    boolean hasErr();
+    /**
+     * <code>required string err = 5;</code>
+     */
+    java.lang.String getErr();
+    /**
+     * <code>required string err = 5;</code>
+     */
+    com.google.protobuf.ByteString
+        getErrBytes();
+
+    /**
+     * <code>optional bytes body = 6;</code>
      */
     boolean hasBody();
     /**
-     * <code>optional bytes body = 5;</code>
+     * <code>optional bytes body = 6;</code>
      */
     com.google.protobuf.ByteString getBody();
   }
@@ -130,7 +144,13 @@ public final class Proto {
               break;
             }
             case 42: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000010;
+              err_ = bs;
+              break;
+            }
+            case 50: {
+              bitField0_ |= 0x00000020;
               body_ = input.readBytes();
               break;
             }
@@ -234,16 +254,58 @@ public final class Proto {
       return status_;
     }
 
-    public static final int BODY_FIELD_NUMBER = 5;
-    private com.google.protobuf.ByteString body_;
+    public static final int ERR_FIELD_NUMBER = 5;
+    private java.lang.Object err_;
     /**
-     * <code>optional bytes body = 5;</code>
+     * <code>required string err = 5;</code>
      */
-    public boolean hasBody() {
+    public boolean hasErr() {
       return ((bitField0_ & 0x00000010) == 0x00000010);
     }
     /**
-     * <code>optional bytes body = 5;</code>
+     * <code>required string err = 5;</code>
+     */
+    public java.lang.String getErr() {
+      java.lang.Object ref = err_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          err_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>required string err = 5;</code>
+     */
+    public com.google.protobuf.ByteString
+        getErrBytes() {
+      java.lang.Object ref = err_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        err_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int BODY_FIELD_NUMBER = 6;
+    private com.google.protobuf.ByteString body_;
+    /**
+     * <code>optional bytes body = 6;</code>
+     */
+    public boolean hasBody() {
+      return ((bitField0_ & 0x00000020) == 0x00000020);
+    }
+    /**
+     * <code>optional bytes body = 6;</code>
      */
     public com.google.protobuf.ByteString getBody() {
       return body_;
@@ -254,6 +316,7 @@ public final class Proto {
       serial_ = 0L;
       uid_ = 0;
       status_ = 0;
+      err_ = "";
       body_ = com.google.protobuf.ByteString.EMPTY;
     }
     private byte memoizedIsInitialized = -1;
@@ -278,6 +341,10 @@ public final class Proto {
         memoizedIsInitialized = 0;
         return false;
       }
+      if (!hasErr()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
       memoizedIsInitialized = 1;
       return true;
     }
@@ -298,7 +365,10 @@ public final class Proto {
         output.writeInt32(4, status_);
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
-        output.writeBytes(5, body_);
+        output.writeBytes(5, getErrBytes());
+      }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        output.writeBytes(6, body_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -327,7 +397,11 @@ public final class Proto {
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(5, body_);
+          .computeBytesSize(5, getErrBytes());
+      }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(6, body_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -454,8 +528,10 @@ public final class Proto {
         bitField0_ = (bitField0_ & ~0x00000004);
         status_ = 0;
         bitField0_ = (bitField0_ & ~0x00000008);
-        body_ = com.google.protobuf.ByteString.EMPTY;
+        err_ = "";
         bitField0_ = (bitField0_ & ~0x00000010);
+        body_ = com.google.protobuf.ByteString.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000020);
         return this;
       }
 
@@ -503,6 +579,10 @@ public final class Proto {
         if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
           to_bitField0_ |= 0x00000010;
         }
+        result.err_ = err_;
+        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
+          to_bitField0_ |= 0x00000020;
+        }
         result.body_ = body_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -532,6 +612,11 @@ public final class Proto {
         if (other.hasStatus()) {
           setStatus(other.getStatus());
         }
+        if (other.hasErr()) {
+          bitField0_ |= 0x00000010;
+          err_ = other.err_;
+          onChanged();
+        }
         if (other.hasBody()) {
           setBody(other.getBody());
         }
@@ -553,6 +638,10 @@ public final class Proto {
           return false;
         }
         if (!hasStatus()) {
+          
+          return false;
+        }
+        if (!hasErr()) {
           
           return false;
         }
@@ -706,36 +795,112 @@ public final class Proto {
         return this;
       }
 
-      private com.google.protobuf.ByteString body_ = com.google.protobuf.ByteString.EMPTY;
+      private java.lang.Object err_ = "";
       /**
-       * <code>optional bytes body = 5;</code>
+       * <code>required string err = 5;</code>
        */
-      public boolean hasBody() {
+      public boolean hasErr() {
         return ((bitField0_ & 0x00000010) == 0x00000010);
       }
       /**
-       * <code>optional bytes body = 5;</code>
+       * <code>required string err = 5;</code>
+       */
+      public java.lang.String getErr() {
+        java.lang.Object ref = err_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            err_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>required string err = 5;</code>
+       */
+      public com.google.protobuf.ByteString
+          getErrBytes() {
+        java.lang.Object ref = err_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          err_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>required string err = 5;</code>
+       */
+      public Builder setErr(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000010;
+        err_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string err = 5;</code>
+       */
+      public Builder clearErr() {
+        bitField0_ = (bitField0_ & ~0x00000010);
+        err_ = getDefaultInstance().getErr();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string err = 5;</code>
+       */
+      public Builder setErrBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000010;
+        err_ = value;
+        onChanged();
+        return this;
+      }
+
+      private com.google.protobuf.ByteString body_ = com.google.protobuf.ByteString.EMPTY;
+      /**
+       * <code>optional bytes body = 6;</code>
+       */
+      public boolean hasBody() {
+        return ((bitField0_ & 0x00000020) == 0x00000020);
+      }
+      /**
+       * <code>optional bytes body = 6;</code>
        */
       public com.google.protobuf.ByteString getBody() {
         return body_;
       }
       /**
-       * <code>optional bytes body = 5;</code>
+       * <code>optional bytes body = 6;</code>
        */
       public Builder setBody(com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000010;
+  bitField0_ |= 0x00000020;
         body_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional bytes body = 5;</code>
+       * <code>optional bytes body = 6;</code>
        */
       public Builder clearBody() {
-        bitField0_ = (bitField0_ & ~0x00000010);
+        bitField0_ = (bitField0_ & ~0x00000020);
         body_ = getDefaultInstance().getBody();
         onChanged();
         return this;
@@ -767,9 +932,9 @@ public final class Proto {
   static {
     java.lang.String[] descriptorData = {
       "\n\013proto.proto\022!com.zhucode.longio.messag" +
-      "e.format\"Q\n\007Message\022\013\n\003cmd\030\001 \002(\005\022\016\n\006seri" +
-      "al\030\002 \002(\003\022\013\n\003uid\030\003 \002(\005\022\016\n\006status\030\004 \002(\005\022\014\n" +
-      "\004body\030\005 \001(\014"
+      "e.format\"^\n\007Message\022\013\n\003cmd\030\001 \002(\005\022\016\n\006seri" +
+      "al\030\002 \002(\003\022\013\n\003uid\030\003 \002(\005\022\016\n\006status\030\004 \002(\005\022\013\n" +
+      "\003err\030\005 \002(\t\022\014\n\004body\030\006 \001(\014"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -788,7 +953,7 @@ public final class Proto {
     internal_static_com_zhucode_longio_message_format_Message_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_com_zhucode_longio_message_format_Message_descriptor,
-        new java.lang.String[] { "Cmd", "Serial", "Uid", "Status", "Body", });
+        new java.lang.String[] { "Cmd", "Serial", "Uid", "Status", "Err", "Body", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

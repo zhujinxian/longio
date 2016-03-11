@@ -10,6 +10,7 @@ import com.zhucode.longio.context.parameter.Key;
 import com.zhucode.longio.context.parameter.Unpack;
 import com.zhucode.longio.example.message.Res;
 import com.zhucode.longio.example.message.UserMsg;
+import com.zhucode.longio.exception.LongioException;
 
 @Lservice(path = "com.lehuihome")
 public class ExeHelloService {
@@ -42,16 +43,30 @@ public class ExeHelloService {
 		System.out.println("++++++++++++test void+++++++++++++++");
 	}
 	
-	@Lio(cmd = "getInt")
+	@Lio(cmd = "getInt", asy=false)
 	public int testInt() {
-		System.out.println("++++++++++++test int+++++++++++++++");
+//		System.out.println("++++++++++++test int+++++++++++++++");
 		return 98800;
 	}
 	
 	@Lio(cmd = "getString")
-	public String testString() {
-		System.out.println("++++++++++++test string+++++++++++++++");
-		return "dddddddddfvvvv";
+	public String testString(@Key("str")String string) {
+//		System.out.println("++++++++++++test string+++++++++++++++");
+		int a = 0;
+		a = a /a;
+		return string;
+	}
+	
+	@Lio(cmd = "getStringAsy", asy=false)
+	public String testStringAsy(@Key("str")String string) {
+//		System.out.println("++++++++++++test string+++++++++++++++");
+		return string;
+	}
+	
+	@Lio(cmd = "getException")
+	public void testException() throws LongioException {
+//		System.out.println("++++++++++++test string+++++++++++++++");
+		throw new LongioException(1111, "test exception");
 	}
 
 }

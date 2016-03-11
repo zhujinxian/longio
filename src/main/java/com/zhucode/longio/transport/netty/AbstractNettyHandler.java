@@ -143,7 +143,6 @@ public abstract class AbstractNettyHandler extends AbstractHandler implements Ch
 	
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-		System.out.println("-------ebcounter exception-------");
 		cause.printStackTrace();
 		this.getNettyConnector().unregistHandlerContext(ctx);
 		ctx.close();

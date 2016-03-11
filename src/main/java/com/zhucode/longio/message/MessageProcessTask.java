@@ -19,6 +19,7 @@ import java.util.List;
 
 import com.zhucode.longio.context.parameter.ParameterParser;
 import com.zhucode.longio.context.parameter.ParameterParserFactory;
+import com.zhucode.longio.exception.LongioException;
 import com.zhucode.longio.reflect.MethodRef;
 
 /**
@@ -62,6 +63,7 @@ public class MessageProcessTask implements Runnable {
 		
 		if (handler == null) {
 			mret.setStatus(404);
+			mret.setErr("Invoked method not found");
 		} else {
 			try {
 				Object[] args = null;
@@ -78,9 +80,13 @@ public class MessageProcessTask implements Runnable {
 				Object ret = this.handler.handle(args);
 				mret.setStatus(200);
 				mret.setBody(ret);
+			} catch (LongioException e1) {
+				mret.setStatus(e1.getErrcode());
+				mret.setErr(e1.getMessage());
 			} catch (Exception e) {
 				e.printStackTrace();
 				mret.setStatus(500);
+				mret.setErr("No defined exception");
 			}
 		}
 		

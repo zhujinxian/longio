@@ -35,11 +35,13 @@ public class ProtoBufProtocolParser implements ProtocolParser<Message> {
 			long serial = data.getSerial();
 			int uid = data.getUid();
 			int status = data.getStatus();
+			String err = data.getErr();
 			MessageBlock<Message> mb = new MessageBlock<Message>(data);
 			mb.setCmd(cmd);
 			mb.setSerial(serial);
 			mb.setUid(uid);
 			mb.setStatus(status);
+			mb.setErr(err);
 			return mb;
 		} catch (InvalidProtocolBufferException e) {
 			e.printStackTrace();
@@ -54,11 +56,13 @@ public class ProtoBufProtocolParser implements ProtocolParser<Message> {
 		long serial = mb.getSerial();
 		int uid = mb.getUid();
 		int status = mb.getStatus();
+		String err = mb.getErr();
 		
 		if (mb.getBody() instanceof Message) {
 			Message m = (Message)mb.getBody();
 			Proto.Message data = Proto.Message.newBuilder()
-					.setCmd(cmd).setSerial(serial).setUid(uid).setStatus(status).setBody(m.toByteString()).build();
+					.setCmd(cmd).setSerial(serial).setUid(uid)
+					.setStatus(status).setErr(err).setBody(m.toByteString()).build();
 			return data.toByteArray();
 		} else {
 			throw new ProtocolException("the only type must be void or " + Message.class.getCanonicalName());

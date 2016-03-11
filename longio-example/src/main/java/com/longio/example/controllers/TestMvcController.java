@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.longio.example.service.HelloService;
+import com.zhucode.longio.exception.LongioException;
 
 /**
  * @author zhu jinxian
@@ -52,6 +53,7 @@ public class TestMvcController {
 	@ResponseBody
 	@RequestMapping(value = "string", method = RequestMethod.GET)
 	public String testString() {
+		
 		return "@========test string=============\n" + service.testString();
 	}
 	
@@ -64,6 +66,18 @@ public class TestMvcController {
 	@ResponseBody
 	@RequestMapping(value = "test", method = RequestMethod.GET)
 	public String testMap() {
+		return "@========test=============\n";
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "exception", method = RequestMethod.GET)
+	public String testException() {
+		try {
+			service.testException();
+		} catch (LongioException e) {
+			e.printStackTrace();
+			return e.toString();
+		}
 		return "@========test=============\n";
 	}
 }

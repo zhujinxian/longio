@@ -34,6 +34,8 @@ public class MessageBlock<T> {
 	
 	private int status;
 	
+	private String err = "";
+	
 	private T body;
 	
 	private Connector connector;
@@ -43,8 +45,6 @@ public class MessageBlock<T> {
 	private SocketAddress remoteAddress;
 	
 	private int sendCount;
-	
-	
 	
 	public MessageBlock(T body) {
 		this.body = body;
@@ -128,6 +128,14 @@ public class MessageBlock<T> {
 
 	public void setRemoteAddress(SocketAddress remoteAddress) {
 		this.remoteAddress = remoteAddress;
+	}
+
+	public String getErr() {
+		return err;
+	}
+
+	public void setErr(String err) {
+		this.err = err;
 	}
 
 	@Override

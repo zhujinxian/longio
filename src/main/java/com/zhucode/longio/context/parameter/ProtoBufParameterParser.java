@@ -116,8 +116,8 @@ public class ProtoBufParameterParser implements ParameterParser {
 	
 	private Object getValFromProto(Map<FieldDescriptor, Object> kvs, String key) {
 		for (Entry<FieldDescriptor, Object> kv : kvs.entrySet()) {
-			System.out.println(kv.getKey().getFullName());
-			System.out.println(kv.getKey().getName());
+//			System.out.println(kv.getKey().getFullName());
+//			System.out.println(kv.getKey().getName());
 			if (kv.getKey().getName().equals(key)) {
 				return kv.getValue();
 			}

@@ -67,7 +67,7 @@ public class MethodDispatcher implements Dispatcher {
 		} else {
 			mpt.run();
 		}
-		logger.info("invoke num = " + num.getAndIncrement());
+		logger.debug("invoke num = " + num.getAndIncrement());
 	}
 
 	public ParameterParserFactory getParameterParserFactory() {

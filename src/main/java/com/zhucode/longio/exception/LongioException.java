@@ -11,21 +11,26 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
-package com.zhucode.longio.message.format;
-
-import org.msgpack.annotation.Message;
+package com.zhucode.longio.exception;
 
 /**
  * @author zhu jinxian
- * @date  2015年10月12日
+ * @date  2016年3月11日
  * 
  */
-@Message
-public class MessagePackData {
-	public int cmd;
-	public long serial;
-	public int uid;
-	public int status;
-	public String err;
-	public byte[] data;
+public class LongioException extends Exception {
+
+	private static final long serialVersionUID = 1L;
+	
+	private int errcode;
+
+	public LongioException(int errcode, String message) {
+		super(message);
+		this.errcode = errcode;
+	}
+
+
+	public int getErrcode() {
+		return errcode;
+	}
 }

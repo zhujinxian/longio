@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import com.zhucode.longio.annotation.LsAutowired;
 import com.zhucode.longio.callback.CallbackDispatcher;
@@ -32,6 +33,7 @@ import com.zhucode.longio.client.parameter.ParameterPacker;
 import com.zhucode.longio.client.parameter.ParameterPackerFactory;
 import com.zhucode.longio.client.parameter.UidParser;
 import com.zhucode.longio.conf.AppLookup;
+import com.zhucode.longio.exception.LongioException;
 import com.zhucode.longio.message.MessageBlock;
 import com.zhucode.longio.message.MessageCallback;
 import com.zhucode.longio.message.MessageSerial;
@@ -127,8 +129,11 @@ public class ProxyInvocationHandler implements InvocationHandler {
 			try {
 				MessageBlock<?> ret = task.get(mi.getTimeout(), TimeUnit.MILLISECONDS);
 				client.sendSuccess(call.getPoint(), call.getMb());
-				return packer.unpack(mi.getMethod().getReturnType(), mi.getMethod().getGenericReturnType(), ret.getBody());
-			} catch (Exception e) {
+				if (ret.getStatus() < 400) {
+					return packer.unpack(mi.getMethod().getReturnType(), mi.getMethod().getGenericReturnType(), ret.getBody());
+				}
+				throw new LongioException(ret.getStatus(), ret.getErr());
+			} catch (TimeoutException e) {
 				this.dispatcher.unregist(mb.getSerial());
 				client.sendTimeout(call.getPoint(), call.getMb());
 				e.printStackTrace();

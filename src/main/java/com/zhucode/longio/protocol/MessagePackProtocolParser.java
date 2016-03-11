@@ -39,6 +39,7 @@ public class MessagePackProtocolParser implements ProtocolParser<byte[]> {
 			mb.setSerial(mpd.serial);
 			mb.setUid(mpd.uid);
 			mb.setStatus(mpd.status);
+			mb.setErr(mpd.err);
 			return mb;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -67,6 +68,7 @@ public class MessagePackProtocolParser implements ProtocolParser<byte[]> {
 		mpd.serial = mb.getSerial();
 		mpd.uid = mb.getUid();
 		mpd.status = mb.getStatus();
+		mpd.err = mb.getErr();
 		
 		Object ret = mb.getBody();
 		MessagePack mp = new MessagePack();
