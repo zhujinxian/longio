@@ -17,8 +17,11 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 
 import org.msgpack.MessagePack;
+import org.msgpack.template.Template;
+import org.msgpack.template.TemplateRegistry;
 import org.msgpack.unpacker.Unpacker;
 
 import com.zhucode.longio.message.MessageBlock;
@@ -32,6 +35,8 @@ import com.zhucode.longio.transport.Connector;
  */
 public class MessagePackParameterParser implements ParameterParser {
 
+	TemplateRegistry tr = new TemplateRegistry(null);
+	
 	@Override
 	public Object[] parse(MessageBlock<?> mb, Annotation[] meta,
 			Parameter[] paras) {
@@ -57,7 +62,8 @@ public class MessagePackParameterParser implements ParameterParser {
 					continue;
 				}
 				try {
-					objs[i] = unpacker.read(p.getType());
+					Type type = p.getParameterizedType() == null? p.getType() : p.getParameterizedType();
+					objs[i] = unpacker.read(parseTemplate(type));
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -108,5 +114,11 @@ public class MessagePackParameterParser implements ParameterParser {
 		}
 		return null;
 	}
+	
+
+	private Template<?> parseTemplate(Type type) {
+		return tr.lookup(type);
+	}
+
 
 }

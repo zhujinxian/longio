@@ -36,7 +36,7 @@ import com.zhucode.longio.transport.Client;
  */
 public class NettyClient implements Client{
 	
-	static Logger logger = LoggerFactory.getLogger(NettyClient.class);
+	static Logger logger = LoggerFactory.getLogger("com.zhucode.longio");
 	
 	private NioEventLoopGroup workerGroup;
 	private String host;

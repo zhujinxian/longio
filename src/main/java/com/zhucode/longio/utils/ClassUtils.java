@@ -13,6 +13,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio.utils;
 
+import java.util.List;
+import java.util.Set;
+
 /**
  * @author zhu jinxian
  * @date  2015年10月12日
@@ -20,7 +23,7 @@ package com.zhucode.longio.utils;
  */
 public class ClassUtils {
 	public static boolean isPrimitive(Class<?> cls) {
-		
+	
 		if (cls.isPrimitive()) {
 			return true;
 		}
@@ -58,6 +61,19 @@ public class ClassUtils {
 		}
 		
 		if (cls == String.class) {
+			return true;
+		}
+		
+		//后加的
+		if (cls.isAssignableFrom(List.class)) {
+			return true;
+		}
+		
+		if (cls.isAssignableFrom(Set.class)) {
+			return true;
+		}
+		
+		if (cls.isArray()) {
 			return true;
 		}
 		

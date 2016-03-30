@@ -15,6 +15,8 @@ package com.zhucode.longio.protocol;
 
 import java.io.UnsupportedEncodingException;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.zhucode.longio.exception.ProtocolException;
 import com.zhucode.longio.message.MessageBlock;
@@ -38,6 +40,10 @@ public class JSONObjectProtocolParser implements ProtocolParser<JSONObject> {
 				mb = new MessageBlock<JSONObject>((JSONObject)data);
 			} else if (data == null) {
 				mb = new MessageBlock<JSONObject>(null);
+			} else if (data instanceof JSONArray) {
+				JSONObject js = new JSONObject();
+				js.put("_ret_", data);
+				mb = new MessageBlock<JSONObject>(js);
 			} else if (ClassUtils.isPrimitive(data.getClass())) {
 				JSONObject js = new JSONObject();
 				js.put("_ret_", data);
@@ -69,7 +75,7 @@ public class JSONObjectProtocolParser implements ProtocolParser<JSONObject> {
 		} else if (ClassUtils.isPrimitive(mb.getBody().getClass())) {
 			res.put("data", mb.getBody());
 		} else {
-			JSONObject body = (JSONObject)JSONObject.toJSON(mb.getBody());
+			JSON body = (JSON)JSONObject.toJSON(mb.getBody());
 			res.put("data", body);
 		}
 		try {

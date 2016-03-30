@@ -51,10 +51,12 @@ public class MessagePackParameterPacker implements ParameterPacker<Object> {
 		if (args == null) {
 			return null;
 		}
-		if (args.length <= 2 && args[0].getClass().isAnnotationPresent(Message.class)) {
+		Parameter[] paras = mi.getMethod().getParameters();
+		
+		if (args.length <= 2 && paras[0].getType().isAnnotationPresent(Message.class)) {
 			return args[0];
 		}
-		Parameter[] paras = mi.getMethod().getParameters();
+		
 		Pack pack = mi.getMethod().getAnnotation(Pack.class);
 		try {
 			if (pack != null) {
@@ -66,15 +68,26 @@ public class MessagePackParameterPacker implements ParameterPacker<Object> {
 					if (pa.getType() == MethodCallback.class) {
 						continue;
 					}
-					if (args[i].getClass().isAnnotationPresent(Body.class)) {
+					
+					if (pa.getType().isAnnotationPresent(Body.class)) {
 						return args[i];
 					}
-					if (args[i].getClass().isAnnotationPresent(Uid.class)) {
+					if (pa.getType().isAnnotationPresent(Uid.class)) {
 						continue;
 					}
-					if (args[i].getClass().isAnnotationPresent(CMD.class)) {
+					if (pa.getType().isAnnotationPresent(CMD.class)) {
 						continue;
 					}
+					
+//					if (args[i].getClass().isAnnotationPresent(Body.class)) {
+//						return args[i];
+//					}
+//					if (args[i].getClass().isAnnotationPresent(Uid.class)) {
+//						continue;
+//					}
+//					if (args[i].getClass().isAnnotationPresent(CMD.class)) {
+//						continue;
+//					}
 					Key key = pa.getAnnotation(Key.class);
 					Field f = cls.getField(key.value());
 					f.set(obj, args[i]);
@@ -84,19 +97,34 @@ public class MessagePackParameterPacker implements ParameterPacker<Object> {
 				MessagePack mp = new MessagePack();
 				ByteArrayOutputStream out = new ByteArrayOutputStream();
 		        Packer packer = mp.createPacker(out);
-		        for (Object arg : args) {
+		        for (int i = 0; i < paras.length; i++) {
+		        	
+		        	Parameter pa = paras[i];
+		        	Object arg = args[i];
+		        	
 		        	if (arg instanceof MethodCallback) {
 						continue;
 					}
-		        	if (arg.getClass().isAnnotationPresent(Body.class)) {
-						return arg;
+		        	
+		        	if (pa.getType().isAnnotationPresent(Body.class)) {
+						return args[i];
 					}
-		        	if (arg.getClass().isAnnotationPresent(Uid.class)) {
+					if (pa.getType().isAnnotationPresent(Uid.class)) {
 						continue;
 					}
-					if (arg.getClass().isAnnotationPresent(CMD.class)) {
+					if (pa.getType().isAnnotationPresent(CMD.class)) {
 						continue;
 					}
+					
+//		        	if (arg.getClass().isAnnotationPresent(Body.class)) {
+//						return arg;
+//					}
+//		        	if (arg.getClass().isAnnotationPresent(Uid.class)) {
+//						continue;
+//					}
+//					if (arg.getClass().isAnnotationPresent(CMD.class)) {
+//						continue;
+//					}
 					packer.write(arg);
 				}
 		        return out.toByteArray();

@@ -29,7 +29,7 @@ import com.zhucode.longio.exception.LongioException;
  */
 public class MethodRef {
 	
-	static Logger logger = LoggerFactory.getLogger(MethodRef.class);
+	static Logger logger = LoggerFactory.getLogger("com.zhucode.longio");
 	
 	private int cmd;
 	private String name;

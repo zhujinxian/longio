@@ -1,6 +1,7 @@
 package com.longio.example.io;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
@@ -67,6 +68,12 @@ public class ExeHelloService {
 	public void testException() throws LongioException {
 //		System.out.println("++++++++++++test string+++++++++++++++");
 		throw new LongioException(1111, "test exception");
+	}
+	
+	@Lio(cmd = "list_to_list")
+	public List<String> testLiat(List<String> strs)  {
+//		System.out.println("++++++++++++test string+++++++++++++++");
+		return strs;
 	}
 
 }

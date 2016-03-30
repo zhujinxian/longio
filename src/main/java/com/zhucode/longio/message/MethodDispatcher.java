@@ -33,7 +33,7 @@ import com.zhucode.longio.reflect.MethodRef;
  */
 public class MethodDispatcher implements Dispatcher {
 	
-	static Logger logger = LoggerFactory.getLogger(MethodDispatcher.class);
+	static Logger logger = LoggerFactory.getLogger("com.zhucode.longio");
 	
 	private ExecutorService es = Executors.newCachedThreadPool();
 	

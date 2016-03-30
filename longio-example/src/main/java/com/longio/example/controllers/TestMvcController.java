@@ -13,6 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.longio.example.controllers;
 
+import java.util.Arrays;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -79,5 +81,20 @@ public class TestMvcController {
 			return e.toString();
 		}
 		return "@========test=============\n";
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "list_to_list", method = RequestMethod.GET)
+	public String testList() {
+		
+		return "@========test=============\n" + service.testLiat(Arrays.asList("d", "d"));
+	}
+	
+	
+	@ResponseBody
+	@RequestMapping(value = "test_null", method = RequestMethod.GET)
+	public String testNull() {
+		
+		return "@========test=============\n" + service.testLiat(null);
 	}
 }
