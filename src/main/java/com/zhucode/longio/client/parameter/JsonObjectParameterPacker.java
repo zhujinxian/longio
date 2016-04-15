@@ -88,7 +88,7 @@ public class JsonObjectParameterPacker implements ParameterPacker<JSONObject> {
 		if (returnCls.isAssignableFrom(Set.class)) {
 			return new HashSet<Object>(ret.getJSONArray("_ret_"));
 		}
-		return JSON.toJavaObject((JSON)ret, returnCls);
+		return JSON.parseObject(ret.toJSONString(), returnType);
 	}
 	
 	private Object serialize(Object obj) {
