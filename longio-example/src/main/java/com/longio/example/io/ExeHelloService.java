@@ -3,6 +3,7 @@ package com.longio.example.io;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.alibaba.fastjson.JSONObject;
 import com.zhucode.longio.annotation.Lio;
@@ -45,16 +46,16 @@ public class ExeHelloService {
 	}
 	
 	@Lio(cmd = "getInt", asy=false)
-	public int testInt() {
+	public int testInt(@Key("int")int x) {
 //		System.out.println("++++++++++++test int+++++++++++++++");
-		return 98800;
+		return x;
 	}
 	
 	@Lio(cmd = "getString")
 	public String testString(@Key("str")String string) {
 //		System.out.println("++++++++++++test string+++++++++++++++");
 		int a = 0;
-		a = a /a;
+		//a = a /a;
 		return string;
 	}
 	
@@ -71,8 +72,13 @@ public class ExeHelloService {
 	}
 	
 	@Lio(cmd = "list_to_list")
-	public List<String> testLiat(List<String> strs)  {
+	public List<String> testLiat(@Key("strs")List<String> strs)  {
 //		System.out.println("++++++++++++test string+++++++++++++++");
+		return strs;
+	}
+	
+	@Lio(cmd = "set_to_set")
+	public Set<String> testSet(@Key("strs")Set<String> strs) {
 		return strs;
 	}
 

@@ -14,6 +14,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 package com.longio.example.controllers;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -49,14 +51,14 @@ public class TestMvcController {
 	@RequestMapping(value = "int", method = RequestMethod.GET)
 	public String testInt() {
 		
-		return "@========test int=============\n" + service.testInt();
+		return "@========test int=============\n" + service.testInt(987654);
 	}
 	
 	@ResponseBody
 	@RequestMapping(value = "string", method = RequestMethod.GET)
 	public String testString() {
 		
-		return "@========test string=============\n" + service.testString();
+		return "@========test string=============\n" + service.testString("hello strs");
 	}
 	
 	@ResponseBody
@@ -90,6 +92,14 @@ public class TestMvcController {
 		return "@========test=============\n" + service.testLiat(Arrays.asList("d", "d"));
 	}
 	
+	
+	@ResponseBody
+	@RequestMapping(value = "set_to_set", method = RequestMethod.GET)
+	public String testSet() {
+		Set<String> s = new HashSet<String>();
+		s.add("a");s.add("b");s.add("c");
+		return "@========test=============\n" + service.testSet(s);
+	}
 	
 	@ResponseBody
 	@RequestMapping(value = "test_null", method = RequestMethod.GET)

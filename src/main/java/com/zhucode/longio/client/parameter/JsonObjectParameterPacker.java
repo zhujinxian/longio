@@ -15,6 +15,9 @@ package com.zhucode.longio.client.parameter;
 
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -73,13 +76,25 @@ public class JsonObjectParameterPacker implements ParameterPacker<JSONObject> {
 			return null;
 		}
 		JSONObject ret = (JSONObject)msg;
+		if (ret == null) {
+			return null;
+		}
 		if (ClassUtils.isPrimitive(returnCls)) {
 			return ret.getObject("_ret_", returnCls);
+		}
+		if (returnCls.isAssignableFrom(List.class)) {
+			return ret.get("_ret_");
+		}
+		if (returnCls.isAssignableFrom(Set.class)) {
+			return new HashSet<Object>(ret.getJSONArray("_ret_"));
 		}
 		return JSON.toJavaObject((JSON)ret, returnCls);
 	}
 	
 	private Object serialize(Object obj) {
+		if (obj == null) {
+			return null;
+		}
 		if (ClassUtils.isPrimitive(obj.getClass())) {
 			return obj;
 		}

@@ -141,9 +141,6 @@ public class MessagePackParameterPacker implements ParameterPacker<Object> {
 		if (returnType == Void.TYPE) {
 			return null;
 		}
-		if (ClassUtils.isPrimitive(returnCls.getClass())) {
-			return msg;
-		}
 	
 		byte[] ret = (byte[])msg;
 		

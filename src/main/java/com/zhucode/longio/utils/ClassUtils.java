@@ -64,15 +64,6 @@ public class ClassUtils {
 			return true;
 		}
 		
-		//后加的
-		if (cls.isAssignableFrom(List.class)) {
-			return true;
-		}
-		
-		if (cls.isAssignableFrom(Set.class)) {
-			return true;
-		}
-		
 		if (cls.isArray()) {
 			return true;
 		}
