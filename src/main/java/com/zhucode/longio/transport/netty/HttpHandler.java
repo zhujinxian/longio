@@ -20,6 +20,13 @@ import static io.netty.handler.codec.http.HttpHeaders.Names.HOST;
 import static io.netty.handler.codec.http.HttpResponseStatus.CONTINUE;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+
+import com.zhucode.longio.callback.CallbackDispatcher;
+import com.zhucode.longio.exception.ProtocolException;
+import com.zhucode.longio.message.Dispatcher;
+import com.zhucode.longio.message.MessageBlock;
+import com.zhucode.longio.protocol.Protocol;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
@@ -37,16 +44,8 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
-import io.netty.handler.timeout.IdleState;
-import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.AttributeKey;
 import io.netty.util.ReferenceCountUtil;
-
-import com.zhucode.longio.callback.CallbackDispatcher;
-import com.zhucode.longio.exception.ProtocolException;
-import com.zhucode.longio.message.Dispatcher;
-import com.zhucode.longio.message.MessageBlock;
-import com.zhucode.longio.protocol.ProtocolParser;
 
 /**
  * @author zhu jinxian
@@ -59,7 +58,7 @@ public class HttpHandler extends AbstractNettyHandler {
 	
 	private static AttributeKey<Boolean> keepAlive = AttributeKey.valueOf("keepAlive");
 	
-	public HttpHandler(NettyConnector connector, Dispatcher dispatcher, CallbackDispatcher callbackDispatcher, ProtocolParser<?> pp) {
+	public HttpHandler(NettyConnector connector, Dispatcher dispatcher, CallbackDispatcher callbackDispatcher, Protocol pp) {
 		super(connector, dispatcher,callbackDispatcher, pp);
 	}
 	
@@ -145,7 +144,7 @@ public class HttpHandler extends AbstractNettyHandler {
 	
 
 	@Override
-	public ChannelFuture sendMessage(ChannelHandlerContext ctx, MessageBlock<?> mb) {
+	public ChannelFuture sendMessage(ChannelHandlerContext ctx, MessageBlock mb) {
 		
 		byte[] bytes = null;
 		try {

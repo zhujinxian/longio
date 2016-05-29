@@ -13,10 +13,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio.transport.netty;
 
+import com.zhucode.longio.transport.Client;
+
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
-
-import com.zhucode.longio.transport.Client;
 
 /**
  * @author zhu jinxian

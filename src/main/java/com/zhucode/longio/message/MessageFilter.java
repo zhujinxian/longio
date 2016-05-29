@@ -21,8 +21,8 @@ package com.zhucode.longio.message;
 
 public interface MessageFilter {
 	
-	public boolean preFilter(MessageBlock<?> req);
+	public boolean preFilter(MessageBlock req);
 	
-	public void postFilter(MessageBlock<?> req, MessageBlock<?> res);
+	public void postFilter(MessageBlock req, MessageBlock res);
 	
 }

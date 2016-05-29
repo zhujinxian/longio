@@ -39,16 +39,16 @@ public class CallbackDispatcher {
 	
 	private static ScheduledExecutorService scheduledexecutor = Executors.newScheduledThreadPool(1);
 	
-	private ConcurrentHashMap<Long, InvocationTask<MessageBlock<?>>> tasks = new ConcurrentHashMap<Long, InvocationTask<MessageBlock<?>>>();
+	private ConcurrentHashMap<Long, InvocationTask<MessageBlock>> tasks = new ConcurrentHashMap<Long, InvocationTask<MessageBlock>>();
 	
 	private ConcurrentHashMap<Long, MessageCallback> callbacks = new ConcurrentHashMap<Long,MessageCallback>();
 	
-	private ConcurrentHashMap<Long, InvocationTask<MessageBlock<?>>> callbackTasks = new ConcurrentHashMap<Long, InvocationTask<MessageBlock<?>>>();
+	private ConcurrentHashMap<Long, InvocationTask<MessageBlock>> callbackTasks = new ConcurrentHashMap<Long, InvocationTask<MessageBlock>>();
 
 	
-	public void setReturnValue(MessageBlock<?> mb) {
+	public void setReturnValue(MessageBlock mb) {
 		long serial = mb.getSerial();
-		InvocationTask<MessageBlock<?>> task = this.tasks.get(serial);
+		InvocationTask<MessageBlock> task = this.tasks.get(serial);
 		if (task != null && !task.isCancelled()) {
 			task.set(mb);
 			unregist(serial);
@@ -75,12 +75,12 @@ public class CallbackDispatcher {
 	}
 	
 	
-	public void registTask(long serial, InvocationTask<MessageBlock<?>> task) {
+	public void registTask(long serial, InvocationTask<MessageBlock> task) {
 		this.tasks.put(serial, task);
 		executor.submit(task);
 	}
 	
-	public void registCallback(long serial, InvocationTask<MessageBlock<?>> task, MessageCallback callback, int timeout) {
+	public void registCallback(long serial, InvocationTask<MessageBlock> task, MessageCallback callback, int timeout) {
 		this.callbacks.put(serial, callback);
 		callbackTasks.put(serial, task);
 		executor.submit(task);

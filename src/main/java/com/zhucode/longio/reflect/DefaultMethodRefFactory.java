@@ -20,7 +20,6 @@ import java.util.List;
 import com.zhucode.longio.annotation.Lio;
 import com.zhucode.longio.annotation.Lservice;
 import com.zhucode.longio.conf.CmdLookup;
-import com.zhucode.longio.conf.DefaultCmdLookup;
 
 /**
  * @author zhu jinxian

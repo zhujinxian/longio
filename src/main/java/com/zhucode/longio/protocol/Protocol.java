@@ -11,24 +11,36 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
-package com.zhucode.longio.context.parameter;
+package com.zhucode.longio.protocol;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
+
+import com.zhucode.longio.client.reflect.MethodInfo;
+import com.zhucode.longio.exception.ProtocolException;
+import com.zhucode.longio.exception.SerializeException;
+import com.zhucode.longio.exception.UnsupportedException;
+import com.zhucode.longio.message.MessageBlock;
 
 /**
  * @author zhu jinxian
  * @date  2015年10月12日
  * 
  */
-@Target({ ElementType.METHOD })
-@Retention(RetentionPolicy.RUNTIME)
-@Inherited
-@Documented
-public @interface Unpack {
-	String value();
+public interface Protocol {
+	
+	MessageBlock decode(byte[] bytes) throws ProtocolException;
+	
+	byte[] encode(MessageBlock mb) throws ProtocolException;
+	
+	byte[] getHeartBeat();
+
+	Object[] unpackMethodInvokeParameters(MessageBlock mb, Parameter[] paras);
+	
+	Object serializeMethodReturnValue(Object ret) throws SerializeException;
+
+	Object packMethodInvokeParameters(MethodInfo mi,  Object... args);
+	
+	Object deserializeMethodReturnValue(Class<?> returnCls, Type type, Object msg) throws UnsupportedException;
+
 }

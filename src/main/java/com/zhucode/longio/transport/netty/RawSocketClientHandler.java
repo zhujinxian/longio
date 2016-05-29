@@ -16,17 +16,17 @@ package com.zhucode.longio.transport.netty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.zhucode.longio.exception.ProtocolException;
+import com.zhucode.longio.message.MessageBlock;
+import com.zhucode.longio.protocol.Protocol;
+import com.zhucode.longio.transport.Client;
+import com.zhucode.longio.transport.Connector;
+import com.zhucode.longio.transport.netty.event.PingEvent;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
-
-import com.zhucode.longio.exception.ProtocolException;
-import com.zhucode.longio.message.MessageBlock;
-import com.zhucode.longio.protocol.ProtocolParser;
-import com.zhucode.longio.transport.Client;
-import com.zhucode.longio.transport.Connector;
-import com.zhucode.longio.transport.netty.event.PingEvent;
 
 /**
  * @author zhu jinxian
@@ -37,7 +37,7 @@ public class RawSocketClientHandler extends AbstractClientHandler {
 	
 	Logger logger = LoggerFactory.getLogger(RawSocketClientHandler.class);
 
-	public RawSocketClientHandler(Client client, Connector connector, ProtocolParser<?> pp) {
+	public RawSocketClientHandler(Client client, Connector connector, Protocol pp) {
 		super(client, connector, pp);
 	}
 
@@ -60,7 +60,7 @@ public class RawSocketClientHandler extends AbstractClientHandler {
 		buf.readBytes(bytes);
 		
 		try {
-			MessageBlock<?> mb = pp.decode(bytes);
+			MessageBlock mb = pp.decode(bytes);
 			if (mb.getCmd() == 0) {
 				ctx.fireUserEventTriggered(new PingEvent());
 				return;
@@ -74,7 +74,7 @@ public class RawSocketClientHandler extends AbstractClientHandler {
 	}
 
 	@Override
-	public ChannelFuture sendMessage(ChannelHandlerContext ctx, MessageBlock<?> mb) {
+	public ChannelFuture sendMessage(ChannelHandlerContext ctx, MessageBlock mb) {
 		byte[] bytes = new byte[0];
 		try {
 			bytes = pp.encode(mb);

@@ -25,15 +25,14 @@ import com.zhucode.longio.transport.ProtocolType;
  */
 public class ParameterPackerFactory {
 	
-	private Map<ProtocolType, ParameterPacker<?>> packers = new HashMap<ProtocolType, ParameterPacker<?>>();
+	private Map<ProtocolType, ParameterPacker> packers = new HashMap<ProtocolType, ParameterPacker>();
 	
 	public ParameterPackerFactory() {
 		packers.put(ProtocolType.JSON, new JsonObjectParameterPacker());
-		packers.put(ProtocolType.JSONARRAY, new JsonArrayParameterPacker());
 		packers.put(ProtocolType.MESSAGE_PACK, new MessagePackParameterPacker());
 	}
 	
-	public ParameterPacker<?> getPacker(ProtocolType type) {
+	public ParameterPacker getPacker(ProtocolType type) {
 		return this.packers.get(type);
 		
 	}

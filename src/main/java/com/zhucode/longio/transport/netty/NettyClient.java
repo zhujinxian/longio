@@ -16,6 +16,9 @@ package com.zhucode.longio.transport.netty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.zhucode.longio.message.MessageBlock;
+import com.zhucode.longio.transport.Client;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -25,9 +28,6 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-
-import com.zhucode.longio.message.MessageBlock;
-import com.zhucode.longio.transport.Client;
 
 /**
  * @author zhu jinxian
@@ -77,7 +77,7 @@ public class NettyClient implements Client{
 	
 	
 	@Override
-	public void send(MessageBlock<?> mb) {
+	public void send(MessageBlock mb) {
 		long sid = channel.attr(NettyConnector.sessionKey).get();
 		mb.setSessionId(sid);
 		ChannelFuture f = this.connector.send(mb);

@@ -29,7 +29,6 @@ import com.zhucode.longio.client.cluster.GroupClientCluster;
 import com.zhucode.longio.client.cluster.LoadBalance;
 import com.zhucode.longio.client.cluster.SingleClientCluster;
 import com.zhucode.longio.client.parameter.CMDParser;
-import com.zhucode.longio.client.parameter.ParameterPacker;
 import com.zhucode.longio.client.parameter.ParameterPackerFactory;
 import com.zhucode.longio.client.parameter.UidParser;
 import com.zhucode.longio.conf.AppLookup;
@@ -37,6 +36,8 @@ import com.zhucode.longio.exception.LongioException;
 import com.zhucode.longio.message.MessageBlock;
 import com.zhucode.longio.message.MessageCallback;
 import com.zhucode.longio.message.MessageSerial;
+import com.zhucode.longio.protocol.Protocol;
+import com.zhucode.longio.protocol.ProtocolFactory;
 import com.zhucode.longio.transport.Connector;
 import com.zhucode.longio.transport.ProtocolType;
 import com.zhucode.longio.transport.TransportType;
@@ -52,7 +53,7 @@ public class ProxyInvocationHandler implements InvocationHandler {
 	
 	private Map<Method, MethodInfo> methods;
 	
-	private ParameterPacker<?> packer;
+	private Protocol pp;
 
 	private Connector connector;
 
@@ -85,7 +86,7 @@ public class ProxyInvocationHandler implements InvocationHandler {
 		TransportType tt = lsa.tt();
 		ProtocolType pt = lsa.pt();
 		LoadBalance lb = lsa.lb();
-		this.packer = ppf.getPacker(pt);
+		this.pp = ProtocolFactory.getProtocol(pt);
 		if (appLookup.parseHosts(app) == null) {
 			this.client = new SingleClientCluster(ip, port, tt, pt, connector);
 		} else {
@@ -99,11 +100,12 @@ public class ProxyInvocationHandler implements InvocationHandler {
 			throws Throwable {
 		
 		MethodInfo mi = methods.get(method);
-		Object po = packer.pack(mi, args);
+		Object po = pp.packMethodInvokeParameters(mi, args);
 		
-		MessageBlock<?> mb = new MessageBlock<Object>(po);
+		MessageBlock mb = new MessageBlock(po);
 		mb.setCmd(mi.getCmd());
 		mb.setSerial(MessageSerial.newSerial());
+		mb.setProtocol(pp);
 		
 		int uid = UidParser.parseUid(mi.getMethod(), args);
 		int cmd = CMDParser.parseCMD(mi.getMethod(), args);
@@ -116,9 +118,9 @@ public class ProxyInvocationHandler implements InvocationHandler {
 			mb.setCmd(cmd);
 		}
 		
-		InvokeCall<MessageBlock<?>> call = new InvokeCall<MessageBlock<?>>(dispatcher, client, mb, 2);
+		InvokeCall<MessageBlock> call = new InvokeCall<MessageBlock>(dispatcher, client, mb, 2);
 		
-		InvocationTask<MessageBlock<?>> task = new InvocationTask<MessageBlock<?>>(call);
+		InvocationTask<MessageBlock> task = new InvocationTask<MessageBlock>(call);
 		if (args != null && args.length > 0 && args[args.length-1] instanceof MessageCallback) {
 			MessageCallback callback = (MessageCallback)args[args.length-1];
 			this.dispatcher.registCallback(mb.getSerial(), task, callback, mi.getTimeout());
@@ -127,10 +129,10 @@ public class ProxyInvocationHandler implements InvocationHandler {
 			this.dispatcher.registTask(mb.getSerial(), task);
 
 			try {
-				MessageBlock<?> ret = task.get(mi.getTimeout(), TimeUnit.MILLISECONDS);
+				MessageBlock ret = task.get(mi.getTimeout(), TimeUnit.MILLISECONDS);
 				client.sendSuccess(call.getPoint(), call.getMb());
 				if (ret.getStatus() < 400) {
-					return packer.unpack(mi.getMethod().getReturnType(), mi.getMethod().getGenericReturnType(), ret.getBody());
+					return pp.deserializeMethodReturnValue(mi.getMethod().getReturnType(), mi.getMethod().getGenericReturnType(), ret.getBody());
 				}
 				throw new LongioException(ret.getStatus(), ret.getErr());
 			} catch (TimeoutException e) {

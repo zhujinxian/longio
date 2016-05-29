@@ -24,7 +24,7 @@ public interface Client {
 	
 	void connect();
 	
-	void send(MessageBlock<?> mb);
+	void send(MessageBlock mb);
 	
 	boolean isConnected();
 	

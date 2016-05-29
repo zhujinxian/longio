@@ -11,38 +11,13 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
-package com.zhucode.longio.context.parameter;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.zhucode.longio.message.format.MessagePackData;
-import com.zhucode.longio.message.format.Proto;
+package com.zhucode.longio.test;
 
 /**
  * @author zhu jinxian
  * @date  2015年10月12日
  * 
  */
-public class ParameterParserFactory {
-	
-	private Map<Class<?>, ParameterParser> map = new HashMap<Class<?>, ParameterParser>();
-
-	public ParameterParserFactory() {
-		map.put(JSONObject.class, new JsonObjectParameterParser());
-		map.put(JSONArray.class, new JsonArrayParameterParser());
-		map.put(Proto.Message.class, new ProtoBufParameterParser());
-		map.put(byte[].class, new MessagePackParameterParser());
-	}
-	
-	public void addParser(Class<?> cls, ParameterParser parser) {
-		map.put(cls, parser);
-	}
-	
-	public ParameterParser getParser(Class<?> cls) {
-		return map.get(cls);
-	}
-	
+public class Item {
+	public String des;
 }

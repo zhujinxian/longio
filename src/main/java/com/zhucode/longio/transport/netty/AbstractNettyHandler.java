@@ -13,6 +13,18 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio.transport.netty;
 
+import java.util.Map;
+
+import com.zhucode.longio.callback.CallbackDispatcher;
+import com.zhucode.longio.exception.ProtocolException;
+import com.zhucode.longio.message.Dispatcher;
+import com.zhucode.longio.message.MessageBlock;
+import com.zhucode.longio.protocol.Protocol;
+import com.zhucode.longio.transport.AbstractHandler;
+import com.zhucode.longio.transport.Connector;
+import com.zhucode.longio.transport.netty.event.PingEvent;
+import com.zhucode.longio.transport.netty.event.PongEvent;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
@@ -22,18 +34,6 @@ import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.AttributeKey;
 import io.netty.util.internal.InternalThreadLocalMap;
-
-import java.util.Map;
-
-import com.zhucode.longio.callback.CallbackDispatcher;
-import com.zhucode.longio.exception.ProtocolException;
-import com.zhucode.longio.message.Dispatcher;
-import com.zhucode.longio.message.MessageBlock;
-import com.zhucode.longio.protocol.ProtocolParser;
-import com.zhucode.longio.transport.AbstractHandler;
-import com.zhucode.longio.transport.Connector;
-import com.zhucode.longio.transport.netty.event.PingEvent;
-import com.zhucode.longio.transport.netty.event.PongEvent;
 
 
 
@@ -49,7 +49,7 @@ public abstract class AbstractNettyHandler extends AbstractHandler implements Ch
 	
 	protected long sessionId;
 
-	public AbstractNettyHandler(Connector connector, Dispatcher dispatcher, CallbackDispatcher callbackDispatcher,ProtocolParser<?> pp) {
+	public AbstractNettyHandler(Connector connector, Dispatcher dispatcher, CallbackDispatcher callbackDispatcher, Protocol pp) {
 		super(connector, dispatcher, callbackDispatcher, pp);
 	}
 	
@@ -159,7 +159,7 @@ public abstract class AbstractNettyHandler extends AbstractHandler implements Ch
 		
 		buf.readBytes(bytes);
 		
-		MessageBlock<?> mb = pp.decode(bytes);
+		MessageBlock mb = pp.decode(bytes);
 		
 		if (mb.getCmd() == 0) {
 			ctx.fireUserEventTriggered(new PongEvent());
@@ -167,6 +167,7 @@ public abstract class AbstractNettyHandler extends AbstractHandler implements Ch
 		}
 		
 		mb.setConnector(this.connector);
+		mb.setProtocol(pp);
 		mb.setSessionId(ctx.channel().attr(NettyConnector.sessionKey).get());
 		mb.setLocalAddress(ctx.channel().localAddress());
 		mb.setRemoteAddress(ctx.channel().remoteAddress());
@@ -179,5 +180,5 @@ public abstract class AbstractNettyHandler extends AbstractHandler implements Ch
 		return sessionId;
 	}
 
-	abstract ChannelFuture sendMessage(ChannelHandlerContext ctx, MessageBlock<?> message);
+	abstract ChannelFuture sendMessage(ChannelHandlerContext ctx, MessageBlock message);
 }

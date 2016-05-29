@@ -12,6 +12,30 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 */package com.zhucode.longio.transport.netty;
 
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicLong;
+
+import com.zhucode.longio.callback.CallbackDispatcher;
+import com.zhucode.longio.callback.InvocationTask;
+import com.zhucode.longio.message.Dispatcher;
+import com.zhucode.longio.message.MessageBlock;
+import com.zhucode.longio.message.MessageCallback;
+import com.zhucode.longio.protocol.Protocol;
+import com.zhucode.longio.protocol.ProtocolFactory;
+import com.zhucode.longio.transport.Client;
+import com.zhucode.longio.transport.Connector;
+import com.zhucode.longio.transport.Endpoint;
+import com.zhucode.longio.transport.ProtocolType;
+import com.zhucode.longio.transport.TransportType;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
@@ -28,34 +52,6 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.AttributeKey;
-
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
-
-import com.zhucode.longio.callback.CallbackDispatcher;
-import com.zhucode.longio.callback.InvocationTask;
-import com.zhucode.longio.message.Dispatcher;
-import com.zhucode.longio.message.MessageBlock;
-import com.zhucode.longio.message.MessageCallback;
-import com.zhucode.longio.protocol.JSONArrayProtocolParser;
-import com.zhucode.longio.protocol.JSONObjectProtocolParser;
-import com.zhucode.longio.protocol.MessagePackProtocolParser;
-import com.zhucode.longio.protocol.ProtoBufProtocolParser;
-import com.zhucode.longio.protocol.ProtocolParser;
-import com.zhucode.longio.transport.Client;
-import com.zhucode.longio.transport.Connector;
-import com.zhucode.longio.transport.Endpoint;
-import com.zhucode.longio.transport.ProtocolType;
-import com.zhucode.longio.transport.TransportType;
 
 /**
  * @author zhu jinxian
@@ -104,11 +100,11 @@ public class NettyConnector implements Connector {
 	}
 
 	@Override
-	public void sendMessage(MessageBlock<?> message) {
+	public void sendMessage(MessageBlock message) {
 		this.send(message);
 	}
 	
-	protected ChannelFuture send(MessageBlock<?> message) {
+	protected ChannelFuture send(MessageBlock message) {
 		long sid = message.getSessionId();
 		ChannelHandlerContext ctx = ctxs.get(sid);
 		AttributeKey<AbstractNettyHandler> handlerKey = AttributeKey.valueOf("AbstractNettyHandler");
@@ -152,20 +148,8 @@ public class NettyConnector implements Connector {
 	}
 	
 	
-	private ProtocolParser<?> getProtocolParser(ProtocolType pt) {
-		switch(pt) {
-		case JSON:
-			return new JSONObjectProtocolParser();
-		case JSONARRAY:
-			return new JSONArrayProtocolParser();
-		case PROTOBUF:
-			return new ProtoBufProtocolParser();
-		case MESSAGE_PACK:
-			return new MessagePackProtocolParser();
-		default:
-			break;
-		}
-		return null;
+	private Protocol getProtocolParser(ProtocolType pt) {
+		return ProtocolFactory.getProtocol(pt);
 	}
 
 
@@ -309,12 +293,12 @@ public class NettyConnector implements Connector {
 	
 
 	@Override
-	public void sendMessage(MessageBlock<?> message, MessageCallback callback,
+	public void sendMessage(MessageBlock message, MessageCallback callback,
 			int timeout) throws Exception {
-		Callable<MessageBlock<?>> call = new Callable<MessageBlock<?>>() {
+		Callable<MessageBlock> call = new Callable<MessageBlock>() {
 
 			@Override
-			public MessageBlock<?> call() throws Exception {
+			public MessageBlock call() throws Exception {
 				try {
 					NettyConnector.this.send(message);
 				} catch (Exception e) {
@@ -327,7 +311,7 @@ public class NettyConnector implements Connector {
 			}
 		};
 		
-		InvocationTask<MessageBlock<?>> task = new InvocationTask<MessageBlock<?>>(call);
+		InvocationTask<MessageBlock> task = new InvocationTask<MessageBlock>(call);
 		this.callbackDispatcher.registCallback(message.getSerial(), task, callback, timeout);
 	}
 

@@ -107,4 +107,23 @@ public class TestMvcController {
 		
 		return "@========test=============\n" + service.testLiat(null);
 	}
+	
+	
+	@ResponseBody
+	@RequestMapping(value = "all", method = RequestMethod.GET)
+	public String testAll() {
+		
+		System.out.println(service.testInt(989));
+		//System.out.println(service.testJsonArray("ddddd", 22333));
+		//System.out.println(service.testJsonObject("dffff", 5555555));
+		System.out.println(service.createUser());
+		System.out.println(service.getUser(10000));
+		System.out.println(service.testSet(null));
+		System.out.println(service.testLiat(Arrays.asList("ddd", "ddd")));
+		System.out.println(service.testString("null"));
+		
+		
+		return "@========all test=============\n";
+	}
+
 }

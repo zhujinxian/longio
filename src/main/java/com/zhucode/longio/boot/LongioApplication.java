@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.regex.Pattern;
 
 import com.zhucode.longio.annotation.LsFilter;
@@ -30,7 +29,6 @@ import com.zhucode.longio.client.reflect.MethodInfoFactory;
 import com.zhucode.longio.client.reflect.ProxyInvocationHandler;
 import com.zhucode.longio.conf.AppLookup;
 import com.zhucode.longio.conf.CmdLookup;
-import com.zhucode.longio.conf.DefaultAppLookup;
 import com.zhucode.longio.conf.DefaultCmdLookup;
 import com.zhucode.longio.message.MessageFilter;
 import com.zhucode.longio.message.MethodDispatcher;

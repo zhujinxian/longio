@@ -25,10 +25,10 @@ import com.zhucode.longio.message.format.Proto;
  * @date  2015年10月12日
  * 
  */
-public class ProtoBufProtocolParser implements ProtocolParser<Message> {
+public class ProtoBufProtocolParser {
 
-	@Override
-	public MessageBlock<Message> decode(byte[] bytes) throws ProtocolException {
+
+	public MessageBlock decode(byte[] bytes) throws ProtocolException {
 		try {
 			Proto.Message data = Proto.Message.parseFrom(bytes);
 			int cmd = data.getCmd();
@@ -36,7 +36,7 @@ public class ProtoBufProtocolParser implements ProtocolParser<Message> {
 			int uid = data.getUid();
 			int status = data.getStatus();
 			String err = data.getErr();
-			MessageBlock<Message> mb = new MessageBlock<Message>(data);
+			MessageBlock mb = new MessageBlock(data);
 			mb.setCmd(cmd);
 			mb.setSerial(serial);
 			mb.setUid(uid);
@@ -50,18 +50,17 @@ public class ProtoBufProtocolParser implements ProtocolParser<Message> {
 		return null;
 	}
 
-	@Override
-	public byte[] encode(MessageBlock<?> mb) throws ProtocolException {
+	public byte[] encode(MessageBlock mb) throws ProtocolException {
 		int cmd = mb.getCmd();
 		long serial = mb.getSerial();
-		int uid = mb.getUid();
+		long uid = mb.getUid();
 		int status = mb.getStatus();
 		String err = mb.getErr();
 		
 		if (mb.getBody() instanceof Message) {
 			Message m = (Message)mb.getBody();
 			Proto.Message data = Proto.Message.newBuilder()
-					.setCmd(cmd).setSerial(serial).setUid(uid)
+					.setCmd(cmd).setSerial(serial).setUid((int)uid)
 					.setStatus(status).setErr(err).setBody(m.toByteString()).build();
 			return data.toByteArray();
 		} else {
@@ -71,7 +70,7 @@ public class ProtoBufProtocolParser implements ProtocolParser<Message> {
 	}
 
 	
-	@Override
+	
 	public byte[] getHeartBeat() {
 		Proto.Message data = Proto.Message.newBuilder()
 				.setCmd(0).setSerial(0).setUid(0).setStatus(0).setBody(ByteString.EMPTY).build();

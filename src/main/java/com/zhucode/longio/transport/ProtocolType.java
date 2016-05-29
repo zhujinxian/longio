@@ -20,7 +20,7 @@ package com.zhucode.longio.transport;
  */
 public enum ProtocolType {
 	
-	JSON("json"), JSONARRAY("Jsonarray"), PROTOBUF("Protobuf"), MESSAGE_PACK("MessagePack");
+	JSON("json"), PROTOBUF("Protobuf"), MESSAGE_PACK("MessagePack");
 	
 	private String type;
 	

@@ -11,48 +11,59 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
-package com.zhucode.longio.context.parameter;
+package com.zhucode.longio.test;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Parameter;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
-import com.alibaba.fastjson.JSONArray;
-import com.zhucode.longio.message.MessageBlock;
-import com.zhucode.longio.transport.Connector;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 
 /**
  * @author zhu jinxian
  * @date  2015年10月12日
  * 
  */
-public class JsonArrayParameterParser implements ParameterParser {
+public class JsonTest {
+	
+	
+	public static List<Item> getItems() {return null;}
+	
+	public static Item getItem() {return null;}
 
-	@Override
-	public Object[] parse(MessageBlock<?> mb, Annotation[] meta, Parameter[] paras) {
-		Object[] objs = new Object[paras.length];
-		JSONArray body = (JSONArray) mb.getBody();
-		JSONArray ja = body.getJSONArray(body.size()-1);
-		for (int i = 0; i < paras.length; i++) {
-			Parameter p = paras[i];
-			if (p.getType() == MessageBlock.class) {
-				objs[i] = mb;
-				continue;
-			}
-			if (p.getType() == Connector.class) {
-				objs[i] = mb.getConnector();
-				continue;
-			}
-			
-			objs[i] = parseObject(p.getType(), ja.get(i));
-		}
-		return objs;
-	}
+	
 
-	private Object parseObject(Class<?> type, Object val) {
-		if (type.isPrimitive()) {
-			return val;
-		}
-		return val;
+	public static void main(String[] args) throws NoSuchMethodException, SecurityException {
+		
+		User u = new User();
+		u.id = 122;
+		u.name = "ddfffgg";
+		
+		Item it = new Item();
+		it.des = "ffkllkkepopeoe";
+		
+		List<Item> items = new ArrayList<Item>();
+		items.add(it);
+		items.add(it);
+		
+		u.items = items;
+		
+		String js = JSON.toJSONString(u);
+		
+		JSONObject jso = JSONObject.parseObject(js);
+		
+		Method m = JsonTest.class.getMethod("getItems");
+		
+		System.out.println(m.getReturnType());
+		System.out.println(m.getGenericReturnType());
+		
+		
+		
+		Date d = new Date();
+		JSON.parseObject("10", Integer.class);
+		
 	}
 
 }

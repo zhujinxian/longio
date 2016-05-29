@@ -58,7 +58,6 @@ public class Application  {
 		return new LongioBeanFactoryPostProcessor(appLookup, cmdLookup, "com.longio");
 	}
 
-	@Boot(port = 5000, pt = ProtocolType.JSONARRAY, tt = TransportType.HTTP)
 	@Boot(port = 5002, pt = ProtocolType.JSON, tt = TransportType.HTTP)
 	@Boot(port = 5001, pt = ProtocolType.MESSAGE_PACK, tt = TransportType.SOCKET)
 	@Bean(name = "longio.bootstrap")

@@ -19,8 +19,6 @@ import java.util.Map;
 import com.alibaba.fastjson.JSONObject;
 import com.zhucode.longio.annotation.Lio;
 import com.zhucode.longio.annotation.Lservice;
-import com.zhucode.longio.context.parameter.Key;
-import com.zhucode.longio.context.parameter.Unpack;
 import com.zhucode.longio.example.message.Res;
 import com.zhucode.longio.example.message.UserMsg;
 
@@ -33,8 +31,7 @@ import com.zhucode.longio.example.message.UserMsg;
 public class TestService {
 	
 	@Lio(cmd = "getUser")
-	@Unpack("com.zhucode.longio.example.message.UserMsg")
-	public Map<String, Map<String, UserMsg>>getUser(@Key("user_id")long userId) {
+	public Map<String, Map<String, UserMsg>>getUser(long userId) {
 		System.out.println("++++++++++++++++++++++++++++++++++++++");
 		JSONObject ret = new JSONObject();
 		ret.put("status", "success");
@@ -50,8 +47,7 @@ public class TestService {
 	}
 	
 	@Lio(cmd = "getUser1")
-	@Unpack("com.zhucode.longio.example.message.User$Data")
-	public Res.Data getUser1(@Key("user_id")long userId) {
+	public Res.Data getUser1(long userId) {
 		System.out.println("++++++++++++++++++++++++++++++++++++++");
 		return Res.Data.newBuilder().setStatus("success").build();
 	}

@@ -14,12 +14,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 package com.zhucode.longio.message;
 
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
 import java.util.List;
 
-import com.zhucode.longio.context.parameter.ParameterParser;
-import com.zhucode.longio.context.parameter.ParameterParserFactory;
 import com.zhucode.longio.exception.LongioException;
+import com.zhucode.longio.protocol.Protocol;
 import com.zhucode.longio.reflect.MethodRef;
 
 /**
@@ -29,19 +27,16 @@ import com.zhucode.longio.reflect.MethodRef;
  */
 public class MessageProcessTask implements Runnable {
 	
-	private MessageBlock<?> message;
+	private MessageBlock message;
 	
 	private MethodRef handler;
-	
-	ParameterParserFactory parameterParserFactory;
 	
 	private List<MessageFilter> filters;
 	
 	
-	MessageProcessTask(MessageBlock<?> mb, MethodRef mih, ParameterParserFactory parameterParserFactory) {
+	MessageProcessTask(MessageBlock mb, MethodRef mih) {
 		this.message = mb;
 		this.handler = mih;
-		this.parameterParserFactory = parameterParserFactory;
 	}
 
 	
@@ -54,12 +49,13 @@ public class MessageProcessTask implements Runnable {
 			}
 		}
 		
-		MessageBlock<Object> mret =  new MessageBlock<Object>(null);
+		MessageBlock mret =  new MessageBlock(null);
 		mret.setCmd(message.getCmd());
 		mret.setUid(message.getUid());
 		mret.setSerial(message.getSerial());
 		mret.setSessionId(message.getSessionId());
 		mret.setConnector(message.getConnector());
+		mret.setProtocol(message.getProtocol());
 		
 		if (handler == null) {
 			mret.setStatus(404);
@@ -68,18 +64,17 @@ public class MessageProcessTask implements Runnable {
 			try {
 				Object[] args = null;
 				Object body = message.getBody();
+				Protocol pp = mret.getProtocol();
 				if (body != null) {
-					ParameterParser pp = parameterParserFactory.getParser(body.getClass());
 					Parameter[] paras  = this.handler.getMethod().getParameters();
-					args = pp.parse((MessageBlock<?>) message, 
-							this.handler.getMethod().getAnnotations(), paras);
+					args = pp.unpackMethodInvokeParameters(message, paras);
 				}
 				if (args == null) {
 					args = new Object[0];
 				}
 				Object ret = this.handler.handle(args);
 				mret.setStatus(200);
-				mret.setBody(ret);
+				mret.setBody(pp.serializeMethodReturnValue(ret));
 			} catch (LongioException e1) {
 				mret.setStatus(e1.getErrcode());
 				mret.setErr(e1.getMessage());

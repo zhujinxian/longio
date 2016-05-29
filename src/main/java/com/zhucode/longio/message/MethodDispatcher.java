@@ -23,7 +23,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.zhucode.longio.context.parameter.ParameterParserFactory;
 import com.zhucode.longio.reflect.MethodRef;
 
 /**
@@ -41,13 +40,7 @@ public class MethodDispatcher implements Dispatcher {
 	
 	private List<MessageFilter> filters;
 	
-	private ParameterParserFactory parameterParserFactory;
-	
 	AtomicLong num = new AtomicLong();
-	
-	public MethodDispatcher() {
-		parameterParserFactory = new ParameterParserFactory();
-	}
 	
 	@Override
 	public void registerMethodRefs(List<MethodRef> refs) {
@@ -57,10 +50,10 @@ public class MethodDispatcher implements Dispatcher {
 	}
 	
 	@Override
-	public void dispatch(MessageBlock<?> mb) {
+	public void dispatch(MessageBlock mb) {
 		int cmd = mb.getCmd();
 		MethodRef mih = invokers.get(cmd);
-		MessageProcessTask mpt = new MessageProcessTask(mb, mih, parameterParserFactory);
+		MessageProcessTask mpt = new MessageProcessTask(mb, mih);
 		mpt.setFilters(filters);
 		if (mih == null || mih.isAsy()) {
 			this.es.submit(mpt);
@@ -68,10 +61,6 @@ public class MethodDispatcher implements Dispatcher {
 			mpt.run();
 		}
 		logger.debug("invoke num = " + num.getAndIncrement());
-	}
-
-	public ParameterParserFactory getParameterParserFactory() {
-		return parameterParserFactory;
 	}
 
 	

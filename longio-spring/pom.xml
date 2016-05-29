@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.zhucode</groupId>
 	<artifactId>longio-spring</artifactId>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>0.0.3-SNAPSHOT</version>
 
 
 	<dependencies>
@@ -15,7 +15,7 @@
 		<dependency>
 			<groupId>com.zhucode</groupId>
 			<artifactId>longio</artifactId>
-			<version>0.0.2-SNAPSHOT</version>
+			<version>0.0.3-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 

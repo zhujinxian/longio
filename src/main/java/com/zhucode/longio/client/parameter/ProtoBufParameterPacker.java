@@ -27,7 +27,7 @@ import com.zhucode.longio.message.format.Proto;
  * @date  2015年10月12日
  * 
  */
-public class ProtoBufParameterPacker implements ParameterPacker<Message> {
+public class ProtoBufParameterPacker implements ParameterPacker {
 
 	@Override
 	public Message pack(MethodInfo mi, Object... args) {

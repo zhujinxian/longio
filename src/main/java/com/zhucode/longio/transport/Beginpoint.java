@@ -55,7 +55,7 @@ public class Beginpoint  {
 		}
 	}
 
-	public void send(MessageBlock<?> mb) throws Exception {
+	public void send(MessageBlock mb) throws Exception {
 		client.send(mb);
 	}
 

@@ -60,27 +60,27 @@ public class SingleClientCluster implements ClientCluster {
 
 	
 	@Override
-	public void sendFail(Beginpoint point, MessageBlock<?> mb) {
+	public void sendFail(Beginpoint point, MessageBlock mb) {
 		JSONObject msg = getMessageJson(point, mb);
 		msg.put("flag", "fail");
 		System.out.println(msg.toJSONString());
 	}
 
 	@Override
-	public void sendTimeout(Beginpoint point, MessageBlock<?> mb) {
+	public void sendTimeout(Beginpoint point, MessageBlock mb) {
 		JSONObject msg = getMessageJson(point, mb);
 		msg.put("flag", "timeout");
 		System.out.println(msg.toJSONString());
 	}
 
 	@Override
-	public void sendSuccess(Beginpoint point, MessageBlock<?> mb) {
+	public void sendSuccess(Beginpoint point, MessageBlock mb) {
 		JSONObject msg = getMessageJson(point, mb);
 		msg.put("flag", "success");
 		System.out.println(JSON.toJSONString(msg, SerializerFeature.WriteMapNullValue));
 	}
 
-	private JSONObject getMessageJson(Beginpoint point, MessageBlock<?> mb) {
+	private JSONObject getMessageJson(Beginpoint point, MessageBlock mb) {
 		JSONObject js = new JSONObject();
 		js.put("app", point.getApp());
 		js.put("host", point.getHost());

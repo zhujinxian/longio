@@ -20,6 +20,6 @@ package com.zhucode.longio.message;
  */
 public interface MessageCallback {
 	
-	void callback(MessageBlock<?> mb);
+	void callback(MessageBlock mb);
 
 }

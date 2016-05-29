@@ -13,19 +13,26 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio.protocol;
 
-import com.zhucode.longio.exception.ProtocolException;
-import com.zhucode.longio.message.MessageBlock;
+import com.zhucode.longio.transport.ProtocolType;
 
 /**
  * @author zhu jinxian
  * @date  2015年10月12日
  * 
  */
-public interface ProtocolParser<T>  {
+public class ProtocolFactory {
 	
-	MessageBlock<T> decode(byte[] bytes) throws ProtocolException;
-	
-	byte[] encode(MessageBlock<?> mb) throws ProtocolException;
-	
-	byte[] getHeartBeat();
+	public static Protocol getProtocol(ProtocolType pt) {
+		switch(pt) {
+		case JSON:
+			return new JsonProtocol();
+		case PROTOBUF:
+			return new ProtobufProtocol();
+		case MESSAGE_PACK:
+			return new MessagePackProtocol();
+		default:
+			break;
+		}
+		return null;
+	}
 }

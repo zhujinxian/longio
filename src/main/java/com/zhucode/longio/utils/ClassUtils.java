@@ -13,8 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio.utils;
 
-import java.util.List;
-import java.util.Set;
+import com.alibaba.fastjson.parser.ParserConfig;
 
 /**
  * @author zhu jinxian
@@ -23,51 +22,6 @@ import java.util.Set;
  */
 public class ClassUtils {
 	public static boolean isPrimitive(Class<?> cls) {
-	
-		if (cls.isPrimitive()) {
-			return true;
-		}
-		
-		if (cls == Boolean.class) {
-			return true;
-		}
-		
-		if (cls == Byte.class) {
-			return true;
-		}
-		
-		if (cls == Short.class) {
-			return true;
-		}
-		
-		if (cls == Character.class) {
-			return true;
-		}
-		
-		if (cls == Integer.class) {
-			return true;
-		}
-		
-		if (cls == Long.class) {
-			return true;
-		}
-		
-		if (cls == Float.class) {
-			return true;
-		}
-		
-		if (cls == Double.class) {
-			return true;
-		}
-		
-		if (cls == String.class) {
-			return true;
-		}
-		
-		if (cls.isArray()) {
-			return true;
-		}
-		
-		return false;
+		return ParserConfig.getGlobalInstance().isPrimitive(cls);
 	}
 }

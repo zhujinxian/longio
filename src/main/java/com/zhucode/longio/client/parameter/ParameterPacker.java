@@ -23,9 +23,9 @@ import com.zhucode.longio.exception.UnsupportedException;
  * @date  2015年10月12日
  * 
  */
-public interface ParameterPacker<T> {
+public interface ParameterPacker {
 	
-	T pack(MethodInfo mi,  Object... args);
+	Object pack(MethodInfo mi,  Object... args);
 	
 	Object unpack(Class<?> returnCls, Type type, Object msg) throws UnsupportedException;
 }

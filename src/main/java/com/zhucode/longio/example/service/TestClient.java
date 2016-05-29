@@ -15,6 +15,16 @@ package com.zhucode.longio.example.service;
 
 import static org.msgpack.template.Templates.TString;
 import static org.msgpack.template.Templates.tMap;
+
+import java.io.IOException;
+import java.util.Map;
+
+import org.msgpack.MessagePack;
+import org.msgpack.template.Template;
+
+import com.zhucode.longio.example.message.UserMsg;
+import com.zhucode.longio.message.format.MessagePackData;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -30,15 +40,6 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
-
-import java.io.IOException;
-import java.util.Map;
-
-import org.msgpack.MessagePack;
-import org.msgpack.template.Template;
-
-import com.zhucode.longio.example.message.UserMsg;
-import com.zhucode.longio.message.format.MessagePackData;
 
 /**
  * @author zhu jinxian

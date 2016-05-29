@@ -24,7 +24,7 @@ import com.zhucode.longio.reflect.MethodRef;
  */
 public interface Dispatcher {
 	
-	void dispatch(MessageBlock<?> mb);
+	void dispatch(MessageBlock mb);
 	
 	void registerMethodRefs(List<MethodRef> refs);
 	

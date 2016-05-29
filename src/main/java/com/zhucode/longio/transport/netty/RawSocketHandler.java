@@ -13,17 +13,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio.transport.netty;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandlerContext;
-
 import com.zhucode.longio.callback.CallbackDispatcher;
 import com.zhucode.longio.exception.ProtocolException;
 import com.zhucode.longio.message.Dispatcher;
 import com.zhucode.longio.message.MessageBlock;
-import com.zhucode.longio.protocol.ProtocolParser;
+import com.zhucode.longio.protocol.Protocol;
 import com.zhucode.longio.transport.Connector;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerContext;
 
 /**
  * @author zhu jinxian
@@ -33,7 +33,7 @@ import com.zhucode.longio.transport.Connector;
 public class RawSocketHandler extends AbstractNettyHandler {
 
 	public RawSocketHandler(Connector connector, Dispatcher dispatcher,
-			CallbackDispatcher callbackDispatcher, ProtocolParser<?> pp) {
+			CallbackDispatcher callbackDispatcher, Protocol pp) {
 		super(connector, dispatcher, callbackDispatcher, pp);
 	}
 
@@ -50,7 +50,7 @@ public class RawSocketHandler extends AbstractNettyHandler {
 	}
 
 	@Override
-	public ChannelFuture sendMessage(ChannelHandlerContext ctx, MessageBlock<?> mb) {
+	public ChannelFuture sendMessage(ChannelHandlerContext ctx, MessageBlock mb) {
 		
 		byte[] bytes = new byte[0];
 		try {

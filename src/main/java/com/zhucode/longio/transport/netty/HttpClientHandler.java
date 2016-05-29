@@ -13,6 +13,18 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio.transport.netty;
 
+import java.net.URI;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.zhucode.longio.exception.ProtocolException;
+import com.zhucode.longio.message.MessageBlock;
+import com.zhucode.longio.protocol.Protocol;
+import com.zhucode.longio.transport.Client;
+import com.zhucode.longio.transport.Connector;
+import com.zhucode.longio.transport.netty.event.PingEvent;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -20,7 +32,6 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
-import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
@@ -32,18 +43,6 @@ import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.CharsetUtil;
 import io.netty.util.ReferenceCountUtil;
-
-import java.net.URI;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.zhucode.longio.exception.ProtocolException;
-import com.zhucode.longio.message.MessageBlock;
-import com.zhucode.longio.protocol.ProtocolParser;
-import com.zhucode.longio.transport.Client;
-import com.zhucode.longio.transport.Connector;
-import com.zhucode.longio.transport.netty.event.PingEvent;
 
 /**
  * @author zhu jinxian
@@ -59,7 +58,7 @@ public class HttpClientHandler extends AbstractClientHandler {
 	private URI uri;
 
 	
-	public HttpClientHandler(Client client, Connector connector, ProtocolParser<?> pp, URI uri, WebSocketClientHandshaker handshaker) {
+	public HttpClientHandler(Client client, Connector connector, Protocol pp, URI uri, WebSocketClientHandshaker handshaker) {
 		super(client, connector, pp);
 		this.handshaker = handshaker;
 		this.uri = uri;
@@ -144,7 +143,7 @@ public class HttpClientHandler extends AbstractClientHandler {
 		bb.readBytes(bytes);
 		
 		try {
-			MessageBlock<?> mb = pp.decode(bytes);
+			MessageBlock mb = pp.decode(bytes);
 			if (mb.getCmd() == 0) {
 				ctx.fireUserEventTriggered(new PingEvent());
 				return;
@@ -157,7 +156,7 @@ public class HttpClientHandler extends AbstractClientHandler {
 
 
 	@Override
-	public ChannelFuture sendMessage(ChannelHandlerContext ctx, MessageBlock<?> mb) {
+	public ChannelFuture sendMessage(ChannelHandlerContext ctx, MessageBlock mb) {
 		byte[] bytes = null;
 		try {
 			bytes = pp.encode(mb);

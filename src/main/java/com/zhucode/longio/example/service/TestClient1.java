@@ -17,8 +17,6 @@ import java.util.Map;
 
 import com.zhucode.longio.annotation.Lio;
 import com.zhucode.longio.annotation.LsAutowired;
-import com.zhucode.longio.context.parameter.Key;
-import com.zhucode.longio.context.parameter.Pack;
 import com.zhucode.longio.example.message.UserMsg;
 import com.zhucode.longio.transport.ProtocolType;
 import com.zhucode.longio.transport.TransportType;
@@ -33,8 +31,7 @@ import com.zhucode.longio.transport.TransportType;
 public interface TestClient1 {
 	
 	@Lio(cmd = "getUser")
-	@Pack("com.zhucode.longio.example.message.UserMsg")
-	public Map<String, Map<String, UserMsg>> getUser(@Key("user_id")int userId);
+	public Map<String, Map<String, UserMsg>> getUser(int userId);
 
 	@Lio(cmd = "getVoid")
 	public void testVoid();

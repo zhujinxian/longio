@@ -25,9 +25,9 @@ public interface ClientCluster {
 	
 	Beginpoint getNextPoint();
 	
-	void sendSuccess(Beginpoint point, MessageBlock<?> mb);
+	void sendSuccess(Beginpoint point, MessageBlock mb);
 	
-	void sendFail(Beginpoint point, MessageBlock<?> mb);
+	void sendFail(Beginpoint point, MessageBlock mb);
 
-	void sendTimeout(Beginpoint point, MessageBlock<?> mb);
+	void sendTimeout(Beginpoint point, MessageBlock mb);
 }

@@ -36,9 +36,9 @@ public interface Connector {
 	
 	CallbackDispatcher getCallbackDispatcher();
 	
-	void sendMessage(MessageBlock<?> message);
+	void sendMessage(MessageBlock message);
 	
-	void sendMessage(MessageBlock<?> message, MessageCallback callback, int timeout) throws Exception;
+	void sendMessage(MessageBlock message, MessageCallback callback, int timeout) throws Exception;
 	
 	void start(int port, Dispatcher dispatcher, TransportType tt, ProtocolType pt) throws Exception;
 	

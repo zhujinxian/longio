@@ -30,11 +30,11 @@ public class InvokeCall<V> implements Callable<V> {
 	
 	private ClientCluster client;
 	private Beginpoint point = null;
-	private MessageBlock<?> mb;
+	private MessageBlock mb;
 	private int retry;
 	CallbackDispatcher dispatcher;
 	
-	public InvokeCall(CallbackDispatcher dispatcher, ClientCluster client, MessageBlock<?> mb, int retry) {
+	public InvokeCall(CallbackDispatcher dispatcher, ClientCluster client, MessageBlock mb, int retry) {
 		super();
 		this.client = client;
 		this.mb = mb;
@@ -76,7 +76,7 @@ public class InvokeCall<V> implements Callable<V> {
 		return point;
 	}
 
-	public MessageBlock<?> getMb() {
+	public MessageBlock getMb() {
 		return mb;
 	}
 	

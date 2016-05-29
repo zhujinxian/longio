@@ -15,6 +15,7 @@ package com.zhucode.longio.message;
 
 import java.net.SocketAddress;
 
+import com.zhucode.longio.protocol.Protocol;
 import com.zhucode.longio.transport.Connector;
 
 /**
@@ -22,39 +23,41 @@ import com.zhucode.longio.transport.Connector;
  * @date  2015年10月12日
  * 
  */
-public class MessageBlock<T> {
+public class MessageBlock {
 	
 	private long sessionId;
 	
 	private long serial;
 	
-	private int uid;
+	private long uid;
 	
 	private int cmd;
+	
+	private float version;
 	
 	private int status;
 	
 	private String err = "";
 	
-	private T body;
+	private Object body;
 	
 	private Connector connector;
+	
+	private Protocol protocol;
 	
 	private SocketAddress localAddress;
 	
 	private SocketAddress remoteAddress;
-	
-	private int sendCount;
-	
-	public MessageBlock(T body) {
+		
+	public MessageBlock(Object body) {
 		this.body = body;
 	}
 	
-	public T getBody() {
+	public Object getBody() {
 		return body;
 	}
 	
-	public void setBody(T body) {
+	public void setBody(Object body) {
 		this.body = body;
 	}
 
@@ -64,6 +67,14 @@ public class MessageBlock<T> {
 
 	public void setConnector(Connector connector) {
 		this.connector = connector;
+	}
+	
+	public Protocol getProtocol() {
+		return protocol;
+	}
+
+	public void setProtocol(Protocol protocol) {
+		this.protocol = protocol;
 	}
 
 	public long getSessionId() {
@@ -82,11 +93,11 @@ public class MessageBlock<T> {
 		this.serial = serial;
 	}
 	
-	public int getUid() {
+	public long getUid() {
 		return uid;
 	}
 
-	public void setUid(int uid) {
+	public void setUid(long uid) {
 		this.uid = uid;
 	}
 
@@ -97,13 +108,13 @@ public class MessageBlock<T> {
 	public void setCmd(int cmd) {
 		this.cmd = cmd;
 	}
-
-	public int getAndAddSendCount() {
-		return sendCount++;
+	
+	public float getVersion() {
+		return version;
 	}
 
-	public void setSendCount(int sendCount) {
-		this.sendCount = sendCount;
+	public void setVersion(float version) {
+		this.version = version;
 	}
 
 	public int getStatus() {

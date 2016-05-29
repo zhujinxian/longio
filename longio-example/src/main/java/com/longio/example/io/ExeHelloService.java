@@ -1,15 +1,15 @@
 package com.longio.example.io;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.zhucode.longio.annotation.Lio;
 import com.zhucode.longio.annotation.Lservice;
-import com.zhucode.longio.context.parameter.Key;
-import com.zhucode.longio.context.parameter.Unpack;
 import com.zhucode.longio.example.message.Res;
 import com.zhucode.longio.example.message.UserMsg;
 import com.zhucode.longio.exception.LongioException;
@@ -17,8 +17,7 @@ import com.zhucode.longio.exception.LongioException;
 @Lservice(path = "com.lehuihome")
 public class ExeHelloService {
 	@Lio(cmd = "getUser")
-	@Unpack("com.zhucode.longio.example.message.UserMsg")
-	public Map<String, Map<String, UserMsg>>getUser(@Key("user_id")long userId) {
+	public Map<String, Map<String, UserMsg>>getUser(long userId) {
 		System.out.println("++++++++++++++++++++++++++++++++++++++");
 		JSONObject ret = new JSONObject();
 		ret.put("status", "success");
@@ -34,8 +33,7 @@ public class ExeHelloService {
 	}
 	
 	@Lio(cmd = "getUser1")
-	@Unpack("com.zhucode.longio.example.message.User$Data")
-	public Res.Data getUser1(@Key("user_id")long userId) {
+	public Res.Data getUser1(long userId) {
 		System.out.println("++++++++++++++++++++++++++++++++++++++");
 		return Res.Data.newBuilder().setStatus("success").build();
 	}
@@ -46,13 +44,13 @@ public class ExeHelloService {
 	}
 	
 	@Lio(cmd = "getInt", asy=false)
-	public int testInt(@Key("int")int x) {
+	public int testInt(int x) {
 //		System.out.println("++++++++++++test int+++++++++++++++");
 		return x;
 	}
 	
 	@Lio(cmd = "getString")
-	public String testString(@Key("str")String string) {
+	public String testString(String string) {
 //		System.out.println("++++++++++++test string+++++++++++++++");
 		int a = 0;
 		//a = a /a;
@@ -60,7 +58,7 @@ public class ExeHelloService {
 	}
 	
 	@Lio(cmd = "getStringAsy", asy=false)
-	public String testStringAsy(@Key("str")String string) {
+	public String testStringAsy(String string) {
 //		System.out.println("++++++++++++test string+++++++++++++++");
 		return string;
 	}
@@ -72,14 +70,35 @@ public class ExeHelloService {
 	}
 	
 	@Lio(cmd = "list_to_list")
-	public List<String> testLiat(@Key("strs")List<String> strs)  {
+	public List<String> testLiat(List<String> strs)  {
 //		System.out.println("++++++++++++test string+++++++++++++++");
 		return strs;
 	}
 	
 	@Lio(cmd = "set_to_set")
-	public Set<String> testSet(@Key("strs")Set<String> strs) {
+	public Set<String> testSet(Set<String> strs) {
 		return strs;
 	}
+	
+	@Lio(cmd="str_int_to_js")
+	public List<JSONObject> testJsonObject(String k, int v) {
+		JSONObject js = new JSONObject();
+		js.put(k, v);
+		return Arrays.asList(js);
+	}
+	
+	@Lio(cmd="str_int_to_ja")
+	public JSONArray testJsonArray(String k, int v) {
+		JSONArray js = new JSONArray();
+		js.add(k);
+		js.add(v);
+		return js;
+	}
+	
+	@Lio(cmd="creat_user")
+	public UserMsg createUser() {
+		return new UserMsg();
+	}
+
 
 }

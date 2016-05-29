@@ -133,27 +133,27 @@ public class GroupClientCluster implements ClientCluster {
 	}
 
 	@Override
-	public void sendFail(Beginpoint point, MessageBlock<?> mb) {
+	public void sendFail(Beginpoint point, MessageBlock mb) {
 		JSONObject msg = getMessageJson(point, mb);
 		msg.put("flag", "fail");
 		log.info(msg.toJSONString());
 	}
 
 	@Override
-	public void sendTimeout(Beginpoint point, MessageBlock<?> mb) {
+	public void sendTimeout(Beginpoint point, MessageBlock mb) {
 		JSONObject msg = getMessageJson(point, mb);
 		msg.put("flag", "timeout");
 		log.info(msg.toJSONString());
 	}
 
 	@Override
-	public void sendSuccess(Beginpoint point, MessageBlock<?> mb) {
+	public void sendSuccess(Beginpoint point, MessageBlock mb) {
 		JSONObject msg = getMessageJson(point, mb);
 		msg.put("flag", "success");
 		log.info(JSON.toJSONString(msg, SerializerFeature.WriteMapNullValue));
 	}
 	
-	private JSONObject getMessageJson(Beginpoint point, MessageBlock<?> mb) {
+	private JSONObject getMessageJson(Beginpoint point, MessageBlock mb) {
 		JSONObject js = new JSONObject();
 		js.put("app", point.getApp());
 		js.put("host", point.getHost());

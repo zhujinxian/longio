@@ -33,15 +33,13 @@ import com.zhucode.longio.transport.netty.NettyConnector;
 public class Application {
 
 	public static void main(String[] args) {
-//		LongioApplication.run(
-//				NettyConnector.class, 9000, TransportType.HTTP, ProtocolType.JSONARRAY);
-//		
-//		LongioApplication.run(
-//				NettyConnector.class, 9002, TransportType.HTTP, ProtocolType.JSON);
-//	
-//		LongioApplication.run(
-//				NettyConnector.class, 9001, TransportType.SOCKET, ProtocolType.MESSAGE_PACK);
-//	
+		
+		LongioApplication.run(
+				NettyConnector.class, 9002, TransportType.HTTP, ProtocolType.JSON);
+	
+		LongioApplication.run(
+				NettyConnector.class, 9001, TransportType.SOCKET, ProtocolType.MESSAGE_PACK);
+	
 		Connector connector = LongioApplication.connectors.get(NettyConnector.class);
 		
 		ITestClient client = LongioApplication.getService(connector, ITestClient.class, 
@@ -55,7 +53,7 @@ public class Application {
 		
 		System.out.println("=============ge-------------");
 		
-		TestClient1 client1 = LongioApplication.getService(connector, ITestClient.class, 
+		TestClient1 client1 = LongioApplication.getService(connector, TestClient1.class, 
 				new DefaultAppLookup(new Properties()), new DefaultCmdLookup());
 		Map<String, Map<String, UserMsg>> map1 = client1.getUser(1234);
 		System.out.println(map1.get("1234").get("1234").user_id);

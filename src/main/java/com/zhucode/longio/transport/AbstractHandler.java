@@ -13,13 +13,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio.transport;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-
 import com.zhucode.longio.callback.CallbackDispatcher;
 import com.zhucode.longio.exception.ProtocolException;
 import com.zhucode.longio.message.Dispatcher;
-import com.zhucode.longio.protocol.ProtocolParser;
+import com.zhucode.longio.protocol.Protocol;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
 
 /**
  * @author zhu jinxian
@@ -32,9 +32,9 @@ public abstract class AbstractHandler {
 	protected Dispatcher dispatcher;
 	protected CallbackDispatcher callbackDispatcher;
 	
-	protected ProtocolParser<?> pp;
+	protected Protocol pp;
 	
-	public AbstractHandler(Connector connector, Dispatcher dispatcher, CallbackDispatcher callbackDispatcher, ProtocolParser<?> pp) {
+	public AbstractHandler(Connector connector, Dispatcher dispatcher, CallbackDispatcher callbackDispatcher, Protocol pp) {
 		super();
 		this.connector = connector;
 		this.dispatcher = dispatcher;

@@ -13,16 +13,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio.transport.netty;
 
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.EventLoop;
-
 import java.util.concurrent.TimeUnit;
 
 import com.zhucode.longio.message.Dispatcher;
 import com.zhucode.longio.message.MessageBlock;
-import com.zhucode.longio.protocol.ProtocolParser;
+import com.zhucode.longio.protocol.Protocol;
 import com.zhucode.longio.transport.Client;
 import com.zhucode.longio.transport.Connector;
+
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.EventLoop;
 
 /**
  * @author zhu jinxian
@@ -33,7 +33,7 @@ public abstract class AbstractClientHandler extends AbstractNettyHandler {
 
 	protected Client client;
 	
-	public AbstractClientHandler(Client client, Connector connector, ProtocolParser<?> pp) {
+	public AbstractClientHandler(Client client, Connector connector, Protocol pp) {
 		super(connector, null, null, pp);
 		this.client = client;
 	}
@@ -61,8 +61,9 @@ public abstract class AbstractClientHandler extends AbstractNettyHandler {
 		super.channelInactive(ctx);
 	}
 	
-	public void processRevMessage(ChannelHandlerContext ctx, MessageBlock<?> mb) {
+	public void processRevMessage(ChannelHandlerContext ctx, MessageBlock mb) {
 		mb.setConnector(connector);
+		mb.setProtocol(pp);
 		mb.setLocalAddress(ctx.channel().localAddress());
 		mb.setRemoteAddress(ctx.channel().remoteAddress());
 		if (mb.getStatus() == 100) {
