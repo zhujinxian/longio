@@ -26,7 +26,6 @@ in spring boot:
 		return new LongioBeanFactoryPostProcessor(appLookup, cmdLookup);
 	}
 
-	@Boot(port = 5000, pt = ProtocolType.JSONARRAY, tt = TransportType.HTTP)
 	@Boot(port = 5002, pt = ProtocolType.JSON, tt = TransportType.HTTP)
 	@Boot(port = 5001, pt = ProtocolType.MESSAGE_PACK, tt = TransportType.SOCKET)
 	@Bean(name = "longio.bootstrap")
@@ -40,8 +39,7 @@ in spring boot:
 @Lservice(path = "com.lehuihome")
 public class ExeHelloService {
 	@Lio(cmd = "getUser")
-	@Unpack("com.zhucode.longio.example.message.UserMsg")
-	public Map<String, Map<String, UserMsg>>getUser(@Key("user_id")long userId) {
+	public Map<String, Map<String, UserMsg>>getUser(long userId) {
 		JSONObject ret = new JSONObject();
 		ret.put("status", "success");
 		Map<String, UserMsg> rm = new HashMap<String, UserMsg>();
@@ -55,8 +53,7 @@ public class ExeHelloService {
 	}
 	
 	@Lio(cmd = "getUser1")
-	@Unpack("com.zhucode.longio.example.message.User$Data")
-	public Res.Data getUser1(@Key("user_id")long userId) {
+	public Res.Data getUser1(long userId) {
 		return Res.Data.newBuilder().setStatus("success").build();
 	}
 	
@@ -66,17 +63,17 @@ public class ExeHelloService {
 	}
 	
 	@Lio(cmd = "getInt", asy=false)
-	public int testInt(@Key("int")int x) {
+	public int testInt(int x) {
 		return x;
 	}
 	
 	@Lio(cmd = "getString")
-	public String testString(@Key("str")String string) {
+	public String testString(String string) {
 		return string;
 	}
 	
 	@Lio(cmd = "getStringAsy", asy=false)
-	public String testStringAsy(@Key("str")String string) {
+	public String testStringAsy(String string) {
 		return string;
 	}
 	
@@ -86,12 +83,12 @@ public class ExeHelloService {
 	}
 	
 	@Lio(cmd = "list_to_list")
-	public List<String> testLiat(@Key("strs")List<String> strs)  {
+	public List<String> testLiat(List<String> strs)  {
 		return strs;
 	}
 	
 	@Lio(cmd = "set_to_set")
-	public Set<String> testSet(@Key("strs")Set<String> strs) {
+	public Set<String> testSet(Set<String> strs) {
 		return strs;
 	}
 
@@ -105,26 +102,25 @@ public class ExeHelloService {
 public interface HelloService {
 	
 	@Lio(cmd = "getUser")
-	@Pack("com.zhucode.longio.example.message.UserMsg")
-	public Map<String, Map<String, UserMsg>> getUser(@Key("user_id")int userId);
+	public Map<String, Map<String, UserMsg>> getUser(int userId);
 
 	@Lio(cmd = "getVoid")
 	public void testVoid();
 	
 	@Lio(cmd = "getInt")
-	public int testInt(@Key("int")int x);
+	public int testInt(int x);
 	
 	@Lio(cmd = "getString")
-	public String testString(@Key("str")String str);
+	public String testString(String str);
 	
 	@Lio(cmd = "getException")
 	public void testException() throws LongioException;
 	
 	@Lio(cmd = "list_to_list")
-	public List<String> testLiat(@Key("strs")List<String> strs);
+	public List<String> testLiat(List<String> strs);
 	
 	@Lio(cmd = "set_to_set")
-	public Set<String> testSet(@Key("strs")Set<String> strs);
+	public Set<String> testSet(Set<String> strs);
 
 }
 
