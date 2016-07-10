@@ -13,6 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.longio.example;
 
+import java.io.OutputStream;
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.boot.SpringApplication;
@@ -20,6 +22,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 
+import com.longio.example.proto.Msg;
 import com.longio.spring.EnvProperties;
 import com.longio.spring.LioBootstrap;
 import com.longio.spring.LongioBeanFactoryPostProcessor;
@@ -59,13 +62,13 @@ public class Application  {
 	}
 
 	@Boot(port = 5002, pt = ProtocolType.JSON, tt = TransportType.HTTP)
-	@Boot(port = 5001, pt = ProtocolType.MESSAGE_PACK, tt = TransportType.SOCKET)
+	@Boot(port = 5001, pt = ProtocolType.PROTOBUF, tt = TransportType.SOCKET)
 	@Bean(name = "longio.bootstrap")
 	public LioBootstrap getLioBootstrap() {
 		return new LioBootstrap("com.longio");
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws NoSuchMethodException, SecurityException {
 		SpringApplication.run(Application.class, args);
 	}
 

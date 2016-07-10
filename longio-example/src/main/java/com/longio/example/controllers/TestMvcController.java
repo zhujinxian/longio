@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.googlecode.protobuf.format.JsonFormat;
+import com.longio.example.proto.Msg;
 import com.longio.example.service.HelloService;
 import com.zhucode.longio.exception.LongioException;
 
@@ -107,6 +109,17 @@ public class TestMvcController {
 		
 		return "@========test=============\n" + service.testLiat(null);
 	}
+	
+	@ResponseBody
+	@RequestMapping(value = "test_proto", method = RequestMethod.GET)
+	public String testProto() {
+		
+		Msg.User user = Msg.User.newBuilder().setEmail("h@qiyi.com").setName("hhhhajsj").setId(112333).build();
+		user = service.testProto(user, null);
+		
+		return "@========test=============\n" + (user == null? null :JsonFormat.printToString(user));
+	}
+
 	
 	
 	@ResponseBody

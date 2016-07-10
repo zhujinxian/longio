@@ -8,6 +8,7 @@ import java.util.Set;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.longio.example.proto.Msg.User;
 import com.zhucode.longio.annotation.Lio;
 import com.zhucode.longio.annotation.Lservice;
 import com.zhucode.longio.example.message.Res;
@@ -99,6 +100,12 @@ public class ExeHelloService {
 	public UserMsg createUser() {
 		return new UserMsg();
 	}
+	
+	@Lio(cmd="test_proto_user")
+	public User testProto(User user, User user1) {
+		return user1;
+	}
+
 
 
 }

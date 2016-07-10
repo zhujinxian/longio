@@ -6,6 +6,7 @@ import java.util.Set;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.longio.example.proto.Msg.User;
 import com.zhucode.longio.annotation.Lio;
 import com.zhucode.longio.annotation.LsAutowired;
 import com.zhucode.longio.example.message.UserMsg;
@@ -14,7 +15,7 @@ import com.zhucode.longio.transport.ProtocolType;
 import com.zhucode.longio.transport.TransportType;
 
 
-@LsAutowired(app = "com.lehuihome", path = "com.lehuihome", tt=TransportType.SOCKET, ip="127.0.0.1", port=5002, pt=ProtocolType.MESSAGE_PACK)
+@LsAutowired(app = "com.lehuihome", path = "com.lehuihome", tt=TransportType.SOCKET, ip="127.0.0.1", port=5002, pt=ProtocolType.PROTOBUF)
 public interface HelloService {
 	
 	@Lio(cmd = "getUser")
@@ -46,5 +47,8 @@ public interface HelloService {
 	
 	@Lio(cmd="creat_user")
 	public UserMsg createUser();
+
+	@Lio(cmd="test_proto_user")
+	public User testProto(User user, User user1);
 
 }
