@@ -13,15 +13,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio.boot;
 
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Future;
+
+import org.omg.PortableInterceptor.Interceptor;
 
 import com.zhucode.longio.Protocol;
 import com.zhucode.longio.Protocol.ProtocolException;
-import com.zhucode.longio.Response;
+import com.zhucode.longio.core.server.HandlerInterceptor;
+import com.zhucode.longio.core.server.MethodHandler;
 import com.zhucode.longio.core.server.MethodRouter;
 import com.zhucode.longio.core.server.RequestWrapper;
 import com.zhucode.longio.core.server.ResponseWrapper;
-import com.zhucode.longio.core.transport.ProtocolType;
 import com.zhucode.longio.core.transport.TransportType;
 
 /**
@@ -32,26 +36,18 @@ import com.zhucode.longio.core.transport.TransportType;
 public abstract class ServerHandler {
 		
 	private MethodRouter router;
-	
-	protected int port;
-	
-	protected TransportType transportType;
-	
-	protected Protocol protocol;
 
-	protected String host;
-
-
-	public ServerHandler(MethodRouter router, String host, int port, TransportType transportType, Protocol protocol) {
-		super();
-		this.router = router;
-		this.host = host;
-		this.port = port;
-		this.transportType = transportType;
-		this.protocol = protocol;
+	public ServerHandler() {
+		this.router = new MethodRouter();
 	}
 
-
+	public void registerMethodHandlers(Map<Integer, MethodHandler> routeMap) {
+		this.router.addMethodHandler(routeMap);
+	}
+	
+	public void registerInterceptor(List<HandlerInterceptor> interceptors) {
+		this.router.addInterceptors(interceptors);
+	}
 
 	protected void service(RequestWrapper request, ResponseWrapper response) throws ProtocolException {		
 		router.route(request, response);
@@ -60,6 +56,6 @@ public abstract class ServerHandler {
 	public abstract Future<Void> write(ResponseWrapper response);
 	
 	
-	public abstract void start();
+	public abstract void start(String path, String host, int port, TransportType transportType, Protocol protocol);
 	
 }

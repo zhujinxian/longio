@@ -35,13 +35,17 @@ public class MethodRouter {
 	
 	private Executor executor = Executors.newCachedThreadPool();
 	
-	public MethodRouter(Map<Integer, MethodHandler> routeMap, List<HandlerInterceptor> inteceptors) {
+	public MethodRouter() {
 		super();
-		this.routeMap = routeMap;
-		this.inteceptors = inteceptors;
 	}
-
-
+	
+	public void addMethodHandler(Map<Integer, MethodHandler> routeMap) {
+		this.routeMap.putAll(routeMap);
+	}
+	
+	public void addInterceptors(List<HandlerInterceptor>interceptors) {
+		this.inteceptors.addAll(interceptors);
+	}
 
 	public void route(Request request, Response response) {
 		int cmd = request.getCmd();

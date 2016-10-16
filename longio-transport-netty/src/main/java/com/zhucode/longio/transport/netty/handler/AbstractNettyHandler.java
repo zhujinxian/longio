@@ -17,7 +17,6 @@ import java.util.Map;
 
 import com.zhucode.longio.Protocol;
 import com.zhucode.longio.transport.netty.event.PingEvent;
-import com.zhucode.longio.transport.netty.server.NettyServer;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
@@ -38,15 +37,12 @@ import io.netty.util.internal.InternalThreadLocalMap;
 public abstract class AbstractNettyHandler implements ChannelHandler, ChannelInboundHandler {
 	
 	protected AttributeKey<AbstractNettyHandler> handlerKey = AttributeKey.valueOf("AbstractNettyHandler");
-	
-	protected NettyServer server;
-	
+		
 	protected long channelId;
 	
 	protected Protocol protocol;
 	
-	public AbstractNettyHandler(NettyServer server, Protocol protocol) {
-		this.server = server;
+	public AbstractNettyHandler(Protocol protocol) {
 		this.protocol = protocol;
 	}
 	
@@ -96,21 +92,7 @@ public abstract class AbstractNettyHandler implements ChannelHandler, ChannelInb
     public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
         ctx.fireChannelUnregistered();
     }
-	
-	
-	@Override
-	public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		ctx.attr(handlerKey).set(this);
-		this.channelId = this.server.registHandlerContext(ctx);
-
-	}
-	
-	@Override
-	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-		this.server.unregistHandlerContext(ctx);
-		ctx.close();
-	}
-	
+		
 	@Override
 	public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
 		ctx.fireChannelReadComplete();
@@ -139,12 +121,6 @@ public abstract class AbstractNettyHandler implements ChannelHandler, ChannelInb
 		ctx.fireChannelWritabilityChanged();
 	}
 	
-	@Override
-	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-		cause.printStackTrace();
-		this.server.unregistHandlerContext(ctx);
-		ctx.close();
-	}
 	
 
 	public abstract ChannelFuture write(ChannelHandlerContext ctx, byte[] bytes);

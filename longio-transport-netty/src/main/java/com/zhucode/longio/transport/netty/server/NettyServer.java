@@ -13,6 +13,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio.transport.netty.server;
 
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -24,12 +28,17 @@ import org.slf4j.LoggerFactory;
 
 import com.zhucode.longio.Protocol;
 import com.zhucode.longio.Protocol.ProtocolException;
+import com.zhucode.longio.annotation.Rpc;
+import com.zhucode.longio.annotation.RpcController;
 import com.zhucode.longio.boot.ServerHandler;
-import com.zhucode.longio.core.server.MethodRouter;
+import com.zhucode.longio.core.conf.AppLookup;
+import com.zhucode.longio.core.conf.CmdLookup;
+import com.zhucode.longio.core.server.HandlerInterceptor;
+import com.zhucode.longio.core.server.MethodHandler;
 import com.zhucode.longio.core.server.RequestWrapper;
 import com.zhucode.longio.core.server.ResponseWrapper;
-import com.zhucode.longio.core.transport.ProtocolType;
 import com.zhucode.longio.core.transport.TransportType;
+import com.zhucode.longio.scan.LongioScanner;
 import com.zhucode.longio.transport.netty.handler.AbstractNettyHandler;
 import com.zhucode.longio.transport.netty.server.handler.HttpHandler;
 import com.zhucode.longio.transport.netty.server.handler.RawSocketHandler;
@@ -57,20 +66,26 @@ public class NettyServer extends ServerHandler {
 	
 	private Logger logger = LoggerFactory.getLogger(NettyServer.class);
 
-	private static AtomicLong channeId = new AtomicLong(1000000);
+	private AtomicLong channeId = new AtomicLong(1000000);
 	
-	protected static AttributeKey<Long> channelKey = AttributeKey.valueOf("channelId");
+	protected AttributeKey<Long> channelKey = AttributeKey.valueOf("channelId");
 
-	private static Executor executor = Executors.newCachedThreadPool();
+	private Executor executor = Executors.newCachedThreadPool();
 
-	private static NioEventLoopGroup bossGroup = new NioEventLoopGroup();
+	private NioEventLoopGroup bossGroup = new NioEventLoopGroup();
 
-	private static NioEventLoopGroup workerGroup = new NioEventLoopGroup();
+	private NioEventLoopGroup workerGroup = new NioEventLoopGroup();
 
-	private static ConcurrentHashMap<Long, ChannelHandlerContext> ctxs = new ConcurrentHashMap<Long, ChannelHandlerContext>();
+	private ConcurrentHashMap<Long, ChannelHandlerContext> ctxs = new ConcurrentHashMap<Long, ChannelHandlerContext>();
 
-	public NettyServer(MethodRouter router, String host, int port, TransportType transportType, Protocol protocol) {
-		super(router, host, port, transportType, protocol);
+	private AppLookup appLookup;
+	private CmdLookup cmdLookup;
+	private LongioScanner scanner;
+		
+	public NettyServer(AppLookup appLookup, CmdLookup cmdLookup, LongioScanner scanner) {
+		this.appLookup = appLookup;
+		this.cmdLookup = cmdLookup;
+		this.scanner = scanner;
 	}
 	
 	@Override
@@ -86,17 +101,24 @@ public class NettyServer extends ServerHandler {
 	}
 
 	@Override
-	public void start() {
+	public void start(String path, String host, int port, TransportType transportType, Protocol protocol) {
+		
+		List<Object> controllers = this.scanner.scanControllers(path);
+		Map<Integer, MethodHandler> routeMap = createRouteMap(controllers);
+		List<HandlerInterceptor> interceptors = this.scanner.scanInterceptors(path);
+		this.registerInterceptor(interceptors);
+		this.registerMethodHandlers(routeMap);
+		
 		executor.execute(new Runnable() {
 
 			@Override
 			public void run() {
 				switch (transportType) {
 				case HTTP:
-					runOneHttpServer();
+					runOneHttpServer(path, host, port, protocol);
 					break;
 				case SOCKET:
-					runOneRawSocketServer();
+					runOneRawSocketServer(path, host, port, protocol);
 				default:
 					break;
 				}
@@ -106,7 +128,7 @@ public class NettyServer extends ServerHandler {
 
 	}
 
-	private void runOneRawSocketServer() {
+	private void runOneRawSocketServer(String path, String host, int port, Protocol protocol) {
 		ServerBootstrap b = new ServerBootstrap();
 		b.group(bossGroup, workerGroup);
 		b.channel(NioServerSocketChannel.class);
@@ -129,7 +151,12 @@ public class NettyServer extends ServerHandler {
 
 		ChannelFuture f;
 		try {
-			f = b.bind(port).sync();
+			if (host != null) {
+				f = b.bind(host, port);
+			} else {
+				f = b.bind(port);
+			}
+			this.appLookup.registerAapp(path, host, port, protocol);
 			f.channel().closeFuture().sync();
 		} catch (Exception e) {
 			logger.error("", e);
@@ -137,7 +164,7 @@ public class NettyServer extends ServerHandler {
 
 	}
 
-	private void runOneHttpServer() {
+	private void runOneHttpServer(String path, String host, int port, Protocol protocol) {
 		ServerBootstrap b = new ServerBootstrap();
 		b.group(bossGroup, workerGroup);
 		b.channel(NioServerSocketChannel.class);
@@ -165,6 +192,7 @@ public class NettyServer extends ServerHandler {
 			} else {
 				f = b.bind(port);
 			}
+			this.appLookup.registerAapp(path, host, port, protocol);
 			f.channel().closeFuture().sync();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -191,17 +219,49 @@ public class NettyServer extends ServerHandler {
 		buf.readBytes(bytes);
 		
 		RequestWrapper request = new RequestWrapper();
-		ResponseWrapper response = new ResponseWrapper();
 		request.setProtocol(protocol);
 		request.setChannelId(channelId);
+		request.setServerHandler(this);
+		
+		ResponseWrapper response = new ResponseWrapper();
 		response.setProtocol(protocol);
 		response.setChannelId(channelId);
-		request.setServerHandler(this);
 		response.setServerHandler(this);
 
 		protocol.decodeRequest(request, bytes);
 		
+		response.setSerial(request.getSerial());
+		response.setCmd(request.getCmd());
+		response.setVersion(request.getVersion());
+		
 		this.service(request, response);
 	}
+	
+	
+	private Map<Integer, MethodHandler> createRouteMap(List<Object> controllerObjs) {
+		Map<Integer, MethodHandler> map = new HashMap<Integer, MethodHandler>();
+		for (Object obj : controllerObjs) {
+			Class<?> cls = obj.getClass();
+			RpcController ls = cls.getAnnotation(RpcController.class);
+			if (ls == null) {
+				continue;
+			}
+			for (Method m : cls.getMethods()) {
+				Rpc lio = m.getAnnotation(Rpc.class);
+				if (lio == null) {
+					continue;
+				}
+				String cmdName = ls.path() + "." + lio.cmd();
+				cmdName = cmdName.replaceAll("\\.\\.", ".");
+				int cmd = cmdLookup.parseCmd(cmdName);
+				boolean asy = lio.asy();
+				boolean reply = lio.reply();
+				MethodHandler mih = new MethodHandler(cmd, cmdName, obj, m, asy, reply);
+				map.put(cmd, mih);
+			}
+		}
+		return map;
+	}
+
 
 }

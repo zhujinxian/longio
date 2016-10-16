@@ -15,9 +15,21 @@ package com.zhucode.longio.core.client;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicLong;
 
 import com.zhucode.longio.Callback;
+import com.zhucode.longio.LongioException;
+import com.zhucode.longio.Protocol;
+import com.zhucode.longio.Protocol.SerializeException;
 import com.zhucode.longio.Request;
+import com.zhucode.longio.Response;
+import com.zhucode.longio.Response.Status;
+import com.zhucode.longio.boot.ClientHandler;
 
 /**
  * @author zhu jinxian
@@ -26,19 +38,31 @@ import com.zhucode.longio.Request;
  */
 public class MethodInvocationHandler implements InvocationHandler {
 	
-	private int cmd;
+	private String app;
+		
+	private ClientHandler clientHandler;
+
+	private Protocol protocol;
+		
+	private static AtomicLong serialCount = new AtomicLong();
 	
-	private float version;
-	
-	private int timeout;
-	
-	private ServiceHandler service;
+	private Map<Method, RpcMethodInfo> rpcMap = new HashMap<>();
+
+	public MethodInvocationHandler(String app, Map<Method, RpcMethodInfo> rpcMap, ClientHandler clientHandler, Protocol protocol) {
+		super();
+		this.app = app;
+		this.rpcMap = rpcMap;
+		this.clientHandler = clientHandler;
+		this.protocol = protocol;
+	}
+
 
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-		Request request = service.createRequest(method, args);
-		request.setCmd(cmd);
-		request.setVersion(version);	
+		RpcMethodInfo rpc = rpcMap.get(method);
+		Request request = createRequest(method, args);
+		request.setCmd(rpc.getCmd());
+		request.setVersion(rpc.getVersion());	
 		
 		int uid = UidParser.parseUid(method, args);
 		int cmd = CMDParser.parseCMD(method, args);
@@ -51,12 +75,60 @@ public class MethodInvocationHandler implements InvocationHandler {
 			request.setCmd(cmd);
 		}
 
-		
 		Callback callback = null;
-		if (args.length > 0 && args[args.length-1] instanceof Callback) {
+		if (args != null && args.length > 0 && args[args.length-1] instanceof Callback) {
 			callback = (Callback)args[args.length-1];
 		}
 		
-		return service.doInvoke(request, method, callback, timeout);
+		return doInvoke(request, method, callback, rpc.getTimeout());
 	}
+
+	private Request createRequest(Method method, Object... args) throws SerializeException {
+		Object body = protocol.serializeParameters(method, args);
+		Request request = new Request();
+		long serial = produceSerial();
+		request.setSerial(serial);
+		request.setBody(body);
+		return request;
+	}
+	
+	private CompletableFuture<Response> sendRequest(Request request) {
+		clientHandler.writeRequest(app, request);
+		return new CompletableFuture<Response>();
+	}
+
+	
+	private long produceSerial() {
+		long count = serialCount.incrementAndGet();
+		return hashCode() << 32 | count;
+	}
+
+	
+	private Object doInvoke(Request request, Method method, Callback callback, int timeout) throws Exception {
+		CompletableFuture<Response> future = sendRequest(request);
+		 CallbackFutureRouter router = this.clientHandler.getRouter();
+		if (callback != null) {
+			router.registerCallback(request.getSerial(), callback, timeout);
+			return null;
+		} 
+		long serial = request.getSerial();
+		router.registerFuture(serial, future);
+		Response response = null;
+		try {
+			response = future.get(timeout, TimeUnit.MILLISECONDS);
+		} catch (TimeoutException ex) {
+			router.timeoutFuture(serial);
+			throw ex;
+		}
+		
+		Status status = Status.valueOf(response.getStatus());
+		
+		if (Status.OK == status) {
+			return protocol.deserializeReturnValue(method, response.getBody());
+		} 
+		
+		throw new LongioException(status.value(), response.getErr());
+	}
+	
+
 }

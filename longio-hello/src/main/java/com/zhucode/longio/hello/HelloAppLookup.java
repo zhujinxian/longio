@@ -11,33 +11,33 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
-package com.zhucode.longio.boot;
+package com.zhucode.longio.hello;
 
 import com.zhucode.longio.Protocol;
-import com.zhucode.longio.Request;
-import com.zhucode.longio.Response;
-import com.zhucode.longio.core.client.CallbackFutureRouter;
-import com.zhucode.longio.core.transport.TransportType;
+import com.zhucode.longio.core.conf.AppLookup;
 
 /**
  * @author zhu jinxian
- * @date  2016年08月13日
+ * @date  2016年10月7日 下午7:57:19 
  * 
  */
-public abstract class ClientHandler {
-	
-	
-	protected CallbackFutureRouter router = new CallbackFutureRouter();
-	
-	public void handleResponse(Response response) {
-		router.route(response);
-	}
-	
-	public CallbackFutureRouter getRouter() {
-		return router;
+public class HelloAppLookup implements AppLookup {
+
+	@Override
+	public String[] parseHosts(String app) {
+		return new String[]{"127.0.0.1:8000#1"};
 	}
 
-	public abstract void connect(String app, TransportType transportType, Protocol protocol);
-	public abstract void writeRequest(String app, Request request);
-	
+	@Override
+	public String parseAppName(int appId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void registerAapp(String path, String host, int port, Protocol protocol) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

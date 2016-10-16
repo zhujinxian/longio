@@ -13,15 +13,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio.hello;
 
-import java.util.Arrays;
-
+import com.zhucode.longio.core.client.RpcProxy;
+import com.zhucode.longio.core.conf.AppLookup;
 import com.zhucode.longio.core.conf.CmdLookup;
-import com.zhucode.longio.core.server.MethodRouter;
-import com.zhucode.longio.core.support.MethodRouterFactory;
-import com.zhucode.longio.core.transport.ProtocolType;
 import com.zhucode.longio.core.transport.TransportType;
+import com.zhucode.longio.hello.rpc.HelloRpcService;
 import com.zhucode.longio.protocol.json.JsonProtocol;
+import com.zhucode.longio.scan.DefaultLongioScanner;
+import com.zhucode.longio.scan.LongioScanner;
+import com.zhucode.longio.transport.netty.client.NettyClient;
+import com.zhucode.longio.transport.netty.client.NettyConnectionFactory;
 import com.zhucode.longio.transport.netty.server.NettyServer;
+
+import io.netty.channel.nio.NioEventLoopGroup;
 
 /**
  * @author zhu jinxian
@@ -30,16 +34,37 @@ import com.zhucode.longio.transport.netty.server.NettyServer;
  */
 public class HelloApplication {
 	
-	public static void main(String[] args) {
-		
+	public static void main(String[] args) throws InterruptedException {
+		AppLookup appLookup = new HelloAppLookup();
 		CmdLookup cmdLookup = new HelloCmdLookup();
-		MethodRouterFactory mrf = new MethodRouterFactory(cmdLookup);
 		
-		MethodRouter router = mrf.createRouter("", Arrays.asList());
-				
-		NettyServer server = new NettyServer(router, null, 8000, TransportType.HTTP, new JsonProtocol());
+		NettyConnectionFactory nettyConnectionFactory = new NettyConnectionFactory(new NioEventLoopGroup());
 		
-		server.start();
+		
+		LongioScanner scanner = new DefaultLongioScanner();
+		
+		
+		NettyServer server = new NettyServer(appLookup, cmdLookup, scanner);
+		new Thread(()->
+			server.start("", null, 8000, TransportType.HTTP, new JsonProtocol())
+		).start();
+		
+		Thread.sleep(5000);
+		
+		NettyClient client = new NettyClient(appLookup, nettyConnectionFactory);
+		HelloRpcService helloService = RpcProxy.proxy(HelloRpcService.class, appLookup, cmdLookup, client);
+		Thread.sleep(5000);
+
+		helloService.hello();
+		int intv = helloService.getInt(100);
+		System.out.println(intv);
+		
+		String msg = helloService.getString("hello rpc str");
+		System.out.println(msg);
+		
+		System.out.println("---rpc end---");
+		
+		Thread.sleep(50000000);
 	}
 	
 }

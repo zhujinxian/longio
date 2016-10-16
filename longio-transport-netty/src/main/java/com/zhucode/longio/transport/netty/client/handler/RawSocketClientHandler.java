@@ -11,33 +11,45 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
-package com.zhucode.longio.boot;
+package com.zhucode.longio.transport.netty.client.handler;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.zhucode.longio.Protocol;
-import com.zhucode.longio.Request;
-import com.zhucode.longio.Response;
-import com.zhucode.longio.core.client.CallbackFutureRouter;
-import com.zhucode.longio.core.transport.TransportType;
+import com.zhucode.longio.transport.netty.client.NettyClient;
+import com.zhucode.longio.transport.netty.server.NettyServer;
+
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerContext;
 
 /**
  * @author zhu jinxian
- * @date  2016年08月13日
+ * @date  2015年10月12日
  * 
  */
-public abstract class ClientHandler {
+public class RawSocketClientHandler extends AbstractNettyClientHandler {
 	
+	Logger logger = LoggerFactory.getLogger(RawSocketClientHandler.class);
+
 	
-	protected CallbackFutureRouter router = new CallbackFutureRouter();
-	
-	public void handleResponse(Response response) {
-		router.route(response);
-	}
-	
-	public CallbackFutureRouter getRouter() {
-		return router;
+	public RawSocketClientHandler(NettyClient cleint, Protocol protocol) {
+		super(cleint, protocol);
 	}
 
-	public abstract void connect(String app, TransportType transportType, Protocol protocol);
-	public abstract void writeRequest(String app, Request request);
+
+	@Override
+	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public ChannelFuture write(ChannelHandlerContext ctx, byte[] bytes) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	
+
 }

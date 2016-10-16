@@ -11,33 +11,34 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
-package com.zhucode.longio.boot;
+package com.longio.spring.annotation;
 
-import com.zhucode.longio.Protocol;
-import com.zhucode.longio.Request;
-import com.zhucode.longio.Response;
-import com.zhucode.longio.core.client.CallbackFutureRouter;
-import com.zhucode.longio.core.transport.TransportType;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Repeatable;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import com.zhucode.longio.transport.ProtocolType;
+import com.zhucode.longio.transport.TransportType;
+
+
 
 /**
  * @author zhu jinxian
- * @date  2016年08月13日
+ * @date  2015年10月12日
  * 
  */
-public abstract class ClientHandler {
-	
-	
-	protected CallbackFutureRouter router = new CallbackFutureRouter();
-	
-	public void handleResponse(Response response) {
-		router.route(response);
-	}
-	
-	public CallbackFutureRouter getRouter() {
-		return router;
-	}
-
-	public abstract void connect(String app, TransportType transportType, Protocol protocol);
-	public abstract void writeRequest(String app, Request request);
-	
+@Repeatable(value = Boots.class)
+@Target({ ElementType.METHOD })
+@Retention(RetentionPolicy.RUNTIME)
+@Inherited
+@Documented
+public @interface Boot {
+	int port();
+	TransportType tt();
+	ProtocolType pt();
+	String pkg() default "*";
 }

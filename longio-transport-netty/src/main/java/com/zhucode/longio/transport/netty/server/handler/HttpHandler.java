@@ -23,7 +23,6 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 import com.zhucode.longio.Protocol;
 import com.zhucode.longio.Protocol.ProtocolException;
-import com.zhucode.longio.transport.netty.handler.AbstractNettyHandler;
 import com.zhucode.longio.transport.netty.server.NettyServer;
 
 import io.netty.buffer.ByteBuf;
@@ -51,7 +50,7 @@ import io.netty.util.ReferenceCountUtil;
  * @date  2016年08月13日
  * 
  */
-public class HttpHandler extends AbstractNettyHandler {
+public class HttpHandler extends AbstractNettyServerHandler {
 	
 	private static final String WEBSOCKET_PATH = "/";
 	

@@ -11,33 +11,20 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
-package com.zhucode.longio.boot;
+package com.zhucode.longio.core.conf;
 
 import com.zhucode.longio.Protocol;
-import com.zhucode.longio.Request;
-import com.zhucode.longio.Response;
-import com.zhucode.longio.core.client.CallbackFutureRouter;
-import com.zhucode.longio.core.transport.TransportType;
 
 /**
  * @author zhu jinxian
- * @date  2016年08月13日
+ * @date  2015年12月17日
  * 
  */
-public abstract class ClientHandler {
+public interface AppLookup {
 	
+	String[] parseHosts(String app);
 	
-	protected CallbackFutureRouter router = new CallbackFutureRouter();
-	
-	public void handleResponse(Response response) {
-		router.route(response);
-	}
-	
-	public CallbackFutureRouter getRouter() {
-		return router;
-	}
+	String parseAppName(int appId);
 
-	public abstract void connect(String app, TransportType transportType, Protocol protocol);
-	public abstract void writeRequest(String app, Request request);
-	
+	void registerAapp(String path, String host, int port, Protocol protocol);
 }

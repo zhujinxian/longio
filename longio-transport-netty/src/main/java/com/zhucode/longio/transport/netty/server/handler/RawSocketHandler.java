@@ -14,7 +14,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 package com.zhucode.longio.transport.netty.server.handler;
 
 import com.zhucode.longio.Protocol;
-import com.zhucode.longio.transport.netty.handler.AbstractNettyHandler;
 import com.zhucode.longio.transport.netty.server.NettyServer;
 
 import io.netty.buffer.ByteBuf;
@@ -27,7 +26,7 @@ import io.netty.channel.ChannelHandlerContext;
  * @date  2016年08月13日
  * 
  */
-public class RawSocketHandler extends AbstractNettyHandler {
+public class RawSocketHandler extends AbstractNettyServerHandler {
 
 	public RawSocketHandler(NettyServer server, Protocol protocol) {
 		super(server, protocol);

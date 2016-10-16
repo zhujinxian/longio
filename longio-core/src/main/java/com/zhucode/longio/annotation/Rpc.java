@@ -34,5 +34,6 @@ public @interface Rpc {
 	String cmd();
 	boolean asy() default true;
 	boolean reply() default true;
+	float version() default 0;
 	int timeout() default 10000;
 }

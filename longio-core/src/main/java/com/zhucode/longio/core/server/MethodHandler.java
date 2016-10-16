@@ -76,7 +76,6 @@ public class MethodHandler {
 
 	public void handle(RequestWrapper request, ResponseWrapper response) {
 		Protocol protocol = request.getProtocol();
-		Object body = request.getBody();
 		try {
 			Object[] args = protocol.deserializeParameters(method, request, response);
 			Object ret = method.invoke(target, args);

@@ -28,5 +28,16 @@ public class HelloRpcController {
 	public void hello() {
 		System.out.println("hello rpc");
 	}
+	
+	@Rpc(cmd = "int")
+	public int getInt(int val) {
+		return val;
+	}
+
+	@Rpc(cmd = "str")
+	public String getString(String val) {
+		return val;
+	}
+
 
 }

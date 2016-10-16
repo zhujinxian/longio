@@ -11,33 +11,27 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
-package com.zhucode.longio.boot;
+package com.zhucode.longio.hello.rpc;
 
-import com.zhucode.longio.Protocol;
-import com.zhucode.longio.Request;
-import com.zhucode.longio.Response;
-import com.zhucode.longio.core.client.CallbackFutureRouter;
-import com.zhucode.longio.core.transport.TransportType;
+import com.zhucode.longio.annotation.Rpc;
+import com.zhucode.longio.annotation.RpcService;
+import com.zhucode.longio.protocol.json.JsonProtocol;
 
 /**
  * @author zhu jinxian
- * @date  2016年08月13日
+ * @date  2016年10月7日 下午8:25:52 
  * 
  */
-public abstract class ClientHandler {
+@RpcService(app = "", ip = "127.0.0.1", port = 8000, path = "com.zhucode", protocolClass = JsonProtocol.class)
+public interface HelloRpcService {
 	
+	@Rpc(cmd = "hello")
+	public void hello();
 	
-	protected CallbackFutureRouter router = new CallbackFutureRouter();
-	
-	public void handleResponse(Response response) {
-		router.route(response);
-	}
-	
-	public CallbackFutureRouter getRouter() {
-		return router;
-	}
+	@Rpc(cmd = "int")
+	public int getInt(int val);
 
-	public abstract void connect(String app, TransportType transportType, Protocol protocol);
-	public abstract void writeRequest(String app, Request request);
-	
+	@Rpc(cmd = "str")
+	public String getString(String val);
+
 }

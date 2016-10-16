@@ -11,33 +11,35 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
-package com.zhucode.longio.boot;
+package com.longio.spring;
 
-import com.zhucode.longio.Protocol;
-import com.zhucode.longio.Request;
-import com.zhucode.longio.Response;
-import com.zhucode.longio.core.client.CallbackFutureRouter;
-import com.zhucode.longio.core.transport.TransportType;
+import java.util.Properties;
+
+import org.springframework.core.env.Environment;
 
 /**
  * @author zhu jinxian
- * @date  2016年08月13日
+ * @date  2015年12月17日
  * 
  */
-public abstract class ClientHandler {
+public class EnvProperties extends Properties {
+
+	private static final long serialVersionUID = 1L;
 	
+	Environment env;
 	
-	protected CallbackFutureRouter router = new CallbackFutureRouter();
-	
-	public void handleResponse(Response response) {
-		router.route(response);
+	public EnvProperties(Environment env) {
+		this.env = env;
 	}
 	
-	public CallbackFutureRouter getRouter() {
-		return router;
+	@Override
+	public String getProperty(String key) {
+		return env.getProperty(key);
 	}
 
-	public abstract void connect(String app, TransportType transportType, Protocol protocol);
-	public abstract void writeRequest(String app, Request request);
+	@Override
+	public String getProperty(String key, String defaultValue) {
+		return env.getProperty(key, defaultValue);
+	}
 	
 }

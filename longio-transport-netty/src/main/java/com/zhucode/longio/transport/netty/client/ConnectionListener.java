@@ -10,35 +10,41 @@ The above copyright notice and this permission notice shall be included in all c
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-*/
-package com.zhucode.longio.annotation;
+ */
+package com.zhucode.longio.transport.netty.client;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.concurrent.TimeUnit;
 
-import com.zhucode.longio.core.transport.ProtocolType;
-import com.zhucode.longio.core.transport.TransportType;
-
-
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.EventLoop;
 
 /**
  * @author zhu jinxian
- * @date  2016年08月13日
+ * @date 2015年10月12日
  * 
  */
-@Target({ ElementType.TYPE })
-@Retention(RetentionPolicy.RUNTIME)
-@Inherited
-@Documented
-public @interface RpcAutowired {
-	String path();
-	String app();
-	String ip() default "";
-	int port() default 0;
-	TransportType tt() default TransportType.HTTP;
-	ProtocolType pt() default ProtocolType.JSON;
+public class ConnectionListener implements ChannelFutureListener {
+	
+	private NettyConnection point;
+
+	public ConnectionListener(NettyConnection point) {
+		this.point = point;
+	}
+
+	@Override
+	public void operationComplete(ChannelFuture channelFuture) throws Exception {
+		if (!channelFuture.isSuccess()) {
+			final EventLoop loop = channelFuture.channel().eventLoop();
+			loop.schedule(new Runnable() {
+				@Override
+				public void run() {
+					point.connect();
+				}
+			}, 1L, TimeUnit.SECONDS);
+		} else {
+			point.setConnected(true);
+		}
+		
+	}
 }
