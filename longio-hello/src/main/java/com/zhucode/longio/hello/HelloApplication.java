@@ -19,6 +19,7 @@ import com.zhucode.longio.core.conf.CmdLookup;
 import com.zhucode.longio.core.transport.TransportType;
 import com.zhucode.longio.hello.rpc.HelloRpcService;
 import com.zhucode.longio.protocol.json.JsonProtocol;
+import com.zhucode.longio.protocol.msgpack.MessagePackProtocol;
 import com.zhucode.longio.scan.DefaultLongioScanner;
 import com.zhucode.longio.scan.LongioScanner;
 import com.zhucode.longio.transport.netty.client.NettyClient;
@@ -40,13 +41,11 @@ public class HelloApplication {
 		
 		NettyConnectionFactory nettyConnectionFactory = new NettyConnectionFactory(new NioEventLoopGroup());
 		
-		
 		LongioScanner scanner = new DefaultLongioScanner();
-		
 		
 		NettyServer server = new NettyServer(appLookup, cmdLookup, scanner);
 		new Thread(()->
-			server.start("", null, 8000, TransportType.HTTP, new JsonProtocol())
+			server.start("", null, 8000, TransportType.HTTP, new MessagePackProtocol())
 		).start();
 		
 		Thread.sleep(5000);
@@ -56,10 +55,10 @@ public class HelloApplication {
 		Thread.sleep(5000);
 
 		helloService.hello();
-		int intv = helloService.getInt(100);
+		int intv = helloService.getInt(1000);
 		System.out.println(intv);
 		
-		String msg = helloService.getString("hello rpc str");
+		String msg = helloService.getString("hello msgpack rpc str");
 		System.out.println(msg);
 		
 		System.out.println("---rpc end---");

@@ -21,9 +21,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.zhucode.longio.transport.ProtocolType;
-import com.zhucode.longio.transport.TransportType;
-
+import com.zhucode.longio.Protocol;
+import com.zhucode.longio.core.transport.TransportType;
 
 
 /**
@@ -38,7 +37,7 @@ import com.zhucode.longio.transport.TransportType;
 @Documented
 public @interface Boot {
 	int port();
-	TransportType tt();
-	ProtocolType pt();
+	TransportType transport();
+	Class<? extends Protocol> protocol();
 	String pkg() default "*";
 }

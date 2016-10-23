@@ -16,13 +16,14 @@ package com.zhucode.longio.hello.rpc;
 import com.zhucode.longio.annotation.Rpc;
 import com.zhucode.longio.annotation.RpcService;
 import com.zhucode.longio.protocol.json.JsonProtocol;
+import com.zhucode.longio.protocol.msgpack.MessagePackProtocol;
 
 /**
  * @author zhu jinxian
  * @date  2016年10月7日 下午8:25:52 
  * 
  */
-@RpcService(app = "", ip = "127.0.0.1", port = 8000, path = "com.zhucode", protocolClass = JsonProtocol.class)
+@RpcService(app = "", ip = "127.0.0.1", port = 8000, path = "com.zhucode", protocolClass = MessagePackProtocol.class)
 public interface HelloRpcService {
 	
 	@Rpc(cmd = "hello")
