@@ -13,11 +13,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio.transport.netty.client;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.zhucode.longio.LoadBalance;
 import com.zhucode.longio.Protocol;
 import com.zhucode.longio.Request;
 import com.zhucode.longio.boot.ClientHandler;
@@ -45,21 +45,24 @@ public class NettyClient extends ClientHandler {
 	private NettyConnectionFactory nettyConnectionFactory;
 
 	private AppLookup appLookup;
+	
+	private Map<String, LoadBalance> lbs;
 
-	public NettyClient(AppLookup appLookup, NettyConnectionFactory nettyConnectionFactory) {
+	public NettyClient(AppLookup appLookup, Map<String, LoadBalance> lbMap, NettyConnectionFactory nettyConnectionFactory) {
 		this.nettyConnectionFactory = nettyConnectionFactory;
 		this.appLookup = appLookup;
+		this.lbs = lbMap;
 	}
 
 	@Override
-	public void writeRequest(String app, Request request) {
+	public boolean writeRequest(String app, Request request) {
 		NettyConnectionPool pool = connectionPool.get(app);
-		pool.writeRequest(request);
+		return pool.writeRequest(request);
 	}
 		
 	@Override
-	public void connect(String app, TransportType transportType, Protocol protocol) {
-		NettyConnectionPool pool = new NettyConnectionPool(this, app, transportType, protocol);
+	public void connect(String app) {
+		NettyConnectionPool pool = new NettyConnectionPool(this, app);
 		pool.initPool();
 		connectionPool.put(app, pool);
 	}
@@ -72,12 +75,20 @@ public class NettyClient extends ClientHandler {
 	}
 	
 	public void unregistHandlerContext(ChannelHandlerContext ctx) {
-		
+		ctx.channel().remoteAddress();
 	}
 
 	public AppLookup getAppLookup() {
 		return appLookup;
 	}
+	
+	public LoadBalance getLoadBalance(String app) {
+		if (this.lbs == null) {
+			return null;
+		}
+		return this.lbs.get(app);
+	}
+
 
 	public NettyConnectionFactory getNettyConnectionFactory() {
 		return nettyConnectionFactory;

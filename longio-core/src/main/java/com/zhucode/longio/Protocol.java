@@ -13,7 +13,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio;
 
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 
 /**

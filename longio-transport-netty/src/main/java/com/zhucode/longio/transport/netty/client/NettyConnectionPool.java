@@ -15,10 +15,16 @@ package com.zhucode.longio.transport.netty.client;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.zhucode.longio.Protocol;
+import com.google.common.collect.Maps;
+import com.zhucode.longio.App;
+import com.zhucode.longio.LoadBalance;
 import com.zhucode.longio.Request;
+import com.zhucode.longio.core.client.lb.RandomLoadBalance;
 import com.zhucode.longio.core.conf.AppLookup;
 import com.zhucode.longio.core.transport.TransportType;
 
@@ -29,15 +35,15 @@ import com.zhucode.longio.core.transport.TransportType;
  */
 public class NettyConnectionPool {
 	
-	private String app;
+	private String appName;
 	
 	private AppLookup appLookup;
+	
+	private LoadBalance lb;
 
-	private List<NettyConnection> pool = new ArrayList<NettyConnection>();
-
-	private TransportType transportType;
-
-	private Protocol protocol;
+	private volatile List<App> pool = new ArrayList<App>();
+	
+	private Map<App, NettyConnection> connectionMap = Maps.newConcurrentMap();
 
 	private NettyConnectionFactory nettyConnectionFactory;
 
@@ -45,51 +51,96 @@ public class NettyConnectionPool {
 	
 	private AtomicLong count = new AtomicLong();
 
-	public NettyConnectionPool(NettyClient client, String app, TransportType transportType, Protocol protocol) {
+	public NettyConnectionPool(NettyClient client, String app) {
 		super();
-		this.app = app;
-		this.transportType = transportType;
-		this.protocol = protocol;
+		this.appName = app;
 		this.client = client;
 		appLookup = client.getAppLookup();
+		lb = client.getLoadBalance(app);
+		if (lb == null) {
+			lb = new RandomLoadBalance();
+		}
 		nettyConnectionFactory = client.getNettyConnectionFactory();
 	}
 	
 	public void initPool() {
-		String[] hosts = appLookup.parseHosts(app);
-		for (String host : hosts) {
-			String[] strs = host.split("#");
-			int weight = 1;
-			if (strs.length == 2) {
-				weight = Integer.parseInt(strs[1]);
+		this.adjustPool();
+		Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(new Runnable() {
+			@Override
+			public void run() {
+				adjustPool();
 			}
-			host = strs[0];
-			String h = host.split(":")[0];
-			int p = Integer.parseInt(host.split(":")[1]);
-
-			NettyConnection point = null;
-			if (TransportType.HTTP == transportType) {
-				point = nettyConnectionFactory.runOneHttpClient(h, p, client, protocol);
-			} else if (TransportType.SOCKET == transportType) {
-				point = nettyConnectionFactory.runOneRawSocketClient(h, p, client, protocol);
-			}
-			point.connect();
-			while (weight-- > 0) {
-				pool.add(point);
-			}
+			
+		}, 1, 1, TimeUnit.MINUTES);
+	}
+	
+	private NettyConnection createConnection(App app) {
+		NettyConnection connection = null;
+		if (TransportType.HTTP == app.getTransportType()) {
+			connection = nettyConnectionFactory.runOneHttpClient(client, app.getHost(), app.getPort(), app.getProtocol());
+		} else if (TransportType.SOCKET == app.getTransportType()) {
+			connection = nettyConnectionFactory.runOneRawSocketClient(client, app.getHost(), app.getPort(), app.getProtocol());
 		}
+		return connection;
 
 	}
 
 	public NettyConnection getConnection(Request request) {
-		int idx = (int)(count.getAndIncrement()) % pool.size();
-		return pool.get(idx);
+		
+		App app = this.lb.select(request, pool);
+		
+		return this.connectionMap.get(app);
+
 	}
 
-	public void writeRequest(Request request) {
+	public boolean writeRequest(Request request) {
 		NettyConnection connection = getConnection(request);
-		connection.writeRequest(request);
+		if (connection == null) {
+			return false;
+		}
+		return connection.writeRequest(request);
 	}
 	
+	public void adjustPool() {
+		List<App> apps = appLookup.discovery(appName);
+		for (App app : apps) {
+			NettyConnection connection = this.connectionMap.get(app);
+			if (connection == null) {
+				connection = createConnection(app);
+				connection.connect();
+			}
+			connectionMap.put(app, connection);
+		}
+		this.pool = apps;
+		List<App> delayClosedApps = new ArrayList<App>();
+		for (App app : connectionMap.keySet()) {
+			if (!this.pool.contains(app)) {
+				delayClosedApps.add(app);
+			}
+		}
+		delayClose(delayClosedApps);
+
+	}
+	
+	
+		
+	private void delayClose(final List<App> delayClosedApps) {
+		Executors.newSingleThreadScheduledExecutor().schedule(new Runnable() {
+			@Override
+			public void run() {
+				for (App app : delayClosedApps) {
+					if (pool.contains(app)) {
+						continue;
+					}
+					NettyConnection connection = connectionMap.remove(app);
+					if (connection != null) {
+						connection.close();
+					}
+				}
+			}
+			
+		}, 5, TimeUnit.MINUTES);
+	}
+
 	
 }

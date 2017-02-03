@@ -13,7 +13,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio.core.conf;
 
-import com.zhucode.longio.Protocol;
+import java.util.List;
+
+import com.zhucode.longio.App;
 
 /**
  * @author zhu jinxian
@@ -22,9 +24,7 @@ import com.zhucode.longio.Protocol;
  */
 public interface AppLookup {
 	
-	String[] parseHosts(String app);
+	List<App> discovery(String app);
 	
-	String parseAppName(int appId);
-
-	void registerAapp(String path, String host, int port, Protocol protocol);
+	void register(App app);
 }

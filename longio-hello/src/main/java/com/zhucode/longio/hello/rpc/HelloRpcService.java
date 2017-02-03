@@ -23,7 +23,7 @@ import com.zhucode.longio.protocol.msgpack.MessagePackProtocol;
  * @date  2016年10月7日 下午8:25:52 
  * 
  */
-@RpcService(app = "", ip = "127.0.0.1", port = 8000, path = "com.zhucode", protocolClass = MessagePackProtocol.class)
+@RpcService(app = "com.zhucode", path = "com.zhucode", protocolClass = JsonProtocol.class)
 public interface HelloRpcService {
 	
 	@Rpc(cmd = "hello")

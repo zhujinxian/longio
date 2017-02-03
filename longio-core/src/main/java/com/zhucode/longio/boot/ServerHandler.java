@@ -17,16 +17,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
-import org.omg.PortableInterceptor.Interceptor;
-
-import com.zhucode.longio.Protocol;
+import com.zhucode.longio.App;
 import com.zhucode.longio.Protocol.ProtocolException;
 import com.zhucode.longio.core.server.HandlerInterceptor;
 import com.zhucode.longio.core.server.MethodHandler;
 import com.zhucode.longio.core.server.MethodRouter;
 import com.zhucode.longio.core.server.RequestWrapper;
 import com.zhucode.longio.core.server.ResponseWrapper;
-import com.zhucode.longio.core.transport.TransportType;
+import com.zhucode.longio.scan.LongioScanner;
 
 /**
  * @author zhu jinxian
@@ -56,6 +54,9 @@ public abstract class ServerHandler {
 	public abstract Future<Void> write(ResponseWrapper response);
 	
 	
-	public abstract void start(String path, String host, int port, TransportType transportType, Protocol protocol);
+	public abstract void start(App app);
+	
+	public abstract void start(App app, LongioScanner scanner, String... pkgs);
+
 	
 }

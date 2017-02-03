@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio.hello;
 
+import com.zhucode.longio.App;
 import com.zhucode.longio.core.client.RpcProxy;
 import com.zhucode.longio.core.conf.AppLookup;
 import com.zhucode.longio.core.conf.CmdLookup;
@@ -43,14 +44,20 @@ public class HelloApplication {
 		
 		LongioScanner scanner = new DefaultLongioScanner();
 		
-		NettyServer server = new NettyServer(appLookup, cmdLookup, scanner);
-		new Thread(()->
-			server.start("", null, 8000, TransportType.HTTP, new MessagePackProtocol())
+		NettyServer server = new NettyServer(appLookup, cmdLookup);
+		new Thread(()->{
+				App app = new App();
+				app.setHost(null);
+				app.setPort(8000);
+				app.setTransportType(TransportType.HTTP);
+				app.setProtocol(new MessagePackProtocol());
+				server.start(app, scanner);
+			}
 		).start();
 		
 		Thread.sleep(5000);
 		
-		NettyClient client = new NettyClient(appLookup, nettyConnectionFactory);
+		NettyClient client = new NettyClient(appLookup, null, nettyConnectionFactory);
 		HelloRpcService helloService = RpcProxy.proxy(HelloRpcService.class, appLookup, cmdLookup, client);
 		Thread.sleep(5000);
 

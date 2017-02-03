@@ -13,8 +13,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio.hello;
 
+import java.util.Arrays;
+import java.util.List;
+
+import com.zhucode.longio.App;
 import com.zhucode.longio.Protocol;
 import com.zhucode.longio.core.conf.AppLookup;
+import com.zhucode.longio.core.transport.TransportType;
+import com.zhucode.longio.protocol.json.JsonProtocol;
 
 /**
  * @author zhu jinxian
@@ -24,20 +30,19 @@ import com.zhucode.longio.core.conf.AppLookup;
 public class HelloAppLookup implements AppLookup {
 
 	@Override
-	public String[] parseHosts(String app) {
-		return new String[]{"127.0.0.1:8000#1"};
+	public List<App> discovery(String appName) {
+		App app = new App();
+		app.setHost("127.0.0.1");
+		app.setPort(8000);
+		app.setProtocol(new JsonProtocol());
+		app.setTransportType(TransportType.HTTP);
+		return Arrays.asList(app);
 	}
 
 	@Override
-	public String parseAppName(int appId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void registerAapp(String path, String host, int port, Protocol protocol) {
-		// TODO Auto-generated method stub
+	public void register(App app) {
 		
 	}
+
 
 }

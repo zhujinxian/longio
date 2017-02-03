@@ -15,29 +15,31 @@ package com.longio.spring;
 
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.core.type.filter.AnnotationTypeFilter;
 
-import com.zhucode.longio.annotation.LsAutowired;
+import com.zhucode.longio.annotation.RpcController;
+import com.zhucode.longio.annotation.RpcService;
 
 /**
  * @author zhu jinxian
- * @date  2016年2月25日
+ * @date  2016年11月13日 下午9:57:39 
  * 
  */
-public class LioScanningCandidateComponentProvider extends
-		ClassPathScanningCandidateComponentProvider {
-	
-	public LioScanningCandidateComponentProvider() {
+public class RpcScanningCandidateComponentProvider extends ClassPathScanningCandidateComponentProvider {
+
+	public RpcScanningCandidateComponentProvider() {
 		super(false);
+		this.addIncludeFilter(new AnnotationTypeFilter(RpcService.class));
+		this.addIncludeFilter(new AnnotationTypeFilter(RpcController.class));
 	}
 	
+	
+
 	@Override
 	protected boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) {
-		
-		if (beanDefinition.getMetadata().hasAnnotation(LsAutowired.class.getCanonicalName())) {
-			return true;
-		}
-		
-		return (beanDefinition.getMetadata().isConcrete() && beanDefinition.getMetadata().isIndependent());
+		return true;
 	}
+	
+	
 
 }

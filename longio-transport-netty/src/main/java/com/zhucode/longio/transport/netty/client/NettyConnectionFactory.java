@@ -42,7 +42,7 @@ public class NettyConnectionFactory {
 		this.eventLoop = eventLoop;
 	}
 	
-	public NettyConnection runOneHttpClient(String host, int port, NettyClient client, Protocol protocol) {	
+	public NettyConnection runOneHttpClient(NettyClient client, String host, int port, Protocol protocol) {	
 		
 		return new NettyConnection(host, port, protocol, eventLoop, new ChannelInitializer<SocketChannel>() {
 			
@@ -57,7 +57,7 @@ public class NettyConnectionFactory {
         });
 	}
 	
-	public NettyConnection runOneRawSocketClient(String host, int port, NettyClient client, Protocol protocol) {
+	public NettyConnection runOneRawSocketClient(NettyClient client, String host, int port, Protocol protocol) {
 		
 		return new NettyConnection(host, port, protocol, eventLoop, new ChannelInitializer<SocketChannel>() {
 

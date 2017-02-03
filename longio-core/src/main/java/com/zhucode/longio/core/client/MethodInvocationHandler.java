@@ -17,11 +17,18 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.github.rholder.retry.RetryException;
+import com.github.rholder.retry.Retryer;
+import com.github.rholder.retry.RetryerBuilder;
+import com.github.rholder.retry.StopStrategies;
+import com.github.rholder.retry.WaitStrategies;
 import com.zhucode.longio.Callback;
 import com.zhucode.longio.LongioException;
 import com.zhucode.longio.Protocol;
@@ -64,6 +71,7 @@ public class MethodInvocationHandler implements InvocationHandler {
 		request.setCmd(rpc.getCmd());
 		request.setVersion(rpc.getVersion());	
 		
+		
 		int uid = UidParser.parseUid(method, args);
 		int cmd = CMDParser.parseCMD(method, args);
 		
@@ -80,7 +88,7 @@ public class MethodInvocationHandler implements InvocationHandler {
 			callback = (Callback)args[args.length-1];
 		}
 		
-		return doInvoke(request, method, callback, rpc.getTimeout());
+		return doInvoke(request, method, callback, rpc.getRetries(), rpc.getTimeout());
 	}
 
 	private Request createRequest(Method method, Object... args) throws SerializeException {
@@ -92,9 +100,22 @@ public class MethodInvocationHandler implements InvocationHandler {
 		return request;
 	}
 	
-	private CompletableFuture<Response> sendRequest(Request request) {
-		clientHandler.writeRequest(app, request);
-		return new CompletableFuture<Response>();
+	private void sendRequest(Request request, int retryes) throws ExecutionException, RetryException {
+		Retryer<Boolean> retryer = RetryerBuilder.<Boolean>newBuilder()
+				.retryIfException()
+				.retryIfResult(r -> r == false)
+				.withWaitStrategy(WaitStrategies.noWait())
+				.withStopStrategy(StopStrategies.stopAfterAttempt(retryes))
+				.build();
+		
+		retryer.call(new Callable<Boolean>() {
+			
+			@Override
+			public Boolean call() throws Exception {
+				return clientHandler.writeRequest(app, request);
+			}
+		});
+		
 	}
 
 	
@@ -104,20 +125,21 @@ public class MethodInvocationHandler implements InvocationHandler {
 	}
 
 	
-	private Object doInvoke(Request request, Method method, Callback callback, int timeout) throws Exception {
-		CompletableFuture<Response> future = sendRequest(request);
-		 CallbackFutureRouter router = this.clientHandler.getRouter();
+	private Object doInvoke(Request request, Method method, Callback callback, int retryes, int timeout) throws Exception {
+		CompletableFuture<Response> future = new CompletableFuture<Response>();
 		if (callback != null) {
-			router.registerCallback(request.getSerial(), callback, timeout);
+			this.clientHandler.registerCallback(request.getSerial(), callback, timeout);
+			sendRequest(request, retryes);
 			return null;
 		} 
 		long serial = request.getSerial();
-		router.registerFuture(serial, future);
+		this.clientHandler.registerFuture(serial, future);
+		sendRequest(request, retryes);
 		Response response = null;
 		try {
-			response = future.get(timeout, TimeUnit.MILLISECONDS);
+			response = future.get(timeout, TimeUnit.MILLISECONDS); 
 		} catch (TimeoutException ex) {
-			router.timeoutFuture(serial);
+			this.clientHandler.timeoutFuture(serial);
 			throw ex;
 		}
 		

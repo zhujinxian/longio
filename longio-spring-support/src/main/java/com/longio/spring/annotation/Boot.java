@@ -36,6 +36,7 @@ import com.zhucode.longio.core.transport.TransportType;
 @Inherited
 @Documented
 public @interface Boot {
+	String host();
 	int port();
 	TransportType transport();
 	Class<? extends Protocol> protocol();

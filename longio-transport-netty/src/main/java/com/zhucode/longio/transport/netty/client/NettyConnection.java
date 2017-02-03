@@ -84,6 +84,11 @@ public class NettyConnection {
 		}
 		this.channel = f.channel();
 	}
+	
+	public void close() {
+		this.setConnected(false);
+		this.channel.close();
+	}
 
 	public long getChannelId() {
 		return this.channel.attr(channelKey).get();
@@ -98,11 +103,37 @@ public class NettyConnection {
 		logger.debug("connect to server [{}:{}] {}", host, port, b);
 	}
 
-	public void writeRequest(Request request) {
+	public boolean writeRequest(Request request) {
 		ChannelHandlerContext ctx = this.channel.attr(ctxKey).get();
 		AbstractNettyHandler handler = ctx.attr(handlerKey).get();
 		byte[] bytes = protocol.encodeRequest(request);
-		handler.write(ctx, bytes);
+		try {
+			return handler.write(ctx, bytes).await(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
+
+
+	public String getHost() {
+		return host;
+	}
+
+
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+
+	public int getPort() {
+		return port;
+	}
+
+
+	public void setPort(int port) {
+		this.port = port;
+	}
+	
 	
 }

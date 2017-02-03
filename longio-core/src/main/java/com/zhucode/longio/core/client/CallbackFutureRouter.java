@@ -38,8 +38,6 @@ public class CallbackFutureRouter {
 	private ConcurrentHashMap<Long, Callback> callbackMap = new ConcurrentHashMap<Long, Callback>();
 	
 	private static ScheduledExecutorService timeoutChecker = Executors.newScheduledThreadPool(1);
-
-	
 	
 	public void route(Response response) {
 		long serial = response.getSerial();

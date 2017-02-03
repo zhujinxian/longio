@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.zhucode.longio.App;
 import com.zhucode.longio.Protocol;
 import com.zhucode.longio.Protocol.ProtocolException;
 import com.zhucode.longio.annotation.Rpc;
@@ -80,12 +81,10 @@ public class NettyServer extends ServerHandler {
 
 	private AppLookup appLookup;
 	private CmdLookup cmdLookup;
-	private LongioScanner scanner;
 		
-	public NettyServer(AppLookup appLookup, CmdLookup cmdLookup, LongioScanner scanner) {
+	public NettyServer(AppLookup appLookup, CmdLookup cmdLookup) {
 		this.appLookup = appLookup;
 		this.cmdLookup = cmdLookup;
-		this.scanner = scanner;
 	}
 	
 	@Override
@@ -101,24 +100,49 @@ public class NettyServer extends ServerHandler {
 	}
 
 	@Override
-	public void start(String path, String host, int port, TransportType transportType, Protocol protocol) {
-		
-		List<Object> controllers = this.scanner.scanControllers(path);
-		Map<Integer, MethodHandler> routeMap = createRouteMap(controllers);
-		List<HandlerInterceptor> interceptors = this.scanner.scanInterceptors(path);
-		this.registerInterceptor(interceptors);
-		this.registerMethodHandlers(routeMap);
+	public void start(App app) {
+		logger.info("server start transport {}, protocol {}, {}:{}", 
+				app.getTransportType().toString(), app.getProtocol().getClass().getSimpleName(), app.getHost(), app.getPort());		
+		executor.execute(new Runnable() {
+
+			@Override
+			public void run() {
+				switch (app.getTransportType()) {
+				case HTTP:
+					runOneHttpServer(app);
+					break;
+				case SOCKET:
+					runOneRawSocketServer(app);
+				default:
+					break;
+				}
+			}
+
+		});
+
+	}
+	
+	
+	@Override
+	public void start(App app, LongioScanner scanner, String... pkgs) {
+		for (String pkg : pkgs) {
+			List<Object> controllers = scanner.scanControllers(pkg);
+			Map<Integer, MethodHandler> routeMap = createRouteMap(controllers);
+			List<HandlerInterceptor> interceptors = scanner.scanInterceptors(pkg);
+			this.registerInterceptor(interceptors);
+			this.registerMethodHandlers(routeMap);
+		}
 		
 		executor.execute(new Runnable() {
 
 			@Override
 			public void run() {
-				switch (transportType) {
+				switch (app.getTransportType()) {
 				case HTTP:
-					runOneHttpServer(path, host, port, protocol);
+					runOneHttpServer(app);
 					break;
 				case SOCKET:
-					runOneRawSocketServer(path, host, port, protocol);
+					runOneRawSocketServer(app);
 				default:
 					break;
 				}
@@ -128,7 +152,8 @@ public class NettyServer extends ServerHandler {
 
 	}
 
-	private void runOneRawSocketServer(String path, String host, int port, Protocol protocol) {
+
+	private void runOneRawSocketServer(App app) {
 		ServerBootstrap b = new ServerBootstrap();
 		b.group(bossGroup, workerGroup);
 		b.channel(NioServerSocketChannel.class);
@@ -141,7 +166,7 @@ public class NettyServer extends ServerHandler {
 				ch.pipeline().addLast(new HttpObjectAggregator(65536));
 				ch.pipeline().addLast(new IdleStateHandler(6000, 3000, 0));
 				ch.pipeline().addLast(
-						new RawSocketHandler(NettyServer.this, protocol));
+						new RawSocketHandler(NettyServer.this, app.getProtocol()));
 			}
 
 		});
@@ -151,12 +176,12 @@ public class NettyServer extends ServerHandler {
 
 		ChannelFuture f;
 		try {
-			if (host != null) {
-				f = b.bind(host, port);
+			if (app.getHost() != null) {
+				f = b.bind(app.getHost(), app.getPort());
 			} else {
-				f = b.bind(port);
+				f = b.bind(app.getPort());
 			}
-			this.appLookup.registerAapp(path, host, port, protocol);
+			this.appLookup.register(app);
 			f.channel().closeFuture().sync();
 		} catch (Exception e) {
 			logger.error("", e);
@@ -164,7 +189,7 @@ public class NettyServer extends ServerHandler {
 
 	}
 
-	private void runOneHttpServer(String path, String host, int port, Protocol protocol) {
+	private void runOneHttpServer(App app) {
 		ServerBootstrap b = new ServerBootstrap();
 		b.group(bossGroup, workerGroup);
 		b.channel(NioServerSocketChannel.class);
@@ -177,7 +202,7 @@ public class NettyServer extends ServerHandler {
 				ch.pipeline().addLast(new HttpObjectAggregator(65536));
 				ch.pipeline().addLast(new IdleStateHandler(6000, 3000, 0));
 				ch.pipeline().addLast(
-						new HttpHandler(NettyServer.this, protocol));
+						new HttpHandler(NettyServer.this, app.getProtocol()));
 			}
 
 		});
@@ -187,12 +212,12 @@ public class NettyServer extends ServerHandler {
 
 		ChannelFuture f;
 		try {
-			if (host != null) {
-				f = b.bind(host, port);
+			if (app.getHost() != null) {
+				f = b.bind(app.getHost(), app.getPort());
 			} else {
-				f = b.bind(port);
+				f = b.bind(app.getPort());
 			}
-			this.appLookup.registerAapp(path, host, port, protocol);
+			this.appLookup.register(app);
 			f.channel().closeFuture().sync();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -262,6 +287,5 @@ public class NettyServer extends ServerHandler {
 		}
 		return map;
 	}
-
 
 }

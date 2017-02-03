@@ -27,9 +27,10 @@ public class RpcMethodInfo {
 	private Method method;
 	private boolean asy;
 	private int timeout;
+	private int retries;
 	private float version;
 	
-	public RpcMethodInfo(int cmd, String name, float version, Class<?> cls, Method method, boolean asy, int timeout) {
+	public RpcMethodInfo(int cmd, String name, float version, Class<?> cls, Method method, boolean asy, int retries, int timeout) {
 		super();
 		this.cmd = cmd;
 		this.name = name;
@@ -37,6 +38,7 @@ public class RpcMethodInfo {
 		this.method = method;
 		this.asy = asy;
 		this.timeout = timeout;
+		this.retries = retries;
 		this.version = version;
 	}
 
@@ -84,6 +86,11 @@ public class RpcMethodInfo {
 		return timeout;
 	}
 
+	
+	public int getRetries() {
+		return retries;
+	}
+
 	public void setTimeout(int timeout) {
 		this.timeout = timeout;
 	}
@@ -91,7 +98,5 @@ public class RpcMethodInfo {
 	public float getVersion() {
 		return version;
 	}
-	
-	
-	
+
 }

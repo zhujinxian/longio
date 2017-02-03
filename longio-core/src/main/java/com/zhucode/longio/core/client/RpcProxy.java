@@ -45,7 +45,7 @@ public class RpcProxy {
 			e.printStackTrace();
 		}
 		MethodInvocationHandler invokeHandler = new MethodInvocationHandler(service.app(), rpcMap, handler, protocol);
-		handler.connect(service.app(), service.tt(), protocol);
+		handler.connect(service.app());
 		return (T) Proxy.newProxyInstance(RpcProxy.class.getClassLoader(), new Class[]{rpc}, invokeHandler);
 	}
 	
@@ -67,7 +67,8 @@ public class RpcProxy {
 			boolean asy = rpc.asy();
 			int timeout = rpc.timeout();
 			float version = rpc.version();
-			RpcMethodInfo mi = new RpcMethodInfo(cmd, cmdName, version, cls, m, asy, timeout);
+			int retries = rpc.retries();
+			RpcMethodInfo mi = new RpcMethodInfo(cmd, cmdName, version, cls, m, asy, retries, timeout);
 			ms.put(m, mi);
 		}
 		return ms;
