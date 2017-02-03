@@ -13,13 +13,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 package com.zhucode.longio.hello;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.util.ClassUtils;
 
 import com.longio.spring.RpcBeanFactoryPostProcessor;
 import com.longio.spring.RpcBootstrap;
@@ -27,7 +27,6 @@ import com.longio.spring.annotation.Boot;
 import com.zhucode.longio.core.conf.AppLookup;
 import com.zhucode.longio.core.conf.CmdLookup;
 import com.zhucode.longio.core.transport.TransportType;
-import com.zhucode.longio.protocol.json.JsonProtocol;
 import com.zhucode.longio.protocol.msgpack.MessagePackProtocol;
 import com.zhucode.longio.transport.netty.client.NettyClient;
 import com.zhucode.longio.transport.netty.client.NettyConnectionFactory;
@@ -41,29 +40,20 @@ import io.netty.channel.nio.NioEventLoopGroup;
  */
 @SpringBootApplication
 public class HelloSpringApplication implements CommandLineRunner {
-	
-	@Bean(name="appLookup")
-	AppLookup applookup() {
-		return new HelloAppLookup();
-	}
-	
-	@Bean(name="cmdLookup")
-	CmdLookup cmdlookup() {
-		return new HelloCmdLookup();
-	}
-	
+		
 	@Bean
-	RpcBeanFactoryPostProcessor rpcProcessor(
-			@Qualifier("appLookup") AppLookup appLookup, 
-            @Qualifier("cmdLookup")CmdLookup cmdLookup) {
+	RpcBeanFactoryPostProcessor rpcProcessor() {
+		
+		AppLookup appLookup = new HelloAppLookup();
+		CmdLookup cmdLookup = new HelloCmdLookup();
 		
 		NettyClient client = new NettyClient(appLookup, null, 
 				new NettyConnectionFactory(new NioEventLoopGroup()));
 
-		return new RpcBeanFactoryPostProcessor(appLookup, cmdLookup, client, "com.zhucode.longio.hello");
+		return new RpcBeanFactoryPostProcessor(appLookup, cmdLookup, client, ClassUtils.getPackageName(getClass()));
 	}
 	
-	@Boot(host = "127.0.0.1", port = 8000, protocol = JsonProtocol.class, transport = TransportType.HTTP)
+	@Boot(host = "127.0.0.1", port = 8000, protocol = MessagePackProtocol.class, transport = TransportType.HTTP)
 	@Bean(name="rpcBootstrap")
 	RpcBootstrap bootstrap() {
 		return new RpcBootstrap();
@@ -72,10 +62,8 @@ public class HelloSpringApplication implements CommandLineRunner {
 
 	public static void main(String[] args) throws Exception {
 		ConfigurableApplicationContext  ctx = SpringApplication.run(HelloSpringApplication.class, args);
-		ctx.getBean(AppLookup.class).discovery("");
-
 		ctx.getBean(RpcBootstrap.class).start();
-		
+	
 		Thread.currentThread().sleep(100000);
 	}
 

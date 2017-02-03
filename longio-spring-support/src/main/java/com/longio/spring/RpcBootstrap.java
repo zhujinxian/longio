@@ -32,6 +32,7 @@ import com.longio.spring.annotation.Boot;
 import com.longio.spring.annotation.Boots;
 import com.zhucode.longio.App;
 import com.zhucode.longio.Protocol;
+import com.zhucode.longio.annotation.RpcController;
 import com.zhucode.longio.boot.ServerHandler;
 import com.zhucode.longio.protocol.factory.DefaultProtocolFactory;
 
@@ -57,6 +58,7 @@ public class RpcBootstrap implements ApplicationContextAware {
 
 	public void start() throws Exception {
 		ServerHandler server = this.applicationContext.getBean(RpcBeanFactoryPostProcessor.class).getServerHandler();
+		this.applicationContext.getBeansWithAnnotation(RpcController.class);
 		ConfigurableListableBeanFactory beanFactory =  ((ConfigurableApplicationContext)this.applicationContext).getBeanFactory();
 		BeanDefinition factoryDefinition = beanFactory.getBeanDefinition("rpcBootstrap");
 		

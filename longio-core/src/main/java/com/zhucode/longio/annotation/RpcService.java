@@ -37,6 +37,6 @@ import com.zhucode.longio.core.transport.TransportType;
 public @interface RpcService {
 	String path();
 	String app();
-	Class<? extends Protocol> protocolClass();
+	Class<? extends Protocol> protocol();
 	TransportType tt() default TransportType.HTTP;
 }

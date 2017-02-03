@@ -15,7 +15,6 @@ package com.zhucode.longio.hello.rpc;
 
 import com.zhucode.longio.annotation.Rpc;
 import com.zhucode.longio.annotation.RpcService;
-import com.zhucode.longio.protocol.json.JsonProtocol;
 import com.zhucode.longio.protocol.msgpack.MessagePackProtocol;
 
 /**
@@ -23,7 +22,7 @@ import com.zhucode.longio.protocol.msgpack.MessagePackProtocol;
  * @date  2016年10月7日 下午8:25:52 
  * 
  */
-@RpcService(app = "com.zhucode", path = "com.zhucode", protocolClass = JsonProtocol.class)
+@RpcService(app = "com.zhucode", path = "com.zhucode", protocol = MessagePackProtocol.class)
 public interface HelloRpcService {
 	
 	@Rpc(cmd = "hello")

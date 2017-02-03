@@ -38,7 +38,7 @@ public class RpcProxy {
 		Map<Method, RpcMethodInfo> rpcMap = createMethodInfo(cmdLookup, rpc);
 		Protocol protocol = null;
 		try {
-			protocol = service.protocolClass().newInstance();
+			protocol = service.protocol().newInstance();
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {

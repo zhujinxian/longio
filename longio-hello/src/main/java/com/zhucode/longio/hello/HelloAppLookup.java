@@ -21,6 +21,7 @@ import com.zhucode.longio.Protocol;
 import com.zhucode.longio.core.conf.AppLookup;
 import com.zhucode.longio.core.transport.TransportType;
 import com.zhucode.longio.protocol.json.JsonProtocol;
+import com.zhucode.longio.protocol.msgpack.MessagePackProtocol;
 
 /**
  * @author zhu jinxian
@@ -34,7 +35,7 @@ public class HelloAppLookup implements AppLookup {
 		App app = new App();
 		app.setHost("127.0.0.1");
 		app.setPort(8000);
-		app.setProtocol(new JsonProtocol());
+		app.setProtocol(new MessagePackProtocol());
 		app.setTransportType(TransportType.HTTP);
 		return Arrays.asList(app);
 	}
